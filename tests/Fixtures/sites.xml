@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<query>
+    <row>
+        <category>Natural</category>
+        <criteria_txt>(vii)(x)</criteria_txt>
+        <danger/>
+        <date_inscribed>2021</date_inscribed>
+        <extension>0</extension>
+        <http_url>https://whc.unesco.org/fr/list/1627</http_url>
+        <id_number>1627</id_number>
+        <image_url>https://whc.unesco.org/uploads/sites/site_1627.jpg</image_url>
+        <iso_code>fr</iso_code>
+        <justification/>
+        <latitude>4.33333</latitude>
+        <location>Guyane française</location>
+        <longitude>-52.65</longitude>
+        <region>Europe et Amérique du Nord</region>
+        <revision>0</revision>
+        <secondary_dates/>
+        <short_description>Les Forêts tropicales et montagnes du nord de la Martinique, bien en série, comprennent l’ensemble des monts du Carbet et la montagne Pelée, volcan emblématique de la Martinique, dont les éruptions ont façonné le type de relief et la diversité des formes de vie qui y sont associées. La montagne Pelée est un volcan actif, dont l’éruption de 1902-1905 est un événement cataclysmique qui a marqué l’histoire de la volcanologie. Ce bien abrite des forêts tropicales intactes, qui présentent un haut degré de biodiversité et d’endémisme. Elles abritent notamment la couleuvre de la Martinique (Erythrolamprus cursor), une espèce endémique en danger critique d’extinction, et la rainette de la Martinique (Allobates chalcopis), une espèce endémique en danger.</short_description>
+        <site>Volcans et forêts de la Montagne Pelée et des pitons du nord de la Martinique</site>
+        <states>France</states>
+        <transboundary>0</transboundary>
+        <unique_number>2513</unique_number>
+    </row>
+</query>

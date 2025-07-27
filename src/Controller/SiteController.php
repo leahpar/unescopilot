@@ -3,7 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Site;
-use App\Repository\SiteRepository;
+use App\Service\SiteService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
@@ -12,14 +12,14 @@ use Symfony\Component\Routing\Annotation\Route;
 class SiteController extends AbstractController
 {
     public function __construct(
-        private readonly SiteRepository $siteRepository
+        private readonly SiteService $siteService
     ) {
     }
 
     #[Route('', name: 'app_api_site_list', methods: ['GET'])]
     public function list(): JsonResponse
     {
-        $sites = $this->siteRepository->findAll();
+        $sites = $this->siteService->getAllSites();
 
         return $this->json($sites);
     }

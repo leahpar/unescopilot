@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\DTO\SearchSiteDTO;
 use App\Entity\Site;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -19,6 +20,39 @@ class SiteRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Site::class);
+    }
+
+    public function searchByCriteria(SearchSiteDTO $searchDTO): array
+    {
+        $qb = $this->createQueryBuilder('s');
+
+        if ($searchDTO->name) {
+            $qb->andWhere('s.name LIKE :name')
+               ->setParameter('name', '%' . $searchDTO->name . '%');
+        }
+
+        if ($searchDTO->country) {
+            $qb->andWhere('s.states LIKE :country')
+               ->setParameter('country', '%' . $searchDTO->country . '%');
+        }
+
+        if ($searchDTO->category) {
+            $qb->andWhere('s.category = :category')
+               ->setParameter('category', $searchDTO->category);
+        }
+
+        $qb->orderBy('s.name', 'ASC');
+
+        if ($searchDTO->limit) {
+            $qb->setMaxResults($searchDTO->limit);
+        }
+
+        if ($searchDTO->page && $searchDTO->limit) {
+            $offset = ($searchDTO->page - 1) * $searchDTO->limit;
+            $qb->setFirstResult($offset);
+        }
+
+        return $qb->getQuery()->getResult();
     }
 
     //    /**

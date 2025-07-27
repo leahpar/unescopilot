@@ -61,7 +61,11 @@ class ImportSitesCommand extends Command
                 $site->longitude = (float)$row->longitude;
                 $site->dateInscribed = (int)$row->date_inscribed;
                 $site->states = (string)$row->states;
-                $site->transboundary = (bool)$row->transboundary;
+                $site->transboundary = (string)$row->transboundary === '1';
+                $site->criteriaTxt = (string)$row->criteria_txt;
+                $site->isoCode = (string)$row->iso_code;
+                $site->location = (string)$row->location;
+                $site->region = (string)$row->region;
 
                 $this->entityManager->persist($site);
                 $io->progressAdvance();

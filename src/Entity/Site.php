@@ -48,4 +48,16 @@ class Site
 
     #[ORM\Column(type: 'boolean')]
     public ?bool $transboundary = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    public ?string $criteriaTxt = null;
+
+    #[ORM\Column(length: 10, nullable: true)]
+    public ?string $isoCode = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    public ?string $location = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    public ?string $region = null;
 }

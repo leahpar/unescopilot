@@ -52,7 +52,7 @@ class Site
     #[ORM\Column(length: 255, nullable: true)]
     public ?string $criteriaTxt = null;
 
-    #[ORM\Column(length: 10, nullable: true)]
+    #[ORM\Column(length: 255, nullable: true)]
     public ?string $isoCode = null;
 
     #[ORM\Column(length: 255, nullable: true)]

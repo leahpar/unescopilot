@@ -8,8 +8,8 @@
 /vendor/
 ###< symfony/framework-bundle ###
 
-
 .idea
+.editorconfig
 
 ###> phpstan/phpstan ###
 phpstan.neon

@@ -43,7 +43,7 @@ Pour chaque tâche :
 
 ## Git
 
-- Les messages de commits doivent être en français.
+- Les messages de commits doivent être en anglais.
 - Les messages de commits doivent commencer par le picto 🤖 et garder un message concernant les modifications seulement.
 
 ## Code Style Guidelines

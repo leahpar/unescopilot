@@ -18,10 +18,12 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 )]
 class ImportSitesCommand extends Command
 {
+
+    const DEFAULT_UNESCO_XML_URL = 'https://whc.unesco.org/en/list/xml';
+
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly HttpClientInterface $client,
-        #[Autowire('%env(UNESCO_XML_URL)%')] private readonly string $unescoXmlUrl,
     ) {
         parent::__construct();
     }
@@ -33,7 +35,11 @@ class ImportSitesCommand extends Command
         $io->title('Starting UNESCO sites import');
 
         try {
-            $response = $this->client->request('GET', $this->unescoXmlUrl);
+            $response = $this->client->request('GET', self::DEFAULT_UNESCO_XML_URL, [
+                'headers' => [
+                    'Accept' => 'application/xml',
+                ],
+            ]);
             $xmlContent = $response->getContent();
             $xml = new \SimpleXMLElement($xmlContent);
 

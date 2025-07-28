@@ -55,7 +55,7 @@ class Site
     #[ORM\Column(length: 255, nullable: true)]
     public ?string $isoCode = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
+    #[ORM\Column(length: 1024, nullable: true)]
     public ?string $location = null;
 
     #[ORM\Column(length: 255, nullable: true)]

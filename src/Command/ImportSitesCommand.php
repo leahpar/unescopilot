@@ -7,9 +7,9 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 #[AsCommand(
@@ -19,13 +19,23 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 class ImportSitesCommand extends Command
 {
 
-    const DEFAULT_UNESCO_XML_URL = 'https://whc.unesco.org/en/list/xml';
+    const DEFAULT_UNESCO_XML_URL = 'https://whc.unesco.org/fr/list/xml';
 
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly HttpClientInterface $client,
     ) {
         parent::__construct();
+    }
+
+    protected function configure(): void
+    {
+        $this->addOption(
+            'purge',
+            null,
+            InputOption::VALUE_NONE,
+            'Purge all existing sites before importing new ones'
+        );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -35,6 +45,25 @@ class ImportSitesCommand extends Command
         $io->title('Starting UNESCO sites import');
 
         try {
+            // Handle purge option
+            if ($input->getOption('purge')) {
+                $io->section('Purging existing sites');
+                $siteRepository = $this->entityManager->getRepository(Site::class);
+                $existingSites = $siteRepository->findAll();
+                
+                if (!empty($existingSites)) {
+                    $io->progressStart(count($existingSites));
+                    foreach ($existingSites as $site) {
+                        $this->entityManager->remove($site);
+                        $io->progressAdvance();
+                    }
+                    $this->entityManager->flush();
+                    $io->progressFinish();
+                    $io->success(sprintf('%d existing sites have been purged.', count($existingSites)));
+                } else {
+                    $io->note('No existing sites to purge.');
+                }
+            }
             $response = $this->client->request('GET', self::DEFAULT_UNESCO_XML_URL, [
                 'headers' => [
                     'Accept' => 'application/xml',

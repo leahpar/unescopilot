@@ -1,0 +1,13 @@
+### Variables
+@host = 127.0.0.1:8016
+@baseUrl = http://{{host}}
+
+### Get all sites
+GET {{baseUrl}}/api/sites
+
+### Search sites
+GET {{baseUrl}}/api/sites?name=toto
+
+### Get specific site by ID (using id_number from XML data)
+GET {{baseUrl}}/api/sites/1133
+

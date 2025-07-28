@@ -59,10 +59,10 @@ class VisitController extends AbstractController
             return $this->json(['error' => 'Site not found'], Response::HTTP_NOT_FOUND);
         }
 
-        // Check if user already has a visit for this site
-        $existingVisit = $this->visitRepository->findUserVisitForSite($this->getUser(), $site);
+        // Check if user already has a visit with the same type for this site
+        $existingVisit = $this->visitRepository->findUserVisitForSiteAndType($this->getUser(), $site, $dto->type);
         if ($existingVisit) {
-            return $this->json(['error' => 'Visit already exists for this site'], Response::HTTP_CONFLICT);
+            return $this->json($existingVisit, Response::HTTP_OK);
         }
 
         $visit = new Visit();

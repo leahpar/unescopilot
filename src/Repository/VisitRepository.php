@@ -66,4 +66,17 @@ class VisitRepository extends ServiceEntityRepository
             ->getQuery()
             ->getOneOrNullResult();
     }
+
+    public function findUserVisitForSiteAndType(User $user, Site $site, VisitType $type): ?Visit
+    {
+        return $this->createQueryBuilder('v')
+            ->andWhere('v.user = :user')
+            ->andWhere('v.site = :site')
+            ->andWhere('v.type = :type')
+            ->setParameter('user', $user)
+            ->setParameter('site', $site)
+            ->setParameter('type', $type)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
 }

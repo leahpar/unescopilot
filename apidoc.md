@@ -216,9 +216,21 @@ Créer une nouvelle visite.
 }
 ```
 
+**Réponse succès (200) si visite existe déjà :**
+```json
+{
+  "id": 1,
+  "user": { "id": 1, "pseudo": "username" },
+  "site": { "id": 83, "name": "Palace and Park of Versailles" },
+  "type": "wishlist",
+  "visitedAt": 2023
+}
+```
+
 **Erreurs :**
 - `404` : Site non trouvé
-- `409` : Visite déjà existante pour ce site
+
+**Note :** Il est possible d'avoir à la fois une visite et une wishlist pour le même site.
 
 ### GET `/api/visits/{id}`
 Détail d'une visite spécifique.

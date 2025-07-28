@@ -81,7 +81,7 @@ class ImportSitesCommand extends Command
                     $site->id = (int)$row->id_number;
                 }
 
-                $site->name = (string)$row->site;
+                $site->name = strip_tags((string)$row->site);
                 $site->category = (string)$row->category;
                 $site->shortDescription = strip_tags((string)$row->short_description);
                 $site->httpUrl = (string)$row->http_url;

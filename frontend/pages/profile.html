@@ -157,19 +157,49 @@
                         <div x-show="getVisitedSites('visited').length === 0" class="text-center py-8 text-gray-500">
                             Vous n'avez encore visité aucun site.
                         </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            <template x-for="visit in getVisitedSites('visited')" :key="visit.site.id">
-                                <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-                                    <h4 class="font-medium text-gray-900 mb-2" x-text="visit.site.name"></h4>
-                                    <p class="text-sm text-gray-600 mb-2" x-text="visit.site.states"></p>
-                                    <a 
-                                        :href="`site-detail.html?id=${visit.site.id}`"
-                                        class="text-blue-600 hover:text-blue-800 text-sm font-medium"
-                                    >
-                                        Voir détails →
-                                    </a>
-                                </div>
-                            </template>
+                        <div x-show="getVisitedSites('visited').length > 0" class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Site</th>
+                                        <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pays</th>
+                                        <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Catégorie</th>
+                                        <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date d'inscription</th>
+                                        <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    <template x-for="item in getVisitedSitesFlat('visited')" :key="item.id">
+                                        <tr :class="item.isRegionHeader ? 'bg-gray-100' : 'hover:bg-gray-50'">
+                                            <td x-show="item.isRegionHeader" colspan="5" class="px-3 py-3 text-sm font-semibold text-gray-800 bg-gray-100 border-t-2 border-gray-300">
+                                                <span x-text="item.region || 'Région non spécifiée'"></span>
+                                            </td>
+                                            <td x-show="!item.isRegionHeader" class="px-3 py-2 whitespace-nowrap">
+                                                <div class="text-sm font-medium text-gray-900" x-text="item.visit?.site?.name"></div>
+                                            </td>
+                                            <td x-show="!item.isRegionHeader" class="px-3 py-2 whitespace-nowrap">
+                                                <div class="text-sm text-gray-900" x-text="item.visit?.site?.states"></div>
+                                            </td>
+                                            <td x-show="!item.isRegionHeader" class="px-3 py-2 whitespace-nowrap">
+                                                <span 
+                                                    class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
+                                                    :class="item.visit?.site?.category === 'Cultural' ? 'bg-blue-100 text-blue-800' : item.visit?.site?.category === 'Natural' ? 'bg-green-100 text-green-800' : 'bg-purple-100 text-purple-800'"
+                                                    x-text="item.visit?.site?.category === 'Cultural' ? 'Culturel' : item.visit?.site?.category === 'Natural' ? 'Naturel' : 'Mixte'"
+                                                ></span>
+                                            </td>
+                                            <td x-show="!item.isRegionHeader" class="px-3 py-2 whitespace-nowrap text-sm text-gray-900" x-text="item.visit?.site?.dateInscribed || 'N/A'"></td>
+                                            <td x-show="!item.isRegionHeader" class="px-3 py-2 whitespace-nowrap text-sm font-medium">
+                                                <a 
+                                                    :href="`site-detail.html?id=${item.visit?.site?.id}`"
+                                                    class="text-blue-600 hover:text-blue-900"
+                                                >
+                                                    Voir détails
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -183,19 +213,49 @@
                         <div x-show="getVisitedSites('wishlist').length === 0" class="text-center py-8 text-gray-500">
                             Votre liste de lieux à découvrir est vide.
                         </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            <template x-for="visit in getVisitedSites('wishlist')" :key="visit.site.id">
-                                <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-                                    <h4 class="font-medium text-gray-900 mb-2" x-text="visit.site.name"></h4>
-                                    <p class="text-sm text-gray-600 mb-2" x-text="visit.site.states"></p>
-                                    <a 
-                                        :href="`site-detail.html?id=${visit.site.id}`"
-                                        class="text-blue-600 hover:text-blue-800 text-sm font-medium"
-                                    >
-                                        Voir détails →
-                                    </a>
-                                </div>
-                            </template>
+                        <div x-show="getVisitedSites('wishlist').length > 0" class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Site</th>
+                                        <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pays</th>
+                                        <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Catégorie</th>
+                                        <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date d'inscription</th>
+                                        <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    <template x-for="item in getVisitedSitesFlat('wishlist')" :key="item.id">
+                                        <tr :class="item.isRegionHeader ? 'bg-gray-100' : 'hover:bg-gray-50'">
+                                            <td x-show="item.isRegionHeader" colspan="5" class="px-3 py-3 text-sm font-semibold text-gray-800 bg-gray-100 border-t-2 border-gray-300">
+                                                <span x-text="item.region || 'Région non spécifiée'"></span>
+                                            </td>
+                                            <td x-show="!item.isRegionHeader" class="px-3 py-2 whitespace-nowrap">
+                                                <div class="text-sm font-medium text-gray-900" x-text="item.visit?.site?.name"></div>
+                                            </td>
+                                            <td x-show="!item.isRegionHeader" class="px-3 py-2 whitespace-nowrap">
+                                                <div class="text-sm text-gray-900" x-text="item.visit?.site?.states"></div>
+                                            </td>
+                                            <td x-show="!item.isRegionHeader" class="px-3 py-2 whitespace-nowrap">
+                                                <span 
+                                                    class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
+                                                    :class="item.visit?.site?.category === 'Cultural' ? 'bg-blue-100 text-blue-800' : item.visit?.site?.category === 'Natural' ? 'bg-green-100 text-green-800' : 'bg-purple-100 text-purple-800'"
+                                                    x-text="item.visit?.site?.category === 'Cultural' ? 'Culturel' : item.visit?.site?.category === 'Natural' ? 'Naturel' : 'Mixte'"
+                                                ></span>
+                                            </td>
+                                            <td x-show="!item.isRegionHeader" class="px-3 py-2 whitespace-nowrap text-sm text-gray-900" x-text="item.visit?.site?.dateInscribed || 'N/A'"></td>
+                                            <td x-show="!item.isRegionHeader" class="px-3 py-2 whitespace-nowrap text-sm font-medium">
+                                                <a 
+                                                    :href="`site-detail.html?id=${item.visit?.site?.id}`"
+                                                    class="text-blue-600 hover:text-blue-900"
+                                                >
+                                                    Voir détails
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -315,6 +375,55 @@
                     return this.visits
                         .filter(visit => visit.type === type)
                         .filter(visit => visit.site); // Filtrer les visites sans site
+                },
+
+                getVisitedSitesByRegion(type) {
+                    const visits = this.getVisitedSites(type);
+                    const groupedByRegion = visits.reduce((acc, visit) => {
+                        const region = visit.site.region || 'Région non spécifiée';
+                        if (!acc[region]) {
+                            acc[region] = [];
+                        }
+                        acc[region].push(visit);
+                        return acc;
+                    }, {});
+                    
+                    // Trier les sites dans chaque région par nom
+                    Object.keys(groupedByRegion).forEach(region => {
+                        groupedByRegion[region].sort((a, b) => 
+                            a.site.name.localeCompare(b.site.name, 'fr', { sensitivity: 'base' })
+                        );
+                    });
+                    
+                    // Retourner un tableau de [région, sites] trié par nom de région
+                    return Object.entries(groupedByRegion).sort(([a], [b]) => 
+                        a.localeCompare(b, 'fr', { sensitivity: 'base' })
+                    );
+                },
+
+                getVisitedSitesFlat(type) {
+                    const groupedData = this.getVisitedSitesByRegion(type);
+                    const flatData = [];
+                    
+                    groupedData.forEach(([region, sites]) => {
+                        // Ajouter l'en-tête de région
+                        flatData.push({
+                            id: `region-${region}`,
+                            isRegionHeader: true,
+                            region: region
+                        });
+                        
+                        // Ajouter tous les sites de cette région
+                        sites.forEach(visit => {
+                            flatData.push({
+                                id: `site-${visit.site.id}`,
+                                isRegionHeader: false,
+                                visit: visit
+                            });
+                        });
+                    });
+                    
+                    return flatData;
                 }
             }
         }

@@ -128,16 +128,16 @@
                                 <div x-show="window.appState.isAuthenticated" class="flex space-x-2">
                                     <button
                                         @click.stop="toggleVisit(site.id, 'visited')"
-                                        :class="isVisited(site.id, 'visited') ? 'text-green-600 bg-green-50' : 'text-gray-400 bg-gray-50'"
-                                        class="p-1 rounded-full hover:bg-green-100"
+                                        :class="isVisited(site.id, 'visited') ? 'text-white bg-green-600 shadow-md' : 'text-green-600 bg-white border-2 border-green-600'"
+                                        class="min-w-12 h-10 px-3 rounded-full hover:bg-green-700 hover:text-white transition-all duration-200 font-semibold flex items-center justify-center"
                                         title="Marquer comme visité"
                                     >
                                         ✓
                                     </button>
                                     <button
                                         @click.stop="toggleVisit(site.id, 'wishlist')"
-                                        :class="isVisited(site.id, 'wishlist') ? 'text-red-600 bg-red-50' : 'text-gray-400 bg-gray-50'"
-                                        class="p-1 rounded-full hover:bg-red-100"
+                                        :class="isVisited(site.id, 'wishlist') ? 'text-white bg-red-600 shadow-md' : 'text-red-600 bg-white border-2 border-red-600'"
+                                        class="min-w-12 h-10 px-3 rounded-full hover:bg-red-700 hover:text-white transition-all duration-200 font-semibold flex items-center justify-center"
                                         title="Ajouter à mes lieux à découvrir"
                                     >
                                         ♥

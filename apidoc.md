@@ -108,6 +108,7 @@ Récupère les informations de l'utilisateur connecté.
 Liste des sites UNESCO avec filtrage optionnel.
 
 **Paramètres de requête (optionnels) :**
+- `q` : Recherche générale dans nom et pays
 - `name` : Recherche par nom
 - `country` : Filtrage par pays
 - `category` : Filtrage par catégorie ("Cultural", "Natural", "Mixed")
@@ -115,7 +116,9 @@ Liste des sites UNESCO avec filtrage optionnel.
 - `limit` : Nombre d'éléments par page (défaut: 20)
 - `minLat`, `maxLat`, `minLon`, `maxLon` : Délimitation géographique
 
-**Exemple :** `/api/sites?name=tour&category=Cultural&page=1&limit=10`
+**Exemples :** 
+- `/api/sites?q=paris` : Recherche "paris" dans nom et pays
+- `/api/sites?name=tour&category=Cultural&page=1&limit=10`
 
 **Réponse (200) :**
 ```json

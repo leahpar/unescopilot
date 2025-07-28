@@ -26,6 +26,11 @@ class SiteRepository extends ServiceEntityRepository
     {
         $qb = $this->createQueryBuilder('s');
 
+        if ($searchDTO->q) {
+            $qb->andWhere('s.name LIKE :q OR s.states LIKE :q')
+               ->setParameter('q', '%' . $searchDTO->q . '%');
+        }
+
         if ($searchDTO->name) {
             $qb->andWhere('s.name LIKE :name')
                ->setParameter('name', '%' . $searchDTO->name . '%');

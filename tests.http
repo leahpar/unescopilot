@@ -9,6 +9,9 @@
 ### Get all sites
 GET {{baseUrl}}/api/sites
 
+### Search sites by general query (name or country)
+GET {{baseUrl}}/api/sites?q=paris
+
 ### Search sites by name
 GET {{baseUrl}}/api/sites?name=toto
 

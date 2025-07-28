@@ -4,6 +4,7 @@ namespace App\DTO;
 
 class SearchSiteDTO
 {
+    public ?string $q = null;
     public ?string $name = null;
     public ?string $country = null;
     public ?string $category = null;

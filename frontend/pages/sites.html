@@ -153,6 +153,44 @@
             <div x-show="!loading && !error && sites.length === 0" class="text-center py-12">
                 <p class="text-gray-500 text-lg">Aucun site trouvé avec ces critères.</p>
             </div>
+
+            <!-- Pagination -->
+            <div x-show="!loading && !error && sites.length > 0 && totalPages > 1" class="mt-8 flex justify-center items-center space-x-2">
+                <!-- Bouton Précédent -->
+                <button 
+                    @click="changePage(currentPage - 1)"
+                    :disabled="currentPage === 1"
+                    :class="currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-50'"
+                    class="px-3 py-2 text-sm font-medium text-blue-600 bg-white border border-gray-300 rounded-md"
+                >
+                    Précédent
+                </button>
+
+                <!-- Pages -->
+                <template x-for="page in visiblePages" :key="page">
+                    <button
+                        @click="changePage(page)"
+                        :class="page === currentPage ? 'bg-blue-600 text-white' : 'text-blue-600 bg-white hover:bg-blue-50'"
+                        class="px-3 py-2 text-sm font-medium border border-gray-300 rounded-md"
+                        x-text="page"
+                    ></button>
+                </template>
+
+                <!-- Bouton Suivant -->
+                <button 
+                    @click="changePage(currentPage + 1)"
+                    :disabled="currentPage === totalPages"
+                    :class="currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-50'"
+                    class="px-3 py-2 text-sm font-medium text-blue-600 bg-white border border-gray-300 rounded-md"
+                >
+                    Suivant
+                </button>
+            </div>
+
+            <!-- Informations sur la pagination -->
+            <div x-show="!loading && !error && sites.length > 0" class="mt-4 text-center text-sm text-gray-600">
+                <span x-text="`Page ${currentPage} sur ${totalPages} (${totalSites} sites au total)`"></span>
+            </div>
         </div>
     </main>
 
@@ -171,6 +209,11 @@
                     region: '',
                     category: ''
                 },
+                // Pagination
+                currentPage: 1,
+                totalPages: 1,
+                totalSites: 0,
+                pageSize: 18,
 
                 async init() {
                     // Les composants sont chargés automatiquement via x-init
@@ -187,13 +230,26 @@
                         this.loading = true;
                         this.error = '';
                         
-                        // Filtrer les paramètres vides
+                        // Filtrer les paramètres vides et ajouter la pagination
                         const params = Object.fromEntries(
                             Object.entries(this.filters).filter(([key, value]) => value !== '')
                         );
+                        params.page = this.currentPage;
+                        params.limit = this.pageSize;
                         
                         const response = await window.api.getSites(params);
-                        this.sites = response.data || response;
+                        
+                        // Supposer que l'API retourne { data: sites[], total: number, page: number, totalPages: number }
+                        if (response.data) {
+                            this.sites = response.data;
+                            this.totalSites = response.total || response.data.length;
+                            this.totalPages = response.totalPages || Math.ceil(this.totalSites / this.pageSize);
+                        } else {
+                            // Fallback si l'API retourne directement un tableau
+                            this.sites = response;
+                            this.totalSites = response.length;
+                            this.totalPages = 1;
+                        }
                     } catch (error) {
                         this.error = 'Erreur lors du chargement des sites';
                         console.error('Error loading sites:', error);
@@ -212,7 +268,36 @@
                 },
 
                 async searchSites() {
+                    this.currentPage = 1; // Reset à la première page lors d'une recherche
                     await this.loadSites();
+                },
+
+                async changePage(page) {
+                    if (page < 1 || page > this.totalPages || page === this.currentPage) {
+                        return;
+                    }
+                    this.currentPage = page;
+                    await this.loadSites();
+                    // Scroll vers le haut pour une meilleure UX
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                },
+
+                get visiblePages() {
+                    const pages = [];
+                    const maxVisible = 5; // Nombre maximum de pages visibles
+                    let start = Math.max(1, this.currentPage - Math.floor(maxVisible / 2));
+                    let end = Math.min(this.totalPages, start + maxVisible - 1);
+                    
+                    // Ajuster le début si on est près de la fin
+                    if (end - start + 1 < maxVisible) {
+                        start = Math.max(1, end - maxVisible + 1);
+                    }
+                    
+                    for (let i = start; i <= end; i++) {
+                        pages.push(i);
+                    }
+                    
+                    return pages;
                 },
 
                 getShortDescription(description) {

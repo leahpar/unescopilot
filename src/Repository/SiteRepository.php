@@ -26,6 +26,34 @@ class SiteRepository extends ServiceEntityRepository
     {
         $qb = $this->createQueryBuilder('s');
 
+        $this->addSearchFilters($qb, $searchDTO);
+
+        $qb->orderBy('s.name', 'ASC');
+
+        if ($searchDTO->limit) {
+            $qb->setMaxResults($searchDTO->limit);
+        }
+
+        if ($searchDTO->page && $searchDTO->limit) {
+            $offset = ($searchDTO->page - 1) * $searchDTO->limit;
+            $qb->setFirstResult($offset);
+        }
+
+        return $qb->getQuery()->getResult();
+    }
+
+    public function countByCriteria(SearchSiteDTO $searchDTO): int
+    {
+        $qb = $this->createQueryBuilder('s')
+            ->select('COUNT(s.id)');
+
+        $this->addSearchFilters($qb, $searchDTO);
+
+        return (int) $qb->getQuery()->getSingleScalarResult();
+    }
+
+    private function addSearchFilters($qb, SearchSiteDTO $searchDTO): void
+    {
         if ($searchDTO->q) {
             $qb->andWhere('s.name LIKE :q OR s.states LIKE :q')
                ->setParameter('q', '%' . $searchDTO->q . '%');
@@ -70,19 +98,6 @@ class SiteRepository extends ServiceEntityRepository
             $qb->andWhere('s.longitude <= :maxLon')
                ->setParameter('maxLon', $searchDTO->maxLon);
         }
-
-        $qb->orderBy('s.name', 'ASC');
-
-        if ($searchDTO->limit) {
-            $qb->setMaxResults($searchDTO->limit);
-        }
-
-        if ($searchDTO->page && $searchDTO->limit) {
-            $offset = ($searchDTO->page - 1) * $searchDTO->limit;
-            $qb->setFirstResult($offset);
-        }
-
-        return $qb->getQuery()->getResult();
     }
 
     //    /**

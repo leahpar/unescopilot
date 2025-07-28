@@ -25,6 +25,17 @@ class SiteService
 
     public function searchSites(SearchSiteDTO $searchDTO): array
     {
-        return $this->siteRepository->searchByCriteria($searchDTO);
+        $sites = $this->siteRepository->searchByCriteria($searchDTO);
+        $total = $this->siteRepository->countByCriteria($searchDTO);
+        
+        $totalPages = $searchDTO->limit > 0 ? (int) ceil($total / $searchDTO->limit) : 1;
+        
+        return [
+            'data' => $sites,
+            'total' => $total,
+            'page' => $searchDTO->page,
+            'limit' => $searchDTO->limit,
+            'totalPages' => $totalPages
+        ];
     }
 }

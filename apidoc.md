@@ -112,36 +112,51 @@ Liste des sites UNESCO avec filtrage optionnel.
 - `name` : Recherche par nom
 - `country` : Filtrage par pays
 - `category` : Filtrage par catégorie ("Cultural", "Natural", "Mixed")
-- `page` : Numéro de page (défaut: 1)
+- `region` : Filtrage par région UNESCO ("Europe et Amérique du Nord", "Asie et Pacifique", "Afrique", "Amérique latine et Caraïbes", "États arabes")
+- `page` : Numéro de page (défaut: 1)  
 - `limit` : Nombre d'éléments par page (défaut: 20)
 - `minLat`, `maxLat`, `minLon`, `maxLon` : Délimitation géographique
 
 **Exemples :** 
 - `/api/sites?q=paris` : Recherche "paris" dans nom et pays
 - `/api/sites?name=tour&category=Cultural&page=1&limit=10`
+- `/api/sites?region=Europe&limit=5` : Sites d'Europe avec pagination
 
 **Réponse (200) :**
 ```json
-[
-  {
-    "id": 83,
-    "name": "Palace and Park of Versailles",
-    "category": "Cultural",
-    "shortDescription": "Description du site...",
-    "httpUrl": "https://whc.unesco.org/en/list/83/",
-    "imageUrl": "https://whc.unesco.org/uploads/sites/site_83.jpg",
-    "latitude": 48.8049,
-    "longitude": 2.1204,
-    "dateInscribed": 1979,
-    "states": "France",
-    "transboundary": false,
-    "criteriaTxt": "(i)(ii)(vi)",
-    "isoCode": "FR",
-    "location": "Île-de-France",
-    "region": "Europe and North America"
-  }
-]
+{
+  "data": [
+    {
+      "id": 83,
+      "name": "Palace and Park of Versailles",
+      "category": "Cultural",
+      "shortDescription": "Description du site...",
+      "httpUrl": "https://whc.unesco.org/en/list/83/",
+      "imageUrl": "https://whc.unesco.org/uploads/sites/site_83.jpg",
+      "latitude": 48.8049,
+      "longitude": 2.1204,
+      "dateInscribed": 1979,
+      "states": "France",
+      "transboundary": false,
+      "criteriaTxt": "(i)(ii)(vi)",
+      "isoCode": "FR",
+      "location": "Île-de-France",
+      "region": "Europe et Amérique du Nord"
+    }
+  ],
+  "total": 1248,
+  "page": 1,
+  "limit": 20,
+  "totalPages": 63
+}
 ```
+
+**Structure de la réponse :**
+- `data` : Tableau des sites correspondant aux critères
+- `total` : Nombre total de sites correspondant aux critères (tous résultats confondus)
+- `page` : Page actuelle
+- `limit` : Nombre d'éléments par page
+- `totalPages` : Nombre total de pages disponibles
 
 ### GET `/api/sites/{id}`
 Détail d'un site spécifique.

@@ -66,7 +66,7 @@
                 },
 
                 initMap() {
-                    // Créer la carte centrée sur l'Europe
+                    // Créer la carte avec une vue par défaut sur l'Europe
                     this.map = L.map('map').setView([50.0, 10.0], 4);
 
                     // Ajouter le fond de carte OpenStreetMap
@@ -75,10 +75,45 @@
                         maxZoom: 18
                     }).addTo(this.map);
 
+                    // Centrer sur la position de l'utilisateur si disponible
+                    this.centerOnUserLocation();
+
                     // Ajuster la taille de la carte après initialisation
                     setTimeout(() => {
                         this.map.invalidateSize();
                     }, 200);
+                },
+
+                centerOnUserLocation() {
+                    if (navigator.geolocation) {
+                        navigator.geolocation.getCurrentPosition(
+                            (position) => {
+                                const lat = position.coords.latitude;
+                                const lng = position.coords.longitude;
+                                
+                                // Centrer la carte sur la position de l'utilisateur avec un zoom plus élevé
+                                this.map.setView([lat, lng], 10);
+                                
+                                // Ajouter un marqueur rond bleu pour indiquer la position de l'utilisateur
+                                L.circleMarker([lat, lng], {
+                                    color: '#1976D2',
+                                    fillColor: '#2196F3',
+                                    fillOpacity: 0.8,
+                                    radius: 8,
+                                    weight: 2
+                                }).addTo(this.map);
+                            },
+                            (error) => {
+                                console.log('Géolocalisation non disponible ou refusée:', error.message);
+                                // La carte reste centrée sur l'Europe par défaut
+                            },
+                            {
+                                enableHighAccuracy: true,
+                                timeout: 5000,
+                                maximumAge: 300000 // 5 minutes
+                            }
+                        );
+                    }
                 }
             }
         }

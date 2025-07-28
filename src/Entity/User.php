@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -34,11 +36,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 50)]
     public ?string $pseudo = null;
 
-    #[ORM\Column(length: 64, nullable: true)]
-    public ?string $token = null;
+    #[ORM\OneToMany(targetEntity: UserToken::class, mappedBy: 'user', cascade: ['persist', 'remove'])]
+    private Collection $tokens;
 
-    #[ORM\Column(nullable: true)]
-    public ?\DateTimeImmutable $tokenCreatedAt = null;
+    public function __construct()
+    {
+        $this->tokens = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -123,6 +127,32 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setPseudo(string $pseudo): static
     {
         $this->pseudo = $pseudo;
+        return $this;
+    }
+
+    public function getTokens(): Collection
+    {
+        return $this->tokens;
+    }
+
+    public function addToken(UserToken $token): static
+    {
+        if (!$this->tokens->contains($token)) {
+            $this->tokens->add($token);
+            $token->user = $this;
+        }
+
+        return $this;
+    }
+
+    public function removeToken(UserToken $token): static
+    {
+        if ($this->tokens->removeElement($token)) {
+            if ($token->user === $this) {
+                $token->user = new User();
+            }
+        }
+
         return $this;
     }
 

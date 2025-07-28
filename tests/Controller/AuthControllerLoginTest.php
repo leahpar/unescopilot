@@ -3,6 +3,8 @@
 namespace App\Tests\Controller;
 
 use App\Entity\User;
+use App\Entity\UserToken;
+use App\Repository\UserTokenRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -11,6 +13,7 @@ class AuthControllerLoginTest extends WebTestCase
 {
     private EntityManagerInterface $entityManager;
     private UserPasswordHasherInterface $passwordHasher;
+    private UserTokenRepository $userTokenRepository;
 
     protected function setUp(): void
     {
@@ -19,6 +22,7 @@ class AuthControllerLoginTest extends WebTestCase
         
         $this->entityManager = $container->get(EntityManagerInterface::class);
         $this->passwordHasher = $container->get(UserPasswordHasherInterface::class);
+        $this->userTokenRepository = $container->get(UserTokenRepository::class);
         
         $this->entityManager->beginTransaction();
     }
@@ -54,19 +58,25 @@ class AuthControllerLoginTest extends WebTestCase
         
         $this->assertArrayHasKey('token', $responseData);
         $this->assertArrayHasKey('created_at', $responseData);
+        $this->assertArrayHasKey('expires_at', $responseData);
         $this->assertArrayHasKey('user', $responseData);
         
         $this->assertNotEmpty($responseData['token']);
         $this->assertNotEmpty($responseData['created_at']);
+        $this->assertNotEmpty($responseData['expires_at']);
         
         $this->assertEquals('test@example.com', $responseData['user']['email']);
         $this->assertEquals('testuser', $responseData['user']['pseudo']);
         
         $this->assertTrue(\DateTime::createFromFormat(\DateTimeInterface::ATOM, $responseData['created_at']) !== false);
+        $this->assertTrue(\DateTime::createFromFormat(\DateTimeInterface::ATOM, $responseData['expires_at']) !== false);
         
-        $this->entityManager->refresh($user);
-        $this->assertEquals($responseData['token'], $user->token);
-        $this->assertEquals($responseData['created_at'], $user->tokenCreatedAt->format(\DateTimeInterface::ATOM));
+        $userToken = $this->userTokenRepository->findOneBy(['token' => $responseData['token']]);
+        $this->assertNotNull($userToken);
+        $this->assertEquals($responseData['token'], $userToken->token);
+        $this->assertEquals($responseData['created_at'], $userToken->createdAt->format(\DateTimeInterface::ATOM));
+        $this->assertEquals($responseData['expires_at'], $userToken->expiresAt->format(\DateTimeInterface::ATOM));
+        $this->assertEquals($user->getId(), $userToken->user->getId());
     }
 
     public function testLoginInvalidCredentials(): void

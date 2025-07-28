@@ -5,7 +5,9 @@ namespace App\Controller;
 use App\DTO\LoginDTO;
 use App\DTO\RegisterUserDTO;
 use App\Entity\User;
+use App\Entity\UserToken;
 use App\Repository\UserRepository;
+use App\Repository\UserTokenRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -22,7 +24,8 @@ class AuthController extends AbstractController
         private readonly EntityManagerInterface $entityManager,
         private readonly UserPasswordHasherInterface $passwordHasher,
         private readonly ValidatorInterface $validator,
-        private readonly UserRepository $userRepository
+        private readonly UserRepository $userRepository,
+        private readonly UserTokenRepository $userTokenRepository
     ) {
     }
 
@@ -61,18 +64,23 @@ class AuthController extends AbstractController
             return $this->json(['error' => 'Invalid credentials'], 401);
         }
 
-        $token = bin2hex(random_bytes(32));
+        $tokenString = bin2hex(random_bytes(32));
         $createdAt = new \DateTimeImmutable();
+        $expiresAt = $createdAt->add(new \DateInterval('P30D')); // 30 days
 
-        $user->token = $token;
-        $user->tokenCreatedAt = $createdAt;
+        $userToken = new UserToken();
+        $userToken->token = $tokenString;
+        $userToken->createdAt = $createdAt;
+        $userToken->expiresAt = $expiresAt;
+        $userToken->user = $user;
 
-        $this->entityManager->persist($user);
+        $this->entityManager->persist($userToken);
         $this->entityManager->flush();
 
         return $this->json([
-            'token' => $token,
+            'token' => $tokenString,
             'created_at' => $createdAt->format(\DateTimeInterface::ATOM),
+            'expires_at' => $expiresAt->format(\DateTimeInterface::ATOM),
             'user' => [
                 'id' => $user->getId(),
                 'email' => $user->getEmail(),

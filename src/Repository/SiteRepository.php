@@ -46,6 +46,11 @@ class SiteRepository extends ServiceEntityRepository
                ->setParameter('category', $searchDTO->category);
         }
 
+        if ($searchDTO->region) {
+            $qb->andWhere('s.region LIKE :region')
+               ->setParameter('region', '%' . $searchDTO->region . '%');
+        }
+
         if ($searchDTO->minLat !== null) {
             $qb->andWhere('s.latitude >= :minLat')
                ->setParameter('minLat', $searchDTO->minLat);

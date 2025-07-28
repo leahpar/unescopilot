@@ -55,6 +55,8 @@
         function mapPage() {
             return {
                 map: null,
+                sitesLayer: null,
+                apiBaseUrl: 'http://localhost:8016/api',
 
                 async init() {
                     // Attendre que Leaflet soit disponible et initialiser la carte
@@ -75,8 +77,19 @@
                         maxZoom: 18
                     }).addTo(this.map);
 
+                    // Créer une couche pour les sites
+                    this.sitesLayer = L.layerGroup().addTo(this.map);
+
                     // Centrer sur la position de l'utilisateur si disponible
                     this.centerOnUserLocation();
+
+                    // Charger les sites après l'initialisation
+                    this.loadSites();
+
+                    // Écouter les événements de déplacement de la carte
+                    this.map.on('moveend', () => {
+                        this.loadSites();
+                    });
 
                     // Ajuster la taille de la carte après initialisation
                     setTimeout(() => {
@@ -114,6 +127,54 @@
                             }
                         );
                     }
+                },
+
+                async loadSites() {
+                    if (!this.map) return;
+
+                    // Obtenir les limites actuelles de la carte
+                    const bounds = this.map.getBounds();
+                    const params = new URLSearchParams({
+                        minLat: bounds.getSouth().toString(),
+                        maxLat: bounds.getNorth().toString(),
+                        minLon: bounds.getWest().toString(),
+                        maxLon: bounds.getEast().toString(),
+                        limit: '500' // Limiter pour éviter trop de marqueurs
+                    });
+
+                    try {
+                        const response = await fetch(`${this.apiBaseUrl}/sites?${params}`);
+                        const data = await response.json();
+                        
+                        // Effacer les marqueurs existants
+                        this.sitesLayer.clearLayers();
+
+                        // Ajouter les nouveaux marqueurs
+                        data.data.forEach(site => {
+                            if (site.latitude && site.longitude) {
+                                this.createSiteMarker(site);
+                            }
+                        });
+                    } catch (error) {
+                        console.error('Erreur lors du chargement des sites:', error);
+                    }
+                },
+
+                createSiteMarker(site) {
+                    // Créer un marqueur simple pour le site
+                    const marker = L.circleMarker([site.latitude, site.longitude], {
+                        color: '#e53e3e',
+                        fillColor: '#fc8181',
+                        fillOpacity: 0.7,
+                        radius: 6,
+                        weight: 2
+                    });
+
+                    // Ajouter une popup avec le nom du site
+                    marker.bindPopup(`<strong>${site.name}</strong><br>${site.states}`);
+
+                    // Ajouter le marqueur à la couche des sites
+                    this.sitesLayer.addLayer(marker);
                 }
             }
         }

@@ -237,12 +237,16 @@
                     
                     try {
                         if (this.isVisited(type)) {
-                            await window.api.removeVisit(this.siteId);
-                            this.visits = this.visits.filter(visit => 
-                                !(visit.site?.id == this.siteId && visit.type === type)
+                            // Trouver la visite à supprimer
+                            const visit = this.visits.find(visit => 
+                                visit.site?.id == this.siteId && visit.type === type
                             );
+                            if (visit) {
+                                await window.api.removeVisit(visit.id);
+                                this.visits = this.visits.filter(v => v.id !== visit.id);
+                            }
                         } else {
-                            await window.api.addVisit(this.siteId, type);
+                            await window.api.addVisit(parseInt(this.siteId), type);
                             // Recharger les visites pour avoir la structure complète
                             await this.loadVisits();
                         }

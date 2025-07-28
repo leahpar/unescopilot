@@ -237,12 +237,16 @@
 
                     try {
                         if (this.isVisited(siteId, type)) {
-                            await window.api.removeVisit(siteId);
-                            this.visits = this.visits.filter(visit =>
-                                !(visit.site?.id === siteId && visit.type === type)
+                            // Trouver la visite à supprimer
+                            const visit = this.visits.find(visit =>
+                                visit.site?.id === siteId && visit.type === type
                             );
+                            if (visit) {
+                                await window.api.removeVisit(visit.id);
+                                this.visits = this.visits.filter(v => v.id !== visit.id);
+                            }
                         } else {
-                            await window.api.addVisit(siteId, type);
+                            await window.api.addVisit(parseInt(siteId), type);
                             // Recharger les visites pour avoir la structure complète
                             await this.loadVisits();
                         }

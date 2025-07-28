@@ -5,8 +5,17 @@
 ### Get all sites
 GET {{baseUrl}}/api/sites
 
-### Search sites
+### Search sites by name
 GET {{baseUrl}}/api/sites?name=toto
+
+### Search sites by geographic bounds (rectangle)
+GET {{baseUrl}}/api/sites?minLat=48.0&maxLat=49.0&minLon=2.0&maxLon=3.0
+
+### Search sites in Europe (approximate bounds)
+GET {{baseUrl}}/api/sites?minLat=35.0&maxLat=70.0&minLon=-10.0&maxLon=40.0
+
+### Search sites with multiple criteria (name + geographic bounds)
+GET {{baseUrl}}/api/sites?name=château&minLat=45.0&maxLat=50.0&minLon=0.0&maxLon=8.0
 
 ### Get specific site by ID (using id_number from XML data)
 GET {{baseUrl}}/api/sites/1133

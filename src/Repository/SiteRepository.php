@@ -41,6 +41,26 @@ class SiteRepository extends ServiceEntityRepository
                ->setParameter('category', $searchDTO->category);
         }
 
+        if ($searchDTO->minLat !== null) {
+            $qb->andWhere('s.latitude >= :minLat')
+               ->setParameter('minLat', $searchDTO->minLat);
+        }
+
+        if ($searchDTO->maxLat !== null) {
+            $qb->andWhere('s.latitude <= :maxLat')
+               ->setParameter('maxLat', $searchDTO->maxLat);
+        }
+
+        if ($searchDTO->minLon !== null) {
+            $qb->andWhere('s.longitude >= :minLon')
+               ->setParameter('minLon', $searchDTO->minLon);
+        }
+
+        if ($searchDTO->maxLon !== null) {
+            $qb->andWhere('s.longitude <= :maxLon')
+               ->setParameter('maxLon', $searchDTO->maxLon);
+        }
+
         $qb->orderBy('s.name', 'ASC');
 
         if ($searchDTO->limit) {

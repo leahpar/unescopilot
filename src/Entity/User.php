@@ -34,6 +34,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 50)]
     public ?string $pseudo = null;
 
+    #[ORM\Column(length: 64, nullable: true)]
+    public ?string $token = null;
+
+    #[ORM\Column(nullable: true)]
+    public ?\DateTimeImmutable $tokenCreatedAt = null;
+
     public function getId(): ?int
     {
         return $this->id;

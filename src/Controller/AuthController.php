@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\DTO\LoginDTO;
 use App\DTO\RegisterUserDTO;
 use App\Entity\User;
 use App\Repository\UserRepository;
@@ -49,5 +50,34 @@ class AuthController extends AbstractController
                 'pseudo' => $user->getPseudo()
             ]
         ], 201);
+    }
+
+    #[Route('/login', name: 'app_api_login', methods: ['POST'])]
+    public function login(#[MapRequestPayload] LoginDTO $loginDTO): JsonResponse
+    {
+        $user = $this->userRepository->findOneBy(['email' => $loginDTO->email]);
+
+        if (!$user || !$this->passwordHasher->isPasswordValid($user, $loginDTO->password)) {
+            return $this->json(['error' => 'Invalid credentials'], 401);
+        }
+
+        $token = bin2hex(random_bytes(32));
+        $createdAt = new \DateTimeImmutable();
+
+        $user->token = $token;
+        $user->tokenCreatedAt = $createdAt;
+
+        $this->entityManager->persist($user);
+        $this->entityManager->flush();
+
+        return $this->json([
+            'token' => $token,
+            'created_at' => $createdAt->format(\DateTimeInterface::ATOM),
+            'user' => [
+                'id' => $user->getId(),
+                'email' => $user->getEmail(),
+                'pseudo' => $user->getPseudo()
+            ]
+        ]);
     }
 }

@@ -215,6 +215,29 @@
                     <h3 class="font-bold text-lg text-gray-900 mb-2 line-clamp-2" x-text="selectedSite.name"></h3>
                     <p class="text-sm text-gray-600 mb-2" x-text="selectedSite.states"></p>
                     <p class="text-sm text-gray-500 mb-4 line-clamp-3" x-text="getShortDescription(selectedSite.shortDescription)"></p>
+
+                    <!-- Actions -->
+                    <div class="flex justify-end items-center">
+                        <!-- Boutons visite (si connecté) -->
+                        <div x-show="window.appState.isAuthenticated" class="flex space-x-2">
+                            <button
+                                @click.stop="toggleVisit(selectedSite.id, 'visited')"
+                                :class="isVisited(selectedSite.id, 'visited') ? 'text-green-600 bg-green-50' : 'text-gray-400 bg-gray-50'"
+                                class="p-1 rounded-full hover:bg-green-100"
+                                title="Marquer comme visité"
+                            >
+                                ✓
+                            </button>
+                            <button
+                                @click.stop="toggleVisit(selectedSite.id, 'wishlist')"
+                                :class="isVisited(selectedSite.id, 'wishlist') ? 'text-red-600 bg-red-50' : 'text-gray-400 bg-gray-50'"
+                                class="p-1 rounded-full hover:bg-red-100"
+                                title="Ajouter à mes lieux à découvrir"
+                            >
+                                ♥
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -227,12 +250,16 @@
                 sitesLayer: null,
                 apiBaseUrl: 'http://localhost:8016/api',
                 allSites: [],
+                visits: [],
                 selectedSite: null,
                 cacheKey: 'unesco_sites_full_cache',
                 cacheTTL: 24 * 60 * 60 * 1000, // 24 heures
 
                 async init() {
                     await this.loadAllSites();
+                    if (window.auth.isLoggedIn()) {
+                        await this.loadVisits();
+                    }
                     setTimeout(() => {
                         if (typeof L !== 'undefined') {
                             this.initMap();
@@ -385,6 +412,71 @@
                         return;
                     }
                     window.location.href = `site-detail.html?id=${siteId}`;
+                },
+
+                async loadVisits() {
+                    try {
+                        const response = await window.api.getVisits();
+                        this.visits = Array.isArray(response) ? response : (response.data || response);
+                    } catch (error) {
+                        console.error('Error loading visits:', error);
+                    }
+                },
+
+                isVisited(siteId, type) {
+                    return this.visits.some(visit =>
+                        visit.site?.id === siteId && visit.type === type
+                    );
+                },
+
+                async toggleVisit(siteId, type) {
+                    if (!window.auth.isLoggedIn()) {
+                        window.location.href = 'login.html';
+                        return;
+                    }
+
+                    const originalVisits = [...this.visits];
+
+                    try {
+                        if (this.isVisited(siteId, type)) {
+                            const visit = this.visits.find(visit =>
+                                visit.site?.id === siteId && visit.type === type
+                            );
+                            if (visit) {
+                                this.visits = this.visits.filter(v => v.id !== visit.id);
+                                await window.api.removeVisit(visit.id);
+                            }
+                        } else {
+                            const otherType = type === 'visited' ? 'wishlist' : 'visited';
+                            const existingVisit = this.visits.find(visit =>
+                                visit.site?.id === siteId && visit.type === otherType
+                            );
+                            
+                            if (existingVisit) {
+                                this.visits = this.visits.filter(v => v.id !== existingVisit.id);
+                            }
+                            this.visits.push({
+                                id: `temp-${Date.now()}`,
+                                site: { id: siteId },
+                                type: type,
+                                temp: true
+                            });
+                            
+                            const promises = [];
+                            if (existingVisit) {
+                                promises.push(window.api.removeVisit(existingVisit.id));
+                            }
+                            promises.push(window.api.addVisit(parseInt(siteId), type));
+                            
+                            await Promise.all(promises);
+                            
+                            await this.loadVisits();
+                        }
+                    } catch (error) {
+                        this.visits = originalVisits;
+                        console.error('Error toggling visit:', error);
+                        window.utils.showToast('Erreur lors de la mise à jour', 'error');
+                    }
                 }
             }
         }

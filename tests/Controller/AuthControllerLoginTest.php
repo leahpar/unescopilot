@@ -24,14 +24,6 @@ class AuthControllerLoginTest extends WebTestCase
         $this->entityManager = $container->get(EntityManagerInterface::class);
         $this->passwordHasher = $container->get(UserPasswordHasherInterface::class);
         $this->userTokenRepository = $container->get(UserTokenRepository::class);
-
-        $this->entityManager->beginTransaction();
-    }
-
-    protected function tearDown(): void
-    {
-        $this->entityManager->rollback();
-        parent::tearDown();
     }
 
     public function testLoginSuccess(): void

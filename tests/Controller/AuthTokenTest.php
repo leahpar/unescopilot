@@ -21,14 +21,6 @@ class AuthTokenTest extends WebTestCase
 
         $this->entityManager = $container->get(EntityManagerInterface::class);
         $this->passwordHasher = $container->get(UserPasswordHasherInterface::class);
-
-        $this->entityManager->beginTransaction();
-    }
-
-    protected function tearDown(): void
-    {
-        $this->entityManager->rollback();
-        parent::tearDown();
     }
 
     public function testProtectedEndpointWithoutToken(): void
@@ -39,7 +31,7 @@ class AuthTokenTest extends WebTestCase
         $this->assertResponseStatusCodeSame(401);
 
         $responseData = json_decode($this->client->getResponse()->getContent(), true);
-        $this->assertEquals('Authentication failed', $responseData['error']);
+        $this->assertEquals('Full authentication is required to access this resource.', $responseData['error']);
     }
 
     public function testProtectedEndpointWithInvalidToken(): void
@@ -53,6 +45,7 @@ class AuthTokenTest extends WebTestCase
 
         $responseData = json_decode($this->client->getResponse()->getContent(), true);
         $this->assertEquals('Authentication failed', $responseData['error']);
+        $this->assertEquals('Invalid or expired token', $responseData['message']);
     }
 
     public function testProtectedEndpointWithValidToken(): void
@@ -117,6 +110,7 @@ class AuthTokenTest extends WebTestCase
 
         $responseData = json_decode($this->client->getResponse()->getContent(), true);
         $this->assertEquals('Authentication failed', $responseData['error']);
+        $this->assertEquals('Invalid or expired token', $responseData['message']);
     }
 
     public function testPublicEndpointsRemainAccessible(): void

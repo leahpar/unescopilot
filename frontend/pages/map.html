@@ -110,6 +110,71 @@
         .popup-content {
             padding: 0;
         }
+
+        /* Popup flottante en bas de la page */
+        .floating-popup {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+            max-width: 350px;
+            width: 90%;
+            z-index: 1001;
+            transition: all 0.3s ease;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .floating-popup.show {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: all;
+        }
+
+        .floating-popup-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 12px 12px 0 0;
+        }
+
+        .floating-popup-content {
+            padding: 16px;
+        }
+
+        .floating-popup-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .floating-popup-country {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .floating-popup-close {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 18px;
+            line-height: 1;
+        }
     </style>
 </head>
 <body class="min-h-screen bg-gray-50 flex flex-col" x-data="mapPage()">
@@ -120,6 +185,16 @@
     <!-- Map Container -->
     <div class="map-container">
         <div id="map"></div>
+    </div>
+
+    <!-- Popup flottante -->
+    <div id="floating-popup" class="floating-popup">
+        <button class="floating-popup-close" onclick="hideFloatingPopup()">&times;</button>
+        <div id="floating-popup-image-container"></div>
+        <div class="floating-popup-content">
+            <div id="floating-popup-title" class="floating-popup-title"></div>
+            <div id="floating-popup-country" class="floating-popup-country"></div>
+        </div>
     </div>
 
     <script>
@@ -174,6 +249,16 @@
                         this.displaySitesInBounds();
                     });
 
+                    // Fermer la popup lors du déplacement de la carte
+                    this.map.on('movestart', () => {
+                        hideFloatingPopup();
+                    });
+
+                    // Fermer la popup lors du zoom
+                    this.map.on('zoomstart', () => {
+                        hideFloatingPopup();
+                    });
+
                     // Masquer les marqueurs pendant l'animation de zoom
                     this.map.on('zoomstart', () => {
                         if (this.sitesLayer && this.map.hasLayer(this.sitesLayer)) {
@@ -192,6 +277,28 @@
                     setTimeout(() => {
                         this.map.invalidateSize();
                     }, 200);
+
+                    // Ajouter l'événement de clic en dehors pour fermer la popup
+                    this.setupClickOutside();
+                },
+
+                setupClickOutside() {
+                    // Utiliser un délai pour éviter que le clic du marqueur soit intercepté
+                    document.addEventListener('click', (event) => {
+                        // Petit délai pour laisser le temps aux événements de marqueur de se traiter
+                        setTimeout(() => {
+                            const popup = document.getElementById('floating-popup');
+                            const isPopupVisible = popup.classList.contains('show');
+                            
+                            if (isPopupVisible) {
+                                // Vérifier si le clic est en dehors de la popup et pas sur un marqueur
+                                const isMarkerClick = event.target.closest('.custom-pin-marker');
+                                if (!popup.contains(event.target) && !isMarkerClick) {
+                                    hideFloatingPopup();
+                                }
+                            }
+                        }, 10);
+                    });
                 },
 
                 centerOnUserLocation() {
@@ -331,24 +438,50 @@
                         icon: pinIcon
                     });
 
-                    // Créer le contenu de la popup avec l'image
-                    const popupContent = `
-                        <div class="site-popup">
-                            ${site.imageUrl ? `<img src="${site.imageUrl}" alt="${site.name}" class="popup-image" onerror="this.style.display='none'">` : ''}
-                            <div class="popup-content">
-                                <strong>${site.name}</strong><br>
-                                <span class="text-gray-600">${site.states}</span>
-                            </div>
-                        </div>
-                    `;
-
-                    // Ajouter une popup avec le nom du site et son image
-                    marker.bindPopup(popupContent);
+                    // Ajouter un événement de clic pour afficher la popup flottante
+                    marker.on('click', (e) => {
+                        // Empêcher la propagation pour éviter que le clic soit intercepté
+                        if (e.originalEvent) {
+                            e.originalEvent.stopPropagation();
+                        }
+                        this.showFloatingPopup(site);
+                    });
 
                     // Ajouter le marqueur au groupe de clustering
                     this.sitesLayer.addLayer(marker);
+                },
+
+                showFloatingPopup(site) {
+                    const popup = document.getElementById('floating-popup');
+                    const imageContainer = document.getElementById('floating-popup-image-container');
+                    const title = document.getElementById('floating-popup-title');
+                    const country = document.getElementById('floating-popup-country');
+
+                    // Mettre à jour le contenu
+                    title.textContent = site.name;
+                    country.textContent = site.states;
+
+                    // Gérer l'image
+                    imageContainer.innerHTML = '';
+                    if (site.imageUrl) {
+                        const img = document.createElement('img');
+                        img.src = site.imageUrl;
+                        img.alt = site.name;
+                        img.className = 'floating-popup-image';
+                        img.onerror = () => img.style.display = 'none';
+                        imageContainer.appendChild(img);
+                    }
+
+                    // Afficher la popup
+                    popup.classList.add('show');
                 }
             }
+        }
+
+        // Fonction globale pour fermer la popup flottante
+        function hideFloatingPopup() {
+            const popup = document.getElementById('floating-popup');
+            popup.classList.remove('show');
         }
     </script>
 </body>

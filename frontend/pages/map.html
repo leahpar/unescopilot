@@ -123,16 +123,6 @@
             max-width: 350px;
             width: 90%;
             z-index: 1001;
-            transition: all 0.3s ease;
-            opacity: 0;
-            visibility: hidden;
-            pointer-events: none;
-        }
-
-        .floating-popup.show {
-            opacity: 1;
-            visibility: visible;
-            pointer-events: all;
         }
 
         .floating-popup-image {
@@ -188,14 +178,47 @@
     </div>
 
     <!-- Popup flottante -->
-    <div id="floating-popup" class="floating-popup">
-        <button class="floating-popup-close" onclick="hideFloatingPopup()">&times;</button>
-        <div id="floating-popup-image-container"></div>
-        <div class="floating-popup-content">
-            <div id="floating-popup-title" class="floating-popup-title"></div>
-            <div id="floating-popup-country" class="floating-popup-country"></div>
+    <template x-if="selectedSite">
+        <div
+            x-cloak
+            @click.away="selectedSite = null"
+            class="floating-popup"
+            x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0 translate-y-4"
+            x-transition:enter-end="opacity-100 translate-y-0"
+            x-transition:leave="transition ease-in duration-150"
+            x-transition:leave-start="opacity-100 translate-y-0"
+            x-transition:leave-end="opacity-0 translate-y-4"
+        >
+            <div @click="navigateToSite(selectedSite.id, $event)">
+                <button @click.stop="selectedSite = null" class="floating-popup-close">&times;</button>
+
+                <!-- Image -->
+                <div class="h-48 bg-gray-200 relative">
+                    <img
+                        :src="selectedSite.imageUrl || 'https://via.placeholder.com/400x300?text=UNESCO+Site'"
+                        :alt="selectedSite.name"
+                        class="w-full h-full object-cover"
+                        loading="lazy"
+                    >
+                    <div class="absolute top-2 right-2">
+                        <span
+                            class="px-2 py-1 text-xs font-semibold rounded-full"
+                            :class="selectedSite.category === 'Cultural' ? 'bg-blue-100 text-blue-800' : selectedSite.category === 'Natural' ? 'bg-green-100 text-green-800' : 'bg-purple-100 text-purple-800'"
+                            x-text="selectedSite.category === 'Cultural' ? 'Culturel' : selectedSite.category === 'Natural' ? 'Naturel' : 'Mixte'"
+                        ></span>
+                    </div>
+                </div>
+
+                <!-- Contenu -->
+                <div class="p-4">
+                    <h3 class="font-bold text-lg text-gray-900 mb-2 line-clamp-2" x-text="selectedSite.name"></h3>
+                    <p class="text-sm text-gray-600 mb-2" x-text="selectedSite.states"></p>
+                    <p class="text-sm text-gray-500 mb-4 line-clamp-3" x-text="getShortDescription(selectedSite.shortDescription)"></p>
+                </div>
+            </div>
         </div>
-    </div>
+    </template>
 
     <script>
         function mapPage() {
@@ -204,14 +227,12 @@
                 sitesLayer: null,
                 apiBaseUrl: 'http://localhost:8016/api',
                 allSites: [],
+                selectedSite: null,
                 cacheKey: 'unesco_sites_full_cache',
                 cacheTTL: 24 * 60 * 60 * 1000, // 24 heures
 
                 async init() {
-                    // Charger le cache complet au démarrage
                     await this.loadAllSites();
-
-                    // Attendre que Leaflet soit disponible et initialiser la carte
                     setTimeout(() => {
                         if (typeof L !== 'undefined') {
                             this.initMap();
@@ -220,16 +241,13 @@
                 },
 
                 initMap() {
-                    // Créer la carte avec une vue par défaut sur l'Europe
                     this.map = L.map('map', {zoomAnimation:true}).setView([50.0, 10.0], 4);
 
-                    // Ajouter le fond de carte OpenStreetMap
                     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                         attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
                         maxZoom: 18
                     }).addTo(this.map);
 
-                    // Créer un groupe de marqueurs avec clustering
                     this.sitesLayer = L.markerClusterGroup({
                         chunkedLoading: true,
                         spiderfyOnMaxZoom: true,
@@ -238,67 +256,25 @@
                         maxClusterRadius: 50
                     }).addTo(this.map);
 
-                    // Centrer sur la position de l'utilisateur si disponible
                     this.centerOnUserLocation();
-
-                    // Charger les sites après l'initialisation
                     this.displaySitesInBounds();
 
-                    // Écouter les événements de déplacement de la carte
-                    this.map.on('moveend', () => {
-                        this.displaySitesInBounds();
-                    });
+                    this.map.on('moveend', () => this.displaySitesInBounds());
+                    this.map.on('movestart', () => this.selectedSite = null);
+                    this.map.on('zoomstart', () => this.selectedSite = null);
 
-                    // Fermer la popup lors du déplacement de la carte
-                    this.map.on('movestart', () => {
-                        hideFloatingPopup();
-                    });
-
-                    // Fermer la popup lors du zoom
-                    this.map.on('zoomstart', () => {
-                        hideFloatingPopup();
-                    });
-
-                    // Masquer les marqueurs pendant l'animation de zoom
                     this.map.on('zoomstart', () => {
                         if (this.sitesLayer && this.map.hasLayer(this.sitesLayer)) {
                             this.map.removeLayer(this.sitesLayer);
                         }
                     });
-
-                    // Réafficher les marqueurs après l'animation de zoom
                     this.map.on('zoomend', () => {
                         if (this.sitesLayer && !this.map.hasLayer(this.sitesLayer)) {
                             this.map.addLayer(this.sitesLayer);
                         }
                     });
 
-                    // Ajuster la taille de la carte après initialisation
-                    setTimeout(() => {
-                        this.map.invalidateSize();
-                    }, 200);
-
-                    // Ajouter l'événement de clic en dehors pour fermer la popup
-                    this.setupClickOutside();
-                },
-
-                setupClickOutside() {
-                    // Utiliser un délai pour éviter que le clic du marqueur soit intercepté
-                    document.addEventListener('click', (event) => {
-                        // Petit délai pour laisser le temps aux événements de marqueur de se traiter
-                        setTimeout(() => {
-                            const popup = document.getElementById('floating-popup');
-                            const isPopupVisible = popup.classList.contains('show');
-                            
-                            if (isPopupVisible) {
-                                // Vérifier si le clic est en dehors de la popup et pas sur un marqueur
-                                const isMarkerClick = event.target.closest('.custom-pin-marker');
-                                if (!popup.contains(event.target) && !isMarkerClick) {
-                                    hideFloatingPopup();
-                                }
-                            }
-                        }, 10);
-                    });
+                    setTimeout(() => this.map.invalidateSize(), 200);
                 },
 
                 centerOnUserLocation() {
@@ -307,11 +283,7 @@
                             (position) => {
                                 const lat = position.coords.latitude;
                                 const lng = position.coords.longitude;
-
-                                // Centrer la carte sur la position de l'utilisateur avec un zoom plus élevé
                                 this.map.setView([lat, lng], 10);
-
-                                // Ajouter un marqueur rond bleu pour indiquer la position de l'utilisateur
                                 L.circleMarker([lat, lng], {
                                     color: '#1976D2',
                                     fillColor: '#2196F3',
@@ -320,21 +292,13 @@
                                     weight: 2
                                 }).addTo(this.map);
                             },
-                            (error) => {
-                                console.log('Géolocalisation non disponible ou refusée:', error.message);
-                                // La carte reste centrée sur l'Europe par défaut
-                            },
-                            {
-                                enableHighAccuracy: true,
-                                timeout: 5000,
-                                maximumAge: 300000 // 5 minutes
-                            }
+                            (error) => console.log('Géolocalisation non disponible ou refusée:', error.message),
+                            { enableHighAccuracy: true, timeout: 5000, maximumAge: 300000 }
                         );
                     }
                 },
 
                 async loadAllSites() {
-                    // Vérifier le cache en premier
                     const cached = this.getCachedSites();
                     if (cached) {
                         this.allSites = cached;
@@ -342,18 +306,13 @@
                         return;
                     }
 
-                    // Charger depuis l'API si pas de cache
                     try {
-                        console.log('Chargement de tous les sites depuis l\'API...');
+                        console.log("Chargement de tous les sites depuis l'API...");
                         const response = await fetch(`${this.apiBaseUrl}/sites?limit=1500`);
                         const data = await response.json();
-
                         this.allSites = data.data;
-
-                        // Sauvegarder en cache
                         this.setCachedSites(this.allSites);
-
-                        console.log('Sites chargés depuis l\'API:', this.allSites.length);
+                        console.log("Sites chargés depuis l'API:", this.allSites.length);
                     } catch (error) {
                         console.error('Erreur lors du chargement des sites:', error);
                         this.allSites = [];
@@ -364,15 +323,11 @@
                     try {
                         const cached = localStorage.getItem(this.cacheKey);
                         if (!cached) return null;
-
                         const data = JSON.parse(cached);
-
-                        // Vérifier si le cache n'est pas expiré
                         if (Date.now() - data.timestamp > this.cacheTTL) {
                             localStorage.removeItem(this.cacheKey);
                             return null;
                         }
-
                         return data.sites;
                     } catch (error) {
                         console.error('Erreur lecture cache:', error);
@@ -382,11 +337,7 @@
 
                 setCachedSites(sites) {
                     try {
-                        const cacheData = {
-                            sites: sites,
-                            timestamp: Date.now(),
-                            version: '1.0'
-                        };
+                        const cacheData = { sites: sites, timestamp: Date.now(), version: '1.0' };
                         localStorage.setItem(this.cacheKey, JSON.stringify(cacheData));
                     } catch (error) {
                         console.error('Erreur sauvegarde cache:', error);
@@ -395,93 +346,47 @@
 
                 displaySitesInBounds() {
                     if (!this.map || this.allSites.length === 0) return;
-
-                    // Obtenir les limites actuelles de la carte
                     const bounds = this.map.getBounds();
-
-                    // Filtrer les sites dans les limites actuelles
-                    const sitesInBounds = this.allSites.filter(site => {
-                        return site.latitude >= bounds.getSouth() &&
-                               site.latitude <= bounds.getNorth() &&
-                               site.longitude >= bounds.getWest() &&
-                               site.longitude <= bounds.getEast();
-                    });
-
-                    // Effacer les marqueurs existants
+                    const sitesInBounds = this.allSites.filter(site =>
+                        site.latitude >= bounds.getSouth() && site.latitude <= bounds.getNorth() &&
+                        site.longitude >= bounds.getWest() && site.longitude <= bounds.getEast()
+                    );
                     this.sitesLayer.clearLayers();
-
-                    // Ajouter les nouveaux marqueurs
                     sitesInBounds.forEach(site => {
-                        if (site.latitude && site.longitude) {
-                            this.createSiteMarker(site);
-                        }
+                        if (site.latitude && site.longitude) this.createSiteMarker(site);
                     });
                 },
 
                 createSiteMarker(site) {
-                    // Créer une icône personnalisée de type pin Google Maps
                     const pinIcon = L.divIcon({
                         className: 'custom-pin-marker',
-                        html: `
-                            <div class="pin-container">
-                                <div class="pin-head"></div>
-                                <div class="pin-point"></div>
-                            </div>
-                        `,
+                        html: '<div class="pin-container"><div class="pin-head"></div><div class="pin-point"></div></div>',
                         iconSize: [24, 36],
                         iconAnchor: [12, 36],
                         popupAnchor: [0, -36]
                     });
-
-                    // Créer le marqueur avec l'icône personnalisée
-                    const marker = L.marker([site.latitude, site.longitude], {
-                        icon: pinIcon
-                    });
-
-                    // Ajouter un événement de clic pour afficher la popup flottante
+                    const marker = L.marker([site.latitude, site.longitude], { icon: pinIcon });
                     marker.on('click', (e) => {
-                        // Empêcher la propagation pour éviter que le clic soit intercepté
-                        if (e.originalEvent) {
-                            e.originalEvent.stopPropagation();
-                        }
-                        this.showFloatingPopup(site);
+                        if (e.originalEvent) e.originalEvent.stopPropagation();
+                        this.selectedSite = site;
                     });
-
-                    // Ajouter le marqueur au groupe de clustering
                     this.sitesLayer.addLayer(marker);
                 },
 
-                showFloatingPopup(site) {
-                    const popup = document.getElementById('floating-popup');
-                    const imageContainer = document.getElementById('floating-popup-image-container');
-                    const title = document.getElementById('floating-popup-title');
-                    const country = document.getElementById('floating-popup-country');
+                getShortDescription(description) {
+                    if (!description) return '';
+                    const decoded = window.utils.decodeHtmlEntities(description);
+                    const plainText = decoded.replace(/<[^>]*>/g, '');
+                    return window.utils.truncateText(plainText, 150);
+                },
 
-                    // Mettre à jour le contenu
-                    title.textContent = site.name;
-                    country.textContent = site.states;
-
-                    // Gérer l'image
-                    imageContainer.innerHTML = '';
-                    if (site.imageUrl) {
-                        const img = document.createElement('img');
-                        img.src = site.imageUrl;
-                        img.alt = site.name;
-                        img.className = 'floating-popup-image';
-                        img.onerror = () => img.style.display = 'none';
-                        imageContainer.appendChild(img);
+                navigateToSite(siteId, event) {
+                    if (event.target.closest('button')) {
+                        return;
                     }
-
-                    // Afficher la popup
-                    popup.classList.add('show');
+                    window.location.href = `site-detail.html?id=${siteId}`;
                 }
             }
-        }
-
-        // Fonction globale pour fermer la popup flottante
-        function hideFloatingPopup() {
-            const popup = document.getElementById('floating-popup');
-            popup.classList.remove('show');
         }
     </script>
 </body>

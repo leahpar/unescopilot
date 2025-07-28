@@ -88,4 +88,18 @@ class AuthController extends AbstractController
             ]
         ]);
     }
+
+    #[Route('/me', name: 'app_api_me', methods: ['GET'])]
+    public function me(): JsonResponse
+    {
+        $user = $this->getUser();
+        
+        return $this->json([
+            'user' => [
+                'id' => $user->getId(),
+                'email' => $user->getEmail(),
+                'pseudo' => $user->getPseudo()
+            ]
+        ]);
+    }
 }

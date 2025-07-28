@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carte - Unescopilot</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="../assets/js/app.js"></script>
+
+    <!-- Leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Header avec z-index élevé pour passer au-dessus de Leaflet */
+        header {
+            position: relative;
+            z-index: 1000 !important;
+        }
+
+        .map-container {
+            position: fixed;
+            top: 60px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 1;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gray-50 flex flex-col" x-data="mapPage()">
+
+    <!-- Header -->
+    <div x-init="loadComponent($el, 'header')"></div>
+
+    <!-- Map Container -->
+    <div class="map-container">
+        <div id="map"></div>
+    </div>
+
+    <script>
+        function mapPage() {
+            return {
+                map: null,
+
+                async init() {
+                    // Attendre que Leaflet soit disponible et initialiser la carte
+                    setTimeout(() => {
+                        if (typeof L !== 'undefined') {
+                            this.initMap();
+                        }
+                    }, 100);
+                },
+
+                initMap() {
+                    // Créer la carte centrée sur l'Europe
+                    this.map = L.map('map').setView([50.0, 10.0], 4);
+
+                    // Ajouter le fond de carte OpenStreetMap
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                        maxZoom: 18
+                    }).addTo(this.map);
+
+                    // Ajuster la taille de la carte après initialisation
+                    setTimeout(() => {
+                        this.map.invalidateSize();
+                    }, 200);
+                }
+            }
+        }
+    </script>
+</body>
+</html>

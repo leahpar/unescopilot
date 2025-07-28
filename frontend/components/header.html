@@ -21,9 +21,10 @@
       
       <!-- Navigation desktop -->
       <nav class="hidden md:flex items-center space-x-6">
-        <a href="sites.html" class="text-gray-600 hover:text-gray-900">Sites</a>
+        <a href="/pages/sites.html" class="text-gray-600 hover:text-gray-900">Sites</a>
+        <a href="/pages/map.html" class="text-gray-600 hover:text-gray-900">Carte</a>
         <div x-show="isAuthenticated" class="flex items-center space-x-4">
-          <a href="profile.html" class="text-gray-600 hover:text-gray-900" title="Mon Profil">
+          <a href="/pages/profile.html" class="text-gray-600 hover:text-gray-900" title="Mon Profil">
             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
               <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
             </svg>
@@ -35,8 +36,8 @@
           </button>
         </div>
         <div x-show="!isAuthenticated" class="space-x-4">
-          <a href="login.html" class="text-gray-600 hover:text-gray-900">Connexion</a>
-          <a href="register.html" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">Inscription</a>
+          <a href="/pages/login.html" class="text-gray-600 hover:text-gray-900">Connexion</a>
+          <a href="/pages/register.html" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">Inscription</a>
         </div>
       </nav>
     </div>
@@ -44,14 +45,15 @@
     <!-- Menu mobile -->
     <div x-show="mobileMenuOpen" class="md:hidden mt-4 pb-4 border-t border-gray-200 pt-4">
       <nav class="flex flex-col space-y-3">
-        <a href="sites.html" class="text-gray-600 hover:text-gray-900">Sites</a>
-        <div x-show="isAuthenticated">
-          <a href="profile.html" class="text-gray-600 hover:text-gray-900">Mon Profil</a>
-          <button @click="logout()" class="text-gray-600 hover:text-gray-900">Déconnexion</button>
+        <a href="/pages/sites.html" class="text-gray-600 hover:text-gray-900">Sites</a>
+        <a href="/pages/map.html" class="text-gray-600 hover:text-gray-900">Carte</a>
+        <div x-show="isAuthenticated" class="flex flex-col space-y-3">
+          <a href="/pages/profile.html" class="text-gray-600 hover:text-gray-900">Mon Profil</a>
+          <button @click="logout()" class="text-gray-600 hover:text-gray-900 text-left">Déconnexion</button>
         </div>
-        <div x-show="!isAuthenticated" class="space-y-3">
-          <a href="login.html" class="text-gray-600 hover:text-gray-900">Connexion</a>
-          <a href="register.html" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 inline-block text-center">Inscription</a>
+        <div x-show="!isAuthenticated" class="flex flex-col space-y-3">
+          <a href="/pages/login.html" class="text-gray-600 hover:text-gray-900">Connexion</a>
+          <a href="/pages/register.html" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 inline-block text-center">Inscription</a>
         </div>
       </nav>
     </div>

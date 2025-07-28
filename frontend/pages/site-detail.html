@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Détail du site - Unescopilot</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="../assets/js/app.js"></script>
+</head>
+<body class="min-h-screen bg-gray-50 flex flex-col" x-data="siteDetailPage()">
+    
+    <!-- Header -->
+    <div id="header"></div>
+    
+    <!-- Contenu principal -->
+    <main class="flex-1 container mx-auto px-4 py-8">
+        <div class="max-w-4xl mx-auto">
+            
+            <!-- Navigation retour -->
+            <div class="mb-6">
+                <a href="sites.html" class="inline-flex items-center text-blue-600 hover:text-blue-800">
+                    ← Retour à la liste des sites
+                </a>
+            </div>
+            
+            <!-- Loading -->
+            <div x-show="loading" class="text-center py-12">
+                <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                <p class="mt-2 text-gray-600">Chargement du site...</p>
+            </div>
+            
+            <!-- Erreur -->
+            <div x-show="error" class="rounded-md bg-red-50 p-4 mb-6">
+                <div class="flex">
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-red-800" x-text="error"></h3>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Détail du site -->
+            <div x-show="site && !loading" class="bg-white rounded-lg shadow-lg overflow-hidden">
+                
+                <!-- Image principale -->
+                <div class="h-64 md:h-96 relative">
+                    <img 
+                        :src="site.image_url || 'https://via.placeholder.com/800x400?text=UNESCO+Site'" 
+                        :alt="site.site"
+                        class="w-full h-full object-cover"
+                    >
+                    <div class="absolute inset-0 bg-black bg-opacity-30 flex items-end">
+                        <div class="p-6 text-white">
+                            <span 
+                                class="inline-block px-3 py-1 text-sm font-semibold rounded-full mb-3"
+                                :class="site.category === 'Cultural' ? 'bg-blue-600' : 'bg-green-600'"
+                                x-text="site.category === 'Cultural' ? 'Site Culturel' : 'Site Naturel'"
+                            ></span>
+                            <h1 class="text-3xl md:text-4xl font-bold" x-text="site.site"></h1>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Contenu -->
+                <div class="p-6">
+                    
+                    <!-- Informations de base -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900 mb-3">Informations générales</h3>
+                            <dl class="space-y-2">
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500">Pays/États</dt>
+                                    <dd class="text-sm text-gray-900" x-text="site.states"></dd>
+                                </div>
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500">Région</dt>
+                                    <dd class="text-sm text-gray-900" x-text="site.region"></dd>
+                                </div>
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500">Date d'inscription</dt>
+                                    <dd class="text-sm text-gray-900" x-text="site.date_inscribed"></dd>
+                                </div>
+                                <div x-show="site.criteria_txt">
+                                    <dt class="text-sm font-medium text-gray-500">Critères</dt>
+                                    <dd class="text-sm text-gray-900" x-text="site.criteria_txt"></dd>
+                                </div>
+                            </dl>
+                        </div>
+                        
+                        <!-- Actions utilisateur -->
+                        <div x-show="window.appState.isAuthenticated">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-3">Mes actions</h3>
+                            <div class="space-y-3">
+                                <button 
+                                    @click="toggleVisit('visited')"
+                                    :class="isVisited('visited') ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+                                    class="w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors"
+                                >
+                                    <span x-text="isVisited('visited') ? '✓ Site visité' : 'Marquer comme visité'"></span>
+                                </button>
+                                
+                                <button 
+                                    @click="toggleVisit('wishlist')"
+                                    :class="isVisited('wishlist') ? 'bg-red-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+                                    class="w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
+                                >
+                                    <span x-text="isVisited('wishlist') ? '♥ Dans ma liste de souhaits' : 'Ajouter à ma liste de souhaits'"></span>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Message si non connecté -->
+                        <div x-show="!window.appState.isAuthenticated" class="bg-blue-50 border border-blue-200 rounded-md p-4">
+                            <p class="text-sm text-blue-800">
+                                <a href="login.html" class="font-medium underline">Connectez-vous</a> 
+                                pour marquer ce site comme visité ou l'ajouter à votre liste de souhaits.
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <!-- Description -->
+                    <div x-show="site.short_description" class="mb-8">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-3">Description</h3>
+                        <div class="prose max-w-none text-gray-700" x-html="site.short_description"></div>
+                    </div>
+                    
+                    <!-- Coordonnées géographiques -->
+                    <div x-show="site.latitude && site.longitude" class="mb-8">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-3">Localisation</h3>
+                        <div class="bg-gray-50 rounded-md p-4">
+                            <p class="text-sm text-gray-600">
+                                Latitude: <span x-text="site.latitude"></span>, 
+                                Longitude: <span x-text="site.longitude"></span>
+                            </p>
+                            <a 
+                                :href="`https://www.google.com/maps?q=${site.latitude},${site.longitude}`"
+                                target="_blank"
+                                class="inline-flex items-center mt-2 text-blue-600 hover:text-blue-800 text-sm font-medium"
+                            >
+                                Voir sur Google Maps →
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Lien officiel -->
+                    <div x-show="site.http_url" class="border-t border-gray-200 pt-6">
+                        <a 
+                            :href="site.http_url" 
+                            target="_blank"
+                            class="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium"
+                        >
+                            Voir la page officielle UNESCO →
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Footer -->
+    <div id="footer"></div>
+    
+    <script>
+        function siteDetailPage() {
+            return {
+                site: null,
+                visits: [],
+                loading: true,
+                error: '',
+                siteId: null,
+                
+                async init() {
+                    // Récupérer l'ID depuis l'URL
+                    const urlParams = new URLSearchParams(window.location.search);
+                    this.siteId = urlParams.get('id');
+                    
+                    if (!this.siteId) {
+                        this.error = 'ID du site manquant';
+                        this.loading = false;
+                        return;
+                    }
+                    
+                    // Charger les composants
+                    await window.components.loadComponent('header', '../components/header.html');
+                    await window.components.loadComponent('footer', '../components/footer.html');
+                    
+                    // Charger les données
+                    await this.loadSite();
+                    if (window.auth.isLoggedIn()) {
+                        await this.loadVisits();
+                    }
+                },
+                
+                async loadSite() {
+                    try {
+                        this.loading = true;
+                        this.error = '';
+                        const response = await window.api.getSite(this.siteId);
+                        this.site = response.data || response;
+                    } catch (error) {
+                        this.error = 'Erreur lors du chargement du site';
+                        console.error('Error loading site:', error);
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+                
+                async loadVisits() {
+                    try {
+                        const response = await window.api.getVisits();
+                        this.visits = response.data || response;
+                    } catch (error) {
+                        console.error('Error loading visits:', error);
+                    }
+                },
+                
+                isVisited(type) {
+                    return this.visits.some(visit => 
+                        visit.site_id == this.siteId && visit.type === type
+                    );
+                },
+                
+                async toggleVisit(type) {
+                    if (!window.auth.isLoggedIn()) {
+                        window.location.href = 'login.html';
+                        return;
+                    }
+                    
+                    try {
+                        if (this.isVisited(type)) {
+                            await window.api.removeVisit(this.siteId);
+                            this.visits = this.visits.filter(visit => 
+                                !(visit.site_id == this.siteId && visit.type === type)
+                            );
+                        } else {
+                            await window.api.addVisit(this.siteId, type);
+                            this.visits.push({ site_id: parseInt(this.siteId), type: type });
+                        }
+                    } catch (error) {
+                        console.error('Error toggling visit:', error);
+                        window.utils.showToast('Erreur lors de la mise à jour', 'error');
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>

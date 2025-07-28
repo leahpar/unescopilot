@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sites UNESCO - Unescopilot</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="../assets/js/app.js"></script>
+</head>
+<body class="min-h-screen bg-gray-50 flex flex-col" x-data="sitesPage()">
+    
+    <!-- Header -->
+    <div id="header"></div>
+    
+    <!-- Contenu principal -->
+    <main class="flex-1 container mx-auto px-4 py-8">
+        <div class="max-w-7xl mx-auto">
+            
+            <!-- En-tête de la page -->
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold text-gray-900 mb-4">Sites du patrimoine mondial UNESCO</h1>
+                
+                <!-- Barre de recherche et filtres -->
+                <div class="bg-white rounded-lg shadow p-6 mb-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <!-- Recherche -->
+                        <div class="md:col-span-2">
+                            <label for="search" class="block text-sm font-medium text-gray-700 mb-2">
+                                Rechercher un site
+                            </label>
+                            <input 
+                                type="text" 
+                                id="search"
+                                x-model="filters.search"
+                                @input.debounce.300ms="searchSites()"
+                                placeholder="Nom du site, pays..."
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                            >
+                        </div>
+                        
+                        <!-- Filtre par région -->
+                        <div>
+                            <label for="region" class="block text-sm font-medium text-gray-700 mb-2">
+                                Région
+                            </label>
+                            <select 
+                                id="region"
+                                x-model="filters.region"
+                                @change="searchSites()"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                            >
+                                <option value="">Toutes les régions</option>
+                                <option value="Europe et Amérique du Nord">Europe et Amérique du Nord</option>
+                                <option value="Asie et Pacifique">Asie et Pacifique</option>
+                                <option value="Afrique">Afrique</option>
+                                <option value="Amérique latine et Caraïbes">Amérique latine et Caraïbes</option>
+                                <option value="États arabes">États arabes</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Loading -->
+            <div x-show="loading" class="text-center py-8">
+                <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                <p class="mt-2 text-gray-600">Chargement des sites...</p>
+            </div>
+            
+            <!-- Erreur -->
+            <div x-show="error" class="rounded-md bg-red-50 p-4 mb-6">
+                <div class="flex">
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-red-800" x-text="error"></h3>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Liste des sites -->
+            <div x-show="!loading && !error" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <template x-for="site in sites" :key="site.id">
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                        <!-- Image -->
+                        <div class="h-48 bg-gray-200 relative">
+                            <img 
+                                :src="site.image_url || 'https://via.placeholder.com/400x300?text=UNESCO+Site'" 
+                                :alt="site.site"
+                                class="w-full h-full object-cover"
+                                loading="lazy"
+                            >
+                            <div class="absolute top-2 right-2">
+                                <span 
+                                    class="px-2 py-1 text-xs font-semibold rounded-full"
+                                    :class="site.category === 'Cultural' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'"
+                                    x-text="site.category === 'Cultural' ? 'Culturel' : 'Naturel'"
+                                ></span>
+                            </div>
+                        </div>
+                        
+                        <!-- Contenu -->
+                        <div class="p-4">
+                            <h3 class="font-bold text-lg text-gray-900 mb-2 line-clamp-2" x-text="site.site"></h3>
+                            <p class="text-sm text-gray-600 mb-2" x-text="site.states"></p>
+                            <p class="text-sm text-gray-500 mb-4 line-clamp-3" x-text="getShortDescription(site.short_description)"></p>
+                            
+                            <!-- Actions -->
+                            <div class="flex justify-between items-center">
+                                <a 
+                                    :href="`site-detail.html?id=${site.id}`"
+                                    class="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                                >
+                                    Voir détails →
+                                </a>
+                                
+                                <!-- Boutons visite (si connecté) -->
+                                <div x-show="window.appState.isAuthenticated" class="flex space-x-2">
+                                    <button 
+                                        @click="toggleVisit(site.id, 'visited')"
+                                        :class="isVisited(site.id, 'visited') ? 'text-green-600 bg-green-50' : 'text-gray-400 bg-gray-50'"
+                                        class="p-1 rounded-full hover:bg-green-100"
+                                        title="Marquer comme visité"
+                                    >
+                                        ✓
+                                    </button>
+                                    <button 
+                                        @click="toggleVisit(site.id, 'wishlist')"
+                                        :class="isVisited(site.id, 'wishlist') ? 'text-red-600 bg-red-50' : 'text-gray-400 bg-gray-50'"
+                                        class="p-1 rounded-full hover:bg-red-100"
+                                        title="Ajouter à ma liste de souhaits"
+                                    >
+                                        ♥
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+            
+            <!-- Message si aucun résultat -->
+            <div x-show="!loading && !error && sites.length === 0" class="text-center py-12">
+                <p class="text-gray-500 text-lg">Aucun site trouvé avec ces critères.</p>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Footer -->
+    <div id="footer"></div>
+    
+    <script>
+        function sitesPage() {
+            return {
+                sites: [],
+                visits: [],
+                loading: true,
+                error: '',
+                filters: {
+                    search: '',
+                    region: ''
+                },
+                
+                async init() {
+                    // Charger les composants
+                    await window.components.loadComponent('header', '../components/header.html');
+                    await window.components.loadComponent('footer', '../components/footer.html');
+                    
+                    // Charger les données
+                    await this.loadSites();
+                    if (window.auth.isLoggedIn()) {
+                        await this.loadVisits();
+                    }
+                },
+                
+                async loadSites() {
+                    try {
+                        this.loading = true;
+                        this.error = '';
+                        const response = await window.api.getSites(this.filters);
+                        this.sites = response.data || response;
+                    } catch (error) {
+                        this.error = 'Erreur lors du chargement des sites';
+                        console.error('Error loading sites:', error);
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+                
+                async loadVisits() {
+                    try {
+                        const response = await window.api.getVisits();
+                        this.visits = response.data || response;
+                    } catch (error) {
+                        console.error('Error loading visits:', error);
+                    }
+                },
+                
+                async searchSites() {
+                    await this.loadSites();
+                },
+                
+                getShortDescription(description) {
+                    if (!description) return '';
+                    // Supprimer les balises HTML et tronquer
+                    const plainText = description.replace(/<[^>]*>/g, '');
+                    return window.utils.truncateText(plainText, 150);
+                },
+                
+                isVisited(siteId, type) {
+                    return this.visits.some(visit => 
+                        visit.site_id === siteId && visit.type === type
+                    );
+                },
+                
+                async toggleVisit(siteId, type) {
+                    if (!window.auth.isLoggedIn()) {
+                        window.location.href = 'login.html';
+                        return;
+                    }
+                    
+                    try {
+                        if (this.isVisited(siteId, type)) {
+                            await window.api.removeVisit(siteId);
+                            this.visits = this.visits.filter(visit => 
+                                !(visit.site_id === siteId && visit.type === type)
+                            );
+                        } else {
+                            await window.api.addVisit(siteId, type);
+                            this.visits.push({ site_id: siteId, type: type });
+                        }
+                    } catch (error) {
+                        console.error('Error toggling visit:', error);
+                        window.utils.showToast('Erreur lors de la mise à jour', 'error');
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>

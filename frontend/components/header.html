@@ -1,0 +1,51 @@
+<header class="bg-white shadow-sm border-b border-gray-200">
+  <div class="container mx-auto px-4 py-4">
+    <div class="flex items-center justify-between">
+      <!-- Logo -->
+      <div class="flex items-center">
+        <h1 class="text-xl font-bold text-gray-900">Unescopilot</h1>
+      </div>
+      
+      <!-- Navigation mobile -->
+      <div class="md:hidden">
+        <button 
+          @click="mobileMenuOpen = !mobileMenuOpen" 
+          class="text-gray-600 hover:text-gray-900 focus:outline-none focus:text-gray-900"
+        >
+          <svg class="h-6 w-6 fill-current" viewBox="0 0 24 24">
+            <path x-show="!mobileMenuOpen" d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path x-show="mobileMenuOpen" d="M6 18L18 6M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+      
+      <!-- Navigation desktop -->
+      <nav class="hidden md:flex items-center space-x-6">
+        <a href="sites.html" class="text-gray-600 hover:text-gray-900">Sites</a>
+        <div x-show="isAuthenticated">
+          <a href="profile.html" class="text-gray-600 hover:text-gray-900">Mon Profil</a>
+          <button @click="logout()" class="text-gray-600 hover:text-gray-900 ml-4">Déconnexion</button>
+        </div>
+        <div x-show="!isAuthenticated" class="space-x-4">
+          <a href="login.html" class="text-gray-600 hover:text-gray-900">Connexion</a>
+          <a href="register.html" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">Inscription</a>
+        </div>
+      </nav>
+    </div>
+    
+    <!-- Menu mobile -->
+    <div x-show="mobileMenuOpen" class="md:hidden mt-4 pb-4 border-t border-gray-200 pt-4">
+      <nav class="flex flex-col space-y-3">
+        <a href="sites.html" class="text-gray-600 hover:text-gray-900">Sites</a>
+        <div x-show="isAuthenticated">
+          <a href="profile.html" class="text-gray-600 hover:text-gray-900">Mon Profil</a>
+          <button @click="logout()" class="text-gray-600 hover:text-gray-900">Déconnexion</button>
+        </div>
+        <div x-show="!isAuthenticated" class="space-y-3">
+          <a href="login.html" class="text-gray-600 hover:text-gray-900">Connexion</a>
+          <a href="register.html" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 inline-block text-center">Inscription</a>
+        </div>
+      </nav>
+    </div>
+  </div>
+</header>

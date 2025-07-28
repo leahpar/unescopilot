@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscription - Unescopilot</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="../assets/js/app.js"></script>
+</head>
+<body class="min-h-screen bg-gray-50 flex flex-col" x-data="registerPage()">
+    
+    <!-- Header -->
+    <div id="header"></div>
+    
+    <!-- Contenu principal -->
+    <main class="flex-1 flex items-center justify-center px-4 py-12">
+        <div class="max-w-md w-full space-y-8">
+            <div>
+                <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+                    Créer un compte
+                </h2>
+                <p class="mt-2 text-center text-sm text-gray-600">
+                    Rejoignez la communauté Unescopilot
+                </p>
+            </div>
+            
+            <form class="mt-8 space-y-6" @submit.prevent="register()">
+                <div class="space-y-4">
+                    <div>
+                        <label for="name" class="block text-sm font-medium text-gray-700">
+                            Prénom et nom
+                        </label>
+                        <input 
+                            id="name" 
+                            name="name" 
+                            type="text" 
+                            required 
+                            x-model="form.name"
+                            class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                            placeholder="Jean Dupont"
+                        >
+                    </div>
+                    
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-700">
+                            Adresse email
+                        </label>
+                        <input 
+                            id="email" 
+                            name="email" 
+                            type="email" 
+                            required 
+                            x-model="form.email"
+                            class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                            placeholder="votre@email.com"
+                        >
+                    </div>
+                    
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-gray-700">
+                            Mot de passe
+                        </label>
+                        <input 
+                            id="password" 
+                            name="password" 
+                            type="password" 
+                            required 
+                            x-model="form.password"
+                            class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                            placeholder="Mot de passe"
+                        >
+                    </div>
+                    
+                    <div>
+                        <label for="confirmPassword" class="block text-sm font-medium text-gray-700">
+                            Confirmer le mot de passe
+                        </label>
+                        <input 
+                            id="confirmPassword" 
+                            name="confirmPassword" 
+                            type="password" 
+                            required 
+                            x-model="form.confirmPassword"
+                            class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                            placeholder="Confirmer le mot de passe"
+                        >
+                    </div>
+                </div>
+                
+                <!-- Messages d'erreur -->
+                <div x-show="error" class="rounded-md bg-red-50 p-4">
+                    <div class="flex">
+                        <div class="ml-3">
+                            <h3 class="text-sm font-medium text-red-800" x-text="error"></h3>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <button 
+                        type="submit" 
+                        :disabled="loading"
+                        class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        <span x-show="!loading">Créer mon compte</span>
+                        <span x-show="loading">Création en cours...</span>
+                    </button>
+                </div>
+                
+                <div class="text-center">
+                    <p class="text-sm text-gray-600">
+                        Déjà un compte ? 
+                        <a href="login.html" class="font-medium text-blue-600 hover:text-blue-500">
+                            Se connecter
+                        </a>
+                    </p>
+                </div>
+            </form>
+        </div>
+    </main>
+    
+    <!-- Footer -->
+    <div id="footer"></div>
+    
+    <script>
+        function registerPage() {
+            return {
+                form: {
+                    name: '',
+                    email: '',
+                    password: '',
+                    confirmPassword: ''
+                },
+                loading: false,
+                error: '',
+                
+                async init() {
+                    // Charger les composants
+                    await window.components.loadComponent('header', '../components/header.html');
+                    await window.components.loadComponent('footer', '../components/footer.html');
+                    
+                    // Rediriger si déjà connecté
+                    if (window.auth.isLoggedIn()) {
+                        window.location.href = 'sites.html';
+                    }
+                },
+                
+                async register() {
+                    this.loading = true;
+                    this.error = '';
+                    
+                    // Validation côté client
+                    if (this.form.password !== this.form.confirmPassword) {
+                        this.error = 'Les mots de passe ne correspondent pas';
+                        this.loading = false;
+                        return;
+                    }
+                    
+                    try {
+                        const userData = {
+                            name: this.form.name,
+                            email: this.form.email,
+                            password: this.form.password
+                        };
+                        
+                        const response = await window.api.register(userData);
+                        
+                        if (response.token) {
+                            window.auth.setToken(response.token);
+                            window.appState.user = response.user;
+                            window.location.href = 'sites.html';
+                        }
+                    } catch (error) {
+                        this.error = 'Erreur lors de la création du compte. Vérifiez vos informations.';
+                    } finally {
+                        this.loading = false;
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>

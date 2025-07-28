@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mon Profil - Unescopilot</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="../assets/js/app.js"></script>
+</head>
+<body class="min-h-screen bg-gray-50 flex flex-col" x-data="profilePage()">
+    
+    <!-- Header -->
+    <div id="header"></div>
+    
+    <!-- Contenu principal -->
+    <main class="flex-1 container mx-auto px-4 py-8">
+        <div class="max-w-4xl mx-auto">
+            
+            <!-- En-tête du profil -->
+            <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+                <div class="flex items-center space-x-4">
+                    <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
+                        <span class="text-2xl font-bold text-blue-600" x-text="getInitials()"></span>
+                    </div>
+                    <div class="flex-1">
+                        <h1 class="text-2xl font-bold text-gray-900" x-text="user?.name || 'Utilisateur'"></h1>
+                        <p class="text-gray-600" x-text="user?.email"></p>
+                    </div>
+                    <button 
+                        @click="editMode = !editMode"
+                        class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                        <span x-text="editMode ? 'Annuler' : 'Modifier'"></span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Formulaire d'édition -->
+            <div x-show="editMode" class="bg-white rounded-lg shadow-md p-6 mb-8">
+                <h2 class="text-xl font-semibold text-gray-900 mb-6">Modifier mon profil</h2>
+                
+                <form @submit.prevent="updateProfile()" class="space-y-4">
+                    <div>
+                        <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
+                            Nom complet
+                        </label>
+                        <input 
+                            type="text" 
+                            id="name"
+                            x-model="editForm.name"
+                            required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        >
+                    </div>
+                    
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+                            Email
+                        </label>
+                        <input 
+                            type="email" 
+                            id="email"
+                            x-model="editForm.email"
+                            required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        >
+                    </div>
+                    
+                    <!-- Messages d'erreur -->
+                    <div x-show="updateError" class="rounded-md bg-red-50 p-4">
+                        <div class="flex">
+                            <div class="ml-3">
+                                <h3 class="text-sm font-medium text-red-800" x-text="updateError"></h3>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Message de succès -->
+                    <div x-show="updateSuccess" class="rounded-md bg-green-50 p-4">
+                        <div class="flex">
+                            <div class="ml-3">
+                                <h3 class="text-sm font-medium text-green-800">Profil mis à jour avec succès !</h3>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex space-x-4">
+                        <button 
+                            type="submit" 
+                            :disabled="updateLoading"
+                            class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+                        >
+                            <span x-show="!updateLoading">Sauvegarder</span>
+                            <span x-show="updateLoading">Sauvegarde...</span>
+                        </button>
+                        <button 
+                            type="button"
+                            @click="cancelEdit()"
+                            class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500"
+                        >
+                            Annuler
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Statistiques -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Mes statistiques</h3>
+                    <div class="space-y-3">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Sites visités</span>
+                            <span class="font-semibold text-green-600" x-text="getVisitCount('visited')"></span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Liste de souhaits</span>
+                            <span class="font-semibold text-red-600" x-text="getVisitCount('wishlist')"></span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Total des sites UNESCO</span>
+                            <span class="font-semibold text-blue-600">1154</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Progression</h3>
+                    <div class="space-y-3">
+                        <div>
+                            <div class="flex justify-between text-sm mb-1">
+                                <span class="text-gray-600">Sites visités</span>
+                                <span x-text="`${getVisitPercentage('visited')}%`"></span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div 
+                                    class="bg-green-600 h-2 rounded-full transition-all duration-300"
+                                    :style="`width: ${getVisitPercentage('visited')}%`"
+                                ></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Listes des sites -->
+            <div class="space-y-8">
+                
+                <!-- Sites visités -->
+                <div class="bg-white rounded-lg shadow-md">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h3 class="text-lg font-semibold text-gray-900">Sites visités</h3>
+                    </div>
+                    <div class="p-6">
+                        <div x-show="getVisitedSites('visited').length === 0" class="text-center py-8 text-gray-500">
+                            Vous n'avez encore visité aucun site.
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <template x-for="visit in getVisitedSites('visited')" :key="visit.site.id">
+                                <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                                    <h4 class="font-medium text-gray-900 mb-2" x-text="visit.site.site"></h4>
+                                    <p class="text-sm text-gray-600 mb-2" x-text="visit.site.states"></p>
+                                    <a 
+                                        :href="`site-detail.html?id=${visit.site.id}`"
+                                        class="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                                    >
+                                        Voir détails →
+                                    </a>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Liste de souhaits -->
+                <div class="bg-white rounded-lg shadow-md">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h3 class="text-lg font-semibold text-gray-900">Ma liste de souhaits</h3>
+                    </div>
+                    <div class="p-6">
+                        <div x-show="getVisitedSites('wishlist').length === 0" class="text-center py-8 text-gray-500">
+                            Votre liste de souhaits est vide.
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <template x-for="visit in getVisitedSites('wishlist')" :key="visit.site.id">
+                                <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                                    <h4 class="font-medium text-gray-900 mb-2" x-text="visit.site.site"></h4>
+                                    <p class="text-sm text-gray-600 mb-2" x-text="visit.site.states"></p>
+                                    <a 
+                                        :href="`site-detail.html?id=${visit.site.id}`"
+                                        class="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                                    >
+                                        Voir détails →
+                                    </a>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Footer -->
+    <div id="footer"></div>
+    
+    <script>
+        function profilePage() {
+            return {
+                user: null,
+                visits: [],
+                sites: {},
+                editMode: false,
+                editForm: {
+                    name: '',
+                    email: ''
+                },
+                updateLoading: false,
+                updateError: '',
+                updateSuccess: false,
+                
+                async init() {
+                    // Vérifier si l'utilisateur est connecté
+                    if (!window.auth.isLoggedIn()) {
+                        window.location.href = 'login.html';
+                        return;
+                    }
+                    
+                    // Charger les composants
+                    await window.components.loadComponent('header', '../components/header.html');
+                    await window.components.loadComponent('footer', '../components/footer.html');
+                    
+                    // Charger les données
+                    await this.loadProfile();
+                    await this.loadVisits();
+                },
+                
+                async loadProfile() {
+                    try {
+                        const response = await window.api.getProfile();
+                        this.user = response.data || response;
+                        window.appState.user = this.user;
+                        
+                        // Préremplir le formulaire d'édition
+                        this.editForm.name = this.user.name;
+                        this.editForm.email = this.user.email;
+                    } catch (error) {
+                        console.error('Error loading profile:', error);
+                        window.auth.logout();
+                    }
+                },
+                
+                async loadVisits() {
+                    try {
+                        const response = await window.api.getVisits();
+                        this.visits = response.data || response;
+                        
+                        // Charger les détails des sites pour chaque visite
+                        for (const visit of this.visits) {
+                            if (!this.sites[visit.site_id]) {
+                                try {
+                                    const siteResponse = await window.api.getSite(visit.site_id);
+                                    this.sites[visit.site_id] = siteResponse.data || siteResponse;
+                                } catch (error) {
+                                    console.error(`Error loading site ${visit.site_id}:`, error);
+                                }
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Error loading visits:', error);
+                    }
+                },
+                
+                async updateProfile() {
+                    this.updateLoading = true;
+                    this.updateError = '';
+                    this.updateSuccess = false;
+                    
+                    try {
+                        const response = await window.api.updateProfile(this.editForm);
+                        this.user = response.data || response;
+                        window.appState.user = this.user;
+                        this.updateSuccess = true;
+                        this.editMode = false;
+                    } catch (error) {
+                        this.updateError = 'Erreur lors de la mise à jour du profil';
+                    } finally {
+                        this.updateLoading = false;
+                    }
+                },
+                
+                cancelEdit() {
+                    this.editMode = false;
+                    this.editForm.name = this.user.name;
+                    this.editForm.email = this.user.email;
+                    this.updateError = '';
+                    this.updateSuccess = false;
+                },
+                
+                getInitials() {
+                    if (!this.user?.name) return 'U';
+                    return this.user.name.split(' ')
+                        .map(name => name.charAt(0))
+                        .join('')
+                        .toUpperCase()
+                        .substring(0, 2);
+                },
+                
+                getVisitCount(type) {
+                    return this.visits.filter(visit => visit.type === type).length;
+                },
+                
+                getVisitPercentage(type) {
+                    const count = this.getVisitCount(type);
+                    return Math.round((count / 1154) * 100 * 100) / 100; // Arrondi à 2 décimales
+                },
+                
+                getVisitedSites(type) {
+                    return this.visits
+                        .filter(visit => visit.type === type)
+                        .map(visit => ({
+                            ...visit,
+                            site: this.sites[visit.site_id]
+                        }))
+                        .filter(visit => visit.site); // Filtrer les sites non chargés
+                }
+            }
+        }
+    </script>
+</body>
+</html>

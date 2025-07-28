@@ -3,7 +3,7 @@
     <div class="flex items-center justify-between">
       <!-- Logo -->
       <div class="flex items-center">
-        <h1 class="text-xl font-bold text-gray-900">Unescopilot</h1>
+        <a href="/" class="text-xl font-bold text-gray-900 hover:text-blue-600 transition-colors">Unescopilot</a>
       </div>
       
       <!-- Navigation mobile -->
@@ -22,9 +22,17 @@
       <!-- Navigation desktop -->
       <nav class="hidden md:flex items-center space-x-6">
         <a href="sites.html" class="text-gray-600 hover:text-gray-900">Sites</a>
-        <div x-show="isAuthenticated">
-          <a href="profile.html" class="text-gray-600 hover:text-gray-900">Mon Profil</a>
-          <button @click="logout()" class="text-gray-600 hover:text-gray-900 ml-4">Déconnexion</button>
+        <div x-show="isAuthenticated" class="flex items-center space-x-4">
+          <a href="profile.html" class="text-gray-600 hover:text-gray-900" title="Mon Profil">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
+            </svg>
+          </a>
+          <button @click="logout()" class="text-gray-600 hover:text-gray-900" title="Déconnexion">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+            </svg>
+          </button>
         </div>
         <div x-show="!isAuthenticated" class="space-x-4">
           <a href="login.html" class="text-gray-600 hover:text-gray-900">Connexion</a>

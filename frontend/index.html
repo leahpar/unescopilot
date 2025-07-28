@@ -9,10 +9,10 @@
     <script src="assets/js/app.js"></script>
 </head>
 <body class="min-h-screen bg-gray-50 flex flex-col" x-data="homePage()">
-    
+
     <!-- Header -->
     <div x-init="loadComponent($el, 'header')"></div>
-    
+
     <!-- Hero Section -->
     <section class="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-20">
         <div class="container mx-auto px-4 text-center">
@@ -20,19 +20,30 @@
                 Unescopilot
             </h1>
             <p class="text-xl md:text-2xl mb-8 max-w-3xl mx-auto">
-                Explorez, découvrez et suivez votre progression à travers les sites du patrimoine mondial de l'UNESCO
+                Explorez, découvrez et suivez votre progression<br>
+                à travers les sites du patrimoine mondial de l'UNESCO
             </p>
             <div class="flex flex-col sm:flex-row gap-4 justify-center">
                 <a href="pages/sites.html" class="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
                     Explorer les sites
                 </a>
-                <a href="pages/register.html" class="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-colors">
+                <a x-show="!isAuthenticated" href="pages/register.html" class="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-colors">
                     Créer un compte
                 </a>
             </div>
         </div>
     </section>
-    
+
+    <!-- Stats Section -->
+    <section class="bg-blue-50 py-16">
+        <div class="container mx-auto px-4 text-center">
+            <p class="text-2xl md:text-3xl text-gray-700">
+                <span class="font-bold text-blue-600">1248</span> sites UNESCO dans
+                <span class="font-bold text-blue-600">212</span> pays
+            </p>
+        </div>
+    </section>
+
     <!-- Features Section -->
     <section class="py-20">
         <div class="container mx-auto px-4">
@@ -44,7 +55,7 @@
                     Une application simple et conviviale pour explorer le patrimoine mondial
                 </p>
             </div>
-            
+
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <!-- Feature 1 -->
                 <div class="text-center">
@@ -58,7 +69,7 @@
                         Explorez plus de 1100 sites du patrimoine mondial UNESCO à travers le monde
                     </p>
                 </div>
-                
+
                 <!-- Feature 2 -->
                 <div class="text-center">
                     <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -71,7 +82,7 @@
                         Marquez les sites que vous avez visités et créez votre liste de lieux à découvrir
                     </p>
                 </div>
-                
+
                 <!-- Feature 3 -->
                 <div class="text-center">
                     <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -87,33 +98,9 @@
             </div>
         </div>
     </section>
-    
-    <!-- Stats Section -->
-    <section class="bg-blue-50 py-16">
-        <div class="container mx-auto px-4">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
-                <div>
-                    <div class="text-3xl font-bold text-blue-600 mb-2">1154</div>
-                    <div class="text-gray-600">Sites UNESCO</div>
-                </div>
-                <div>
-                    <div class="text-3xl font-bold text-blue-600 mb-2">167</div>
-                    <div class="text-gray-600">Pays</div>
-                </div>
-                <div>
-                    <div class="text-3xl font-bold text-blue-600 mb-2">897</div>
-                    <div class="text-gray-600">Sites culturels</div>
-                </div>
-                <div>
-                    <div class="text-3xl font-bold text-blue-600 mb-2">218</div>
-                    <div class="text-gray-600">Sites naturels</div>
-                </div>
-            </div>
-        </div>
-    </section>
-    
+
     <!-- CTA Section -->
-    <section class="py-20">
+    <section class="py-20" x-show="!isAuthenticated">
         <div class="container mx-auto px-4 text-center">
             <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
                 Prêt à commencer votre aventure ?
@@ -126,20 +113,24 @@
                     Créer mon compte
                 </a>
                 <a href="pages/sites.html" class="border-2 border-blue-600 text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-blue-600 hover:text-white transition-colors">
-                    Explorer sans compte
+                    <span>Explorer sans compte</span>
                 </a>
             </div>
         </div>
     </section>
-    
+
     <!-- Footer -->
     <div x-init="loadComponent($el, 'footer')"></div>
-    
+
     <script>
         function homePage() {
             return {
+                isAuthenticated: false,
+
                 async init() {
                     // Les composants sont chargés automatiquement via x-init
+                    this.isAuthenticated = window.auth.isLoggedIn();
+                    window.appState.isAuthenticated = this.isAuthenticated;
                 }
             }
         }

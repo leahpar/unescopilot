@@ -8,6 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: SiteRepository::class)]
 #[ORM\Table]
+#[ORM\Index(name: 'idx_coordinates', columns: ['latitude', 'longitude'])]
 class Site
 {
     /**

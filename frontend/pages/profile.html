@@ -116,7 +116,7 @@
                             <span class="font-semibold text-green-600" x-text="getVisitCount('visited')"></span>
                         </div>
                         <div class="flex justify-between">
-                            <span class="text-gray-600">Liste de souhaits</span>
+                            <span class="text-gray-600">Lieux à découvrir</span>
                             <span class="font-semibold text-red-600" x-text="getVisitCount('wishlist')"></span>
                         </div>
                         <div class="flex justify-between">
@@ -160,7 +160,7 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                             <template x-for="visit in getVisitedSites('visited')" :key="visit.site.id">
                                 <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-                                    <h4 class="font-medium text-gray-900 mb-2" x-text="visit.site.site"></h4>
+                                    <h4 class="font-medium text-gray-900 mb-2" x-text="visit.site.name"></h4>
                                     <p class="text-sm text-gray-600 mb-2" x-text="visit.site.states"></p>
                                     <a 
                                         :href="`site-detail.html?id=${visit.site.id}`"
@@ -174,19 +174,19 @@
                     </div>
                 </div>
                 
-                <!-- Liste de souhaits -->
+                <!-- Lieux à découvrir -->
                 <div class="bg-white rounded-lg shadow-md">
                     <div class="px-6 py-4 border-b border-gray-200">
-                        <h3 class="text-lg font-semibold text-gray-900">Ma liste de souhaits</h3>
+                        <h3 class="text-lg font-semibold text-gray-900">Mes lieux à découvrir</h3>
                     </div>
                     <div class="p-6">
                         <div x-show="getVisitedSites('wishlist').length === 0" class="text-center py-8 text-gray-500">
-                            Votre liste de souhaits est vide.
+                            Votre liste de lieux à découvrir est vide.
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                             <template x-for="visit in getVisitedSites('wishlist')" :key="visit.site.id">
                                 <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-                                    <h4 class="font-medium text-gray-900 mb-2" x-text="visit.site.site"></h4>
+                                    <h4 class="font-medium text-gray-900 mb-2" x-text="visit.site.name"></h4>
                                     <p class="text-sm text-gray-600 mb-2" x-text="visit.site.states"></p>
                                     <a 
                                         :href="`site-detail.html?id=${visit.site.id}`"

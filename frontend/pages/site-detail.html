@@ -45,8 +45,8 @@
                 <!-- Image principale -->
                 <div class="h-64 md:h-96 relative">
                     <img 
-                        :src="site.image_url || 'https://via.placeholder.com/800x400?text=UNESCO+Site'" 
-                        :alt="site.site"
+                        :src="site.imageUrl || 'https://via.placeholder.com/800x400?text=UNESCO+Site'" 
+                        :alt="site.name"
                         class="w-full h-full object-cover"
                     >
                     <div class="absolute inset-0 bg-black bg-opacity-30 flex items-end">
@@ -56,7 +56,7 @@
                                 :class="site.category === 'Cultural' ? 'bg-blue-600' : 'bg-green-600'"
                                 x-text="site.category === 'Cultural' ? 'Site Culturel' : 'Site Naturel'"
                             ></span>
-                            <h1 class="text-3xl md:text-4xl font-bold" x-text="site.site"></h1>
+                            <h1 class="text-3xl md:text-4xl font-bold" x-text="site.name"></h1>
                         </div>
                     </div>
                 </div>
@@ -71,19 +71,19 @@
                             <dl class="space-y-2">
                                 <div>
                                     <dt class="text-sm font-medium text-gray-500">Pays/États</dt>
-                                    <dd class="text-sm text-gray-900" x-text="site.states"></dd>
+                                    <dd class="text-sm text-gray-900" x-text="site.states || 'Non renseigné'"></dd>
                                 </div>
                                 <div>
                                     <dt class="text-sm font-medium text-gray-500">Région</dt>
-                                    <dd class="text-sm text-gray-900" x-text="site.region"></dd>
+                                    <dd class="text-sm text-gray-900" x-text="site.region || 'Non renseigné'"></dd>
                                 </div>
                                 <div>
                                     <dt class="text-sm font-medium text-gray-500">Date d'inscription</dt>
-                                    <dd class="text-sm text-gray-900" x-text="site.date_inscribed"></dd>
+                                    <dd class="text-sm text-gray-900" x-text="site.dateInscribed || 'Non renseigné'"></dd>
                                 </div>
-                                <div x-show="site.criteria_txt">
+                                <div x-show="site.criteriaTxt">
                                     <dt class="text-sm font-medium text-gray-500">Critères</dt>
-                                    <dd class="text-sm text-gray-900" x-text="site.criteria_txt"></dd>
+                                    <dd class="text-sm text-gray-900" x-text="site.criteriaTxt"></dd>
                                 </div>
                             </dl>
                         </div>
@@ -105,7 +105,7 @@
                                     :class="isVisited('wishlist') ? 'bg-red-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
                                     class="w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
                                 >
-                                    <span x-text="isVisited('wishlist') ? '♥ Dans ma liste de souhaits' : 'Ajouter à ma liste de souhaits'"></span>
+                                    <span x-text="isVisited('wishlist') ? '♥ Dans mes lieux à découvrir' : 'Ajouter à mes lieux à découvrir'"></span>
                                 </button>
                             </div>
                         </div>
@@ -114,15 +114,15 @@
                         <div x-show="!window.appState.isAuthenticated" class="bg-blue-50 border border-blue-200 rounded-md p-4">
                             <p class="text-sm text-blue-800">
                                 <a href="login.html" class="font-medium underline">Connectez-vous</a> 
-                                pour marquer ce site comme visité ou l'ajouter à votre liste de souhaits.
+                                pour marquer ce site comme visité ou l'ajouter à vos lieux à découvrir.
                             </p>
                         </div>
                     </div>
                     
                     <!-- Description -->
-                    <div x-show="site.short_description" class="mb-8">
+                    <div x-show="site.shortDescription" class="mb-8">
                         <h3 class="text-lg font-semibold text-gray-900 mb-3">Description</h3>
-                        <div class="prose max-w-none text-gray-700" x-html="site.short_description"></div>
+                        <div class="prose max-w-none text-gray-700" x-html="cleanDescription"></div>
                     </div>
                     
                     <!-- Coordonnées géographiques -->
@@ -217,6 +217,11 @@
                     return this.visits.some(visit => 
                         visit.site_id == this.siteId && visit.type === type
                     );
+                },
+
+                get cleanDescription() {
+                    if (!this.site?.shortDescription) return '';
+                    return window.utils.decodeHtmlEntities(this.site.shortDescription);
                 },
                 
                 async toggleVisit(type) {

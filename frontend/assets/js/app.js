@@ -190,6 +190,14 @@ window.utils = {
   truncateText(text, maxLength) {
     if (text.length <= maxLength) return text;
     return text.substr(0, maxLength) + '...';
+  },
+
+  // Décoder les entités HTML
+  decodeHtmlEntities(text) {
+    if (!text) return text;
+    const textarea = document.createElement('textarea');
+    textarea.innerHTML = text;
+    return textarea.value;
   }
 };
 

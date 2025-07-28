@@ -84,8 +84,8 @@
                         <!-- Image -->
                         <div class="h-48 bg-gray-200 relative">
                             <img 
-                                :src="site.image_url || 'https://via.placeholder.com/400x300?text=UNESCO+Site'" 
-                                :alt="site.site"
+                                :src="site.imageUrl || 'https://via.placeholder.com/400x300?text=UNESCO+Site'" 
+                                :alt="site.name"
                                 class="w-full h-full object-cover"
                                 loading="lazy"
                             >
@@ -100,9 +100,9 @@
                         
                         <!-- Contenu -->
                         <div class="p-4">
-                            <h3 class="font-bold text-lg text-gray-900 mb-2 line-clamp-2" x-text="site.site"></h3>
+                            <h3 class="font-bold text-lg text-gray-900 mb-2 line-clamp-2" x-text="site.name"></h3>
                             <p class="text-sm text-gray-600 mb-2" x-text="site.states"></p>
-                            <p class="text-sm text-gray-500 mb-4 line-clamp-3" x-text="getShortDescription(site.short_description)"></p>
+                            <p class="text-sm text-gray-500 mb-4 line-clamp-3" x-text="getShortDescription(site.shortDescription)"></p>
                             
                             <!-- Actions -->
                             <div class="flex justify-between items-center">
@@ -127,7 +127,7 @@
                                         @click="toggleVisit(site.id, 'wishlist')"
                                         :class="isVisited(site.id, 'wishlist') ? 'text-red-600 bg-red-50' : 'text-gray-400 bg-gray-50'"
                                         class="p-1 rounded-full hover:bg-red-100"
-                                        title="Ajouter à ma liste de souhaits"
+                                        title="Ajouter à mes lieux à découvrir"
                                     >
                                         ♥
                                     </button>
@@ -199,8 +199,9 @@
                 
                 getShortDescription(description) {
                     if (!description) return '';
-                    // Supprimer les balises HTML et tronquer
-                    const plainText = description.replace(/<[^>]*>/g, '');
+                    // Décoder les entités HTML, supprimer les balises HTML et tronquer
+                    const decoded = window.utils.decodeHtmlEntities(description);
+                    const plainText = decoded.replace(/<[^>]*>/g, '');
                     return window.utils.truncateText(plainText, 150);
                 },
                 

@@ -187,7 +187,11 @@
                 async loadVisits() {
                     try {
                         const response = await window.api.getVisits();
-                        this.visits = response.data || response;
+                        this.visits = Array.isArray(response) ? response : (response.data || response);
+                        console.log('Sites page - Visits loaded:', this.visits); // Debug temporaire
+                        if (this.visits.length > 0) {
+                            console.log('Sites page - First visit:', this.visits[0]); // Debug temporaire
+                        }
                     } catch (error) {
                         console.error('Error loading visits:', error);
                     }
@@ -207,7 +211,7 @@
                 
                 isVisited(siteId, type) {
                     return this.visits.some(visit => 
-                        visit.site_id === siteId && visit.type === type
+                        visit.site?.id === siteId && visit.type === type
                     );
                 },
                 
@@ -221,11 +225,12 @@
                         if (this.isVisited(siteId, type)) {
                             await window.api.removeVisit(siteId);
                             this.visits = this.visits.filter(visit => 
-                                !(visit.site_id === siteId && visit.type === type)
+                                !(visit.site?.id === siteId && visit.type === type)
                             );
                         } else {
                             await window.api.addVisit(siteId, type);
-                            this.visits.push({ site_id: siteId, type: type });
+                            // Recharger les visites pour avoir la structure complète
+                            await this.loadVisits();
                         }
                     } catch (error) {
                         console.error('Error toggling visit:', error);

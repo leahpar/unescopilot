@@ -89,7 +89,7 @@
                         </div>
                         
                         <!-- Actions utilisateur -->
-                        <div x-show="window.appState.isAuthenticated">
+                        <div x-show="isAuthenticated">
                             <h3 class="text-lg font-semibold text-gray-900 mb-3">Mes actions</h3>
                             <div class="space-y-3">
                                 <button 
@@ -111,7 +111,7 @@
                         </div>
                         
                         <!-- Message si non connecté -->
-                        <div x-show="!window.appState.isAuthenticated" class="bg-blue-50 border border-blue-200 rounded-md p-4">
+                        <div x-show="!isAuthenticated" class="bg-blue-50 border border-blue-200 rounded-md p-4">
                             <p class="text-sm text-blue-800">
                                 <a href="login.html" class="font-medium underline">Connectez-vous</a> 
                                 pour marquer ce site comme visité ou l'ajouter à vos lieux à découvrir.
@@ -169,6 +169,7 @@
                 loading: true,
                 error: '',
                 siteId: null,
+                isAuthenticated: false,
                 
                 async init() {
                     // Récupérer l'ID depuis l'URL
@@ -183,9 +184,13 @@
                     
                     // Les composants sont chargés automatiquement via x-init
                     
+                    // Vérifier l'authentification
+                    this.isAuthenticated = window.auth.isLoggedIn();
+                    window.appState.isAuthenticated = this.isAuthenticated;
+                    
                     // Charger les données
                     await this.loadSite();
-                    if (window.auth.isLoggedIn()) {
+                    if (this.isAuthenticated) {
                         await this.loadVisits();
                     }
                 },
@@ -207,7 +212,7 @@
                 async loadVisits() {
                     try {
                         const response = await window.api.getVisits();
-                        this.visits = response.data || response;
+                        this.visits = Array.isArray(response) ? response : (response.data || response);
                     } catch (error) {
                         console.error('Error loading visits:', error);
                     }
@@ -215,7 +220,7 @@
                 
                 isVisited(type) {
                     return this.visits.some(visit => 
-                        visit.site_id == this.siteId && visit.type === type
+                        visit.site?.id == this.siteId && visit.type === type
                     );
                 },
 
@@ -234,11 +239,12 @@
                         if (this.isVisited(type)) {
                             await window.api.removeVisit(this.siteId);
                             this.visits = this.visits.filter(visit => 
-                                !(visit.site_id == this.siteId && visit.type === type)
+                                !(visit.site?.id == this.siteId && visit.type === type)
                             );
                         } else {
                             await window.api.addVisit(this.siteId, type);
-                            this.visits.push({ site_id: parseInt(this.siteId), type: type });
+                            // Recharger les visites pour avoir la structure complète
+                            await this.loadVisits();
                         }
                     } catch (error) {
                         console.error('Error toggling visit:', error);

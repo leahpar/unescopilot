@@ -211,7 +211,6 @@
             return {
                 user: null,
                 visits: [],
-                sites: {},
                 editMode: false,
                 editForm: {
                     pseudo: '',
@@ -256,18 +255,11 @@
                 async loadVisits() {
                     try {
                         const response = await window.api.getVisits();
-                        this.visits = response.data || response;
-                        
-                        // Charger les détails des sites pour chaque visite
-                        for (const visit of this.visits) {
-                            if (!this.sites[visit.site_id]) {
-                                try {
-                                    const siteResponse = await window.api.getSite(visit.site_id);
-                                    this.sites[visit.site_id] = siteResponse.data || siteResponse;
-                                } catch (error) {
-                                    console.error(`Error loading site ${visit.site_id}:`, error);
-                                }
-                            }
+                        // L'API retourne directement un tableau de visites avec les sites inclus
+                        this.visits = Array.isArray(response) ? response : (response.data || response);
+                        console.log('Visits loaded:', this.visits); // Debug temporaire
+                        if (this.visits.length > 0) {
+                            console.log('First visit structure:', this.visits[0]); // Debug temporaire
                         }
                     } catch (error) {
                         console.error('Error loading visits:', error);
@@ -322,11 +314,7 @@
                 getVisitedSites(type) {
                     return this.visits
                         .filter(visit => visit.type === type)
-                        .map(visit => ({
-                            ...visit,
-                            site: this.sites[visit.site_id]
-                        }))
-                        .filter(visit => visit.site); // Filtrer les sites non chargés
+                        .filter(visit => visit.site); // Filtrer les visites sans site
                 }
             }
         }

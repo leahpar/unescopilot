@@ -27,8 +27,8 @@ sur la simplicité de développement et la facilité d'utilisation, avec une app
 ## Code quality tools
 - 
 - `php bin/console lint:yaml /config/xxx`: Lint YAML files
-- `php vendor/bin/phpstan analyse -c phpstan.neon`: PhpStan static analysis
-- `php bin/phpunit`: Run PHPUnit tests
+- `make stan`: PhpStan static analysis
+- `make tests`: Run PHPUnit tests
 
 ## Ressources utiles
 

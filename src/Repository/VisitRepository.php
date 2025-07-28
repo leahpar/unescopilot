@@ -24,7 +24,8 @@ class VisitRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('v')
             ->andWhere('v.user = :user')
             ->setParameter('user', $user)
-            ->orderBy('v.createdAt', 'DESC')
+            ->orderBy('v.visitedAt', 'DESC')
+            ->addOrderBy('v.id', 'DESC')
             ->getQuery()
             ->getResult();
     }
@@ -36,7 +37,8 @@ class VisitRepository extends ServiceEntityRepository
             ->andWhere('v.type = :type')
             ->setParameter('user', $user)
             ->setParameter('type', VisitType::WISHLIST)
-            ->orderBy('v.id', 'DESC')
+            ->orderBy('v.visitedAt', 'DESC')
+            ->addOrderBy('v.id', 'DESC')
             ->getQuery()
             ->getResult();
     }
@@ -49,6 +51,7 @@ class VisitRepository extends ServiceEntityRepository
             ->setParameter('user', $user)
             ->setParameter('type', VisitType::VISITED)
             ->orderBy('v.visitedAt', 'DESC')
+            ->addOrderBy('v.id', 'DESC')
             ->getQuery()
             ->getResult();
     }

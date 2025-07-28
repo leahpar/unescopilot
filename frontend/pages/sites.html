@@ -237,7 +237,7 @@
 
                     try {
                         if (this.isVisited(siteId, type)) {
-                            // Trouver la visite à supprimer
+                            // Si déjà marqué avec ce type, le supprimer
                             const visit = this.visits.find(visit =>
                                 visit.site?.id === siteId && visit.type === type
                             );
@@ -246,7 +246,25 @@
                                 this.visits = this.visits.filter(v => v.id !== visit.id);
                             }
                         } else {
-                            await window.api.addVisit(parseInt(siteId), type);
+                            // Supprimer l'autre type de visite s'il existe (exclusivité mutuelle)
+                            const otherType = type === 'visited' ? 'wishlist' : 'visited';
+                            const existingVisit = this.visits.find(visit =>
+                                visit.site?.id === siteId && visit.type === otherType
+                            );
+                            
+                            // Faire les appels en parallèle pour une meilleure réactivité
+                            const promises = [];
+                            if (existingVisit) {
+                                promises.push(window.api.removeVisit(existingVisit.id));
+                            }
+                            promises.push(window.api.addVisit(parseInt(siteId), type));
+                            
+                            await Promise.all(promises);
+                            
+                            // Mettre à jour l'état local
+                            if (existingVisit) {
+                                this.visits = this.visits.filter(v => v.id !== existingVisit.id);
+                            }
                             // Recharger les visites pour avoir la structure complète
                             await this.loadVisits();
                         }

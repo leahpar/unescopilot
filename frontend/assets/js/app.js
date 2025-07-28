@@ -90,6 +90,11 @@ window.api = {
         throw error;
       }
 
+      // Si la réponse est 204 No Content, pas de JSON à parser
+      if (response.status === 204) {
+        return null;
+      }
+      
       return await response.json();
     } catch (error) {
       console.error('API Error:', error);

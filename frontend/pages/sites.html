@@ -235,15 +235,19 @@
                         return;
                     }
 
+                    // Sauvegarder l'état actuel pour pouvoir le restaurer en cas d'erreur
+                    const originalVisits = [...this.visits];
+
                     try {
                         if (this.isVisited(siteId, type)) {
-                            // Si déjà marqué avec ce type, le supprimer
+                            // Optimistic UI: supprimer immédiatement de l'affichage
                             const visit = this.visits.find(visit =>
                                 visit.site?.id === siteId && visit.type === type
                             );
                             if (visit) {
-                                await window.api.removeVisit(visit.id);
                                 this.visits = this.visits.filter(v => v.id !== visit.id);
+                                // Appel API
+                                await window.api.removeVisit(visit.id);
                             }
                         } else {
                             // Supprimer l'autre type de visite s'il existe (exclusivité mutuelle)
@@ -252,7 +256,19 @@
                                 visit.site?.id === siteId && visit.type === otherType
                             );
                             
-                            // Faire les appels en parallèle pour une meilleure réactivité
+                            // Optimistic UI: mettre à jour l'affichage immédiatement
+                            if (existingVisit) {
+                                this.visits = this.visits.filter(v => v.id !== existingVisit.id);
+                            }
+                            // Ajouter temporairement la nouvelle visite pour l'affichage
+                            this.visits.push({
+                                id: `temp-${Date.now()}`,
+                                site: { id: siteId },
+                                type: type,
+                                temp: true
+                            });
+                            
+                            // Faire les appels en parallèle
                             const promises = [];
                             if (existingVisit) {
                                 promises.push(window.api.removeVisit(existingVisit.id));
@@ -261,14 +277,12 @@
                             
                             await Promise.all(promises);
                             
-                            // Mettre à jour l'état local
-                            if (existingVisit) {
-                                this.visits = this.visits.filter(v => v.id !== existingVisit.id);
-                            }
-                            // Recharger les visites pour avoir la structure complète
+                            // Recharger les visites pour avoir la structure complète et remplacer les données temporaires
                             await this.loadVisits();
                         }
                     } catch (error) {
+                        // Restaurer l'état original en cas d'erreur
+                        this.visits = originalVisits;
                         console.error('Error toggling visit:', error);
                         window.utils.showToast('Erreur lors de la mise à jour', 'error');
                     }

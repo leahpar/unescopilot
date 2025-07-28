@@ -28,17 +28,17 @@
             <form class="mt-8 space-y-6" @submit.prevent="register()">
                 <div class="space-y-4">
                     <div>
-                        <label for="name" class="block text-sm font-medium text-gray-700">
-                            Prénom et nom
+                        <label for="pseudo" class="block text-sm font-medium text-gray-700">
+                            Pseudo
                         </label>
                         <input 
-                            id="name" 
-                            name="name" 
+                            id="pseudo" 
+                            name="pseudo" 
                             type="text" 
                             required 
-                            x-model="form.name"
+                            x-model="form.pseudo"
                             class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                            placeholder="Jean Dupont"
+                            placeholder="MonPseudo"
                         >
                     </div>
                     
@@ -127,7 +127,7 @@
         function registerPage() {
             return {
                 form: {
-                    name: '',
+                    pseudo: '',
                     email: '',
                     password: '',
                     confirmPassword: ''
@@ -157,7 +157,7 @@
                     
                     try {
                         const userData = {
-                            name: this.form.name,
+                            pseudo: this.form.pseudo,
                             email: this.form.email,
                             password: this.form.password
                         };

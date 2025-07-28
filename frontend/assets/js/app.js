@@ -94,14 +94,14 @@ window.api = {
 
   // Méthodes spécifiques
   async login(credentials) {
-    return this.request('/login', {
+    return this.request('/security/login', {
       method: 'POST',
       body: JSON.stringify(credentials)
     });
   },
 
   async register(userData) {
-    return this.request('/register', {
+    return this.request('/security/register', {
       method: 'POST',
       body: JSON.stringify(userData)
     });
@@ -129,18 +129,18 @@ window.api = {
   },
 
   async getVisits() {
-    return this.request('/me/visit');
+    return this.request('/visits');
   },
 
-  async addVisit(siteId, type) {
-    return this.request('/me/visit', {
+  async addVisit(siteId, type, visitedAt = null) {
+    return this.request('/visits', {
       method: 'POST',
-      body: JSON.stringify({ site_id: siteId, type })
+      body: JSON.stringify({ siteId, type, visitedAt })
     });
   },
 
-  async removeVisit(siteId) {
-    return this.request(`/me/visit/${siteId}`, {
+  async removeVisit(visitId) {
+    return this.request(`/visits/${visitId}`, {
       method: 'DELETE'
     });
   }

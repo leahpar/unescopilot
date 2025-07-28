@@ -1,5 +1,5 @@
 // Configuration API de base
-const API_BASE_URL = 'http://localhost:8000/api';
+const API_BASE_URL = 'http://localhost:8016/api';
 
 // État global de l'application
 window.appState = {
@@ -161,10 +161,8 @@ async function loadComponent(element, component) {
             throw new Error(`Échec du chargement du composant ${component}: ${response.statusText}`);
         }
         element.innerHTML = await response.text();
-        // Important : Si le contenu injecté contient lui-même des directives Alpine.js,
-        // il faut demander à Alpine de le scanner pour les initialiser.
-        // C'est particulièrement utile si les composants ont leur propre x-data.
-        window.Alpine.discoverUninitialized();
+        // Dans Alpine.js v3+, la détection et l'initialisation des nouveaux composants
+        // ajoutés au DOM se fait automatiquement si l'élément parent est déjà sous
     } catch (error) {
         console.error('Erreur lors du chargement du composant :', error);
         element.innerHTML = `<p style="color: red;">Échec du chargement du composant.</p>`; // Message d'erreur simple pour l'utilisateur

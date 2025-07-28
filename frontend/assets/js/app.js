@@ -82,7 +82,12 @@ window.api = {
       }
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        // Créer une erreur avec plus d'informations
+        const errorData = await response.json().catch(() => ({}));
+        const error = new Error(`HTTP error! status: ${response.status}`);
+        error.status = response.status;
+        error.data = errorData;
+        throw error;
       }
 
       return await response.json();

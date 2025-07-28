@@ -11,30 +11,24 @@ use App\Repository\UserTokenRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Serializer\SerializerInterface;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-#[Route('/api')]
-class AuthController extends AbstractController
+#[Route('/api/security')]
+class SecurityController extends AbstractController
 {
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly UserPasswordHasherInterface $passwordHasher,
-        private readonly ValidatorInterface $validator,
         private readonly UserRepository $userRepository,
-        private readonly UserTokenRepository $userTokenRepository,
-        private readonly SerializerInterface $serializer
     ) {
     }
 
-    #[Route('/register', name: 'app_api_register', methods: ['POST'])]
+    #[Route('/register', name: 'app_api_security_register', methods: ['POST'])]
     public function register(#[MapRequestPayload] RegisterUserDTO $registerDTO): JsonResponse
     {
-
         if ($this->userRepository->findOneBy(['email' => $registerDTO->email])) {
             return $this->json(['error' => 'Email already exists'], 409);
         }
@@ -53,7 +47,7 @@ class AuthController extends AbstractController
         ], 201);
     }
 
-    #[Route('/login', name: 'app_api_login', methods: ['POST'])]
+    #[Route('/login', name: 'app_api_security_login', methods: ['POST'])]
     public function login(#[MapRequestPayload] LoginDTO $loginDTO): JsonResponse
     {
         $user = $this->userRepository->findOneBy(['email' => $loginDTO->email]);
@@ -83,11 +77,15 @@ class AuthController extends AbstractController
         ]);
     }
 
-    #[Route('/me', name: 'app_api_me', methods: ['GET'])]
-    public function me(): JsonResponse
+    #[Route('/logout', name: 'app_api_security_logout', methods: ['POST'])]
+    #[IsGranted('ROLE_USER')]
+    public function logout(): JsonResponse
     {
+        // Logic to invalidate current token could be added here
+        // For now, client-side token removal is sufficient
+
         return $this->json([
-            'user' => $this->getUser()
+            'message' => 'Logged out successfully'
         ]);
     }
 }

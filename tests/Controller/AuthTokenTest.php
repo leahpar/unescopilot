@@ -117,7 +117,7 @@ class AuthTokenTest extends WebTestCase
     {
 
         // Test register endpoint
-        $this->client->request('POST', '/api/register', [], [], [
+        $this->client->request('POST', '/api/security/register', [], [], [
             'CONTENT_TYPE' => 'application/json',
         ], json_encode([
             'email' => 'newuser@example.com',
@@ -128,7 +128,7 @@ class AuthTokenTest extends WebTestCase
         $this->assertResponseStatusCodeSame(201);
 
         // Test login endpoint
-        $this->client->request('POST', '/api/login', [], [], [
+        $this->client->request('POST', '/api/security/login', [], [], [
             'CONTENT_TYPE' => 'application/json',
         ], json_encode([
             'email' => 'newuser@example.com',

@@ -37,7 +37,7 @@ class AuthControllerMultipleTokensTest extends WebTestCase
         $this->entityManager->flush();
 
         // First login
-        $this->client->request('POST', '/api/login', [], [], [
+        $this->client->request('POST', '/api/security/login', [], [], [
             'CONTENT_TYPE' => 'application/json',
         ], json_encode([
             'email' => 'test@example.com',
@@ -49,7 +49,7 @@ class AuthControllerMultipleTokensTest extends WebTestCase
         $firstToken = $firstResponse['token'];
 
         // Second login (different device/session)
-        $this->client->request('POST', '/api/login', [], [], [
+        $this->client->request('POST', '/api/security/login', [], [], [
             'CONTENT_TYPE' => 'application/json',
         ], json_encode([
             'email' => 'test@example.com',

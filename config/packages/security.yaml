@@ -16,7 +16,7 @@ security:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
         api_public:
-            pattern: ^/api/(register|login)
+            pattern: ^/api/security/(register|login)
             security: false
         api:
             pattern: ^/api
@@ -36,10 +36,7 @@ security:
 
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
-    access_control:
-        - { path: ^/api/(register|login), roles: PUBLIC_ACCESS }
-        - { path: ^/api/sites, roles: PUBLIC_ACCESS }
-        - { path: ^/api, roles: ROLE_USER }
+    access_control: []
         # - { path: ^/admin, roles: ROLE_ADMIN }
         # - { path: ^/profile, roles: ROLE_USER }
 

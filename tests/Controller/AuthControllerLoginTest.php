@@ -37,7 +37,7 @@ class AuthControllerLoginTest extends WebTestCase
         $this->entityManager->persist($user);
         $this->entityManager->flush();
 
-        $this->client->request('POST', '/api/login', [], [], [
+        $this->client->request('POST', '/api/security/login', [], [], [
             'CONTENT_TYPE' => 'application/json',
         ], json_encode([
             'email' => 'test@example.com',
@@ -82,7 +82,7 @@ class AuthControllerLoginTest extends WebTestCase
         $this->entityManager->persist($user);
         $this->entityManager->flush();
 
-        $this->client->request('POST', '/api/login', [], [], [
+        $this->client->request('POST', '/api/security/login', [], [], [
             'CONTENT_TYPE' => 'application/json',
         ], json_encode([
             'email' => 'test@example.com',
@@ -98,7 +98,7 @@ class AuthControllerLoginTest extends WebTestCase
     public function testLoginNonExistentUser(): void
     {
 
-        $this->client->request('POST', '/api/login', [], [], [
+        $this->client->request('POST', '/api/security/login', [], [], [
             'CONTENT_TYPE' => 'application/json',
         ], json_encode([
             'email' => 'nonexistent@example.com',
@@ -114,7 +114,7 @@ class AuthControllerLoginTest extends WebTestCase
     public function testLoginValidationErrors(): void
     {
 
-        $this->client->request('POST', '/api/login', [], [], [
+        $this->client->request('POST', '/api/security/login', [], [], [
             'CONTENT_TYPE' => 'application/json',
         ], json_encode([
             'email' => 'invalid-email',

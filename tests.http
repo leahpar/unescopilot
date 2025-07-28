@@ -25,7 +25,7 @@ GET {{baseUrl}}/api/sites?name=château&minLat=45.0&maxLat=50.0&minLon=0.0&maxLo
 GET {{baseUrl}}/api/sites/1133
 
 ### User Registration - Success
-POST {{baseUrl}}/api/register
+POST {{baseUrl}}/api/security/register
 Content-Type: application/json
 
 {
@@ -35,7 +35,7 @@ Content-Type: application/json
 }
 
 ### User Login - Success
-POST {{baseUrl}}/api/login
+POST {{baseUrl}}/api/security/login
 Content-Type: application/json
 
 {
@@ -46,8 +46,4 @@ Content-Type: application/json
 ### Get current user info (protected endpoint)
 # First login to get a token, then use it here
 GET {{baseUrl}}/api/me
-Authorization: Bearer 91488f74523387ce6c9bcab07b5ea0f98450c78429b8462ea30011dc3ceb26c2
-
-### Example with actual token (replace with real token from login response)
-GET {{baseUrl}}/api/me
-Authorization: Bearer a1b2c3d4e5f6g7h8i9j0k1l2m3n4p6q7r8s9t0u1v2w3x4y5z6a7b8c9d0e1f2
+Authorization: Bearer ecb470bfd8412de91c719f90f720ae1122bfb971ce108418463b60dde88dc7ea

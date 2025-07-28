@@ -12,15 +12,16 @@ class AuthTokenTest extends WebTestCase
 {
     private EntityManagerInterface $entityManager;
     private UserPasswordHasherInterface $passwordHasher;
+    private $client;
 
     protected function setUp(): void
     {
-        $kernel = self::bootKernel();
+        $this->client = static::createClient();
         $container = static::getContainer();
-        
+
         $this->entityManager = $container->get(EntityManagerInterface::class);
         $this->passwordHasher = $container->get(UserPasswordHasherInterface::class);
-        
+
         $this->entityManager->beginTransaction();
     }
 
@@ -32,33 +33,30 @@ class AuthTokenTest extends WebTestCase
 
     public function testProtectedEndpointWithoutToken(): void
     {
-        $client = static::createClient();
 
-        $client->request('GET', '/api/me');
+        $this->client->request('GET', '/api/me');
 
         $this->assertResponseStatusCodeSame(401);
-        
-        $responseData = json_decode($client->getResponse()->getContent(), true);
+
+        $responseData = json_decode($this->client->getResponse()->getContent(), true);
         $this->assertEquals('Authentication failed', $responseData['error']);
     }
 
     public function testProtectedEndpointWithInvalidToken(): void
     {
-        $client = static::createClient();
 
-        $client->request('GET', '/api/me', [], [], [
+        $this->client->request('GET', '/api/me', [], [], [
             'HTTP_AUTHORIZATION' => 'Bearer invalid-token-here'
         ]);
 
         $this->assertResponseStatusCodeSame(401);
-        
-        $responseData = json_decode($client->getResponse()->getContent(), true);
+
+        $responseData = json_decode($this->client->getResponse()->getContent(), true);
         $this->assertEquals('Authentication failed', $responseData['error']);
     }
 
     public function testProtectedEndpointWithValidToken(): void
     {
-        $client = static::createClient();
 
         $user = new User();
         $user->setEmail('test@example.com');
@@ -77,14 +75,14 @@ class AuthTokenTest extends WebTestCase
         $this->entityManager->persist($userToken);
         $this->entityManager->flush();
 
-        $client->request('GET', '/api/me', [], [], [
+        $this->client->request('GET', '/api/me', [], [], [
             'HTTP_AUTHORIZATION' => 'Bearer ' . $userToken->token
         ]);
 
         $this->assertResponseIsSuccessful();
-        
-        $responseData = json_decode($client->getResponse()->getContent(), true);
-        
+
+        $responseData = json_decode($this->client->getResponse()->getContent(), true);
+
         $this->assertArrayHasKey('user', $responseData);
         $this->assertEquals('test@example.com', $responseData['user']['email']);
         $this->assertEquals('testuser', $responseData['user']['pseudo']);
@@ -93,7 +91,6 @@ class AuthTokenTest extends WebTestCase
 
     public function testProtectedEndpointWithExpiredToken(): void
     {
-        $client = static::createClient();
 
         $user = new User();
         $user->setEmail('test@example.com');
@@ -112,22 +109,21 @@ class AuthTokenTest extends WebTestCase
         $this->entityManager->persist($userToken);
         $this->entityManager->flush();
 
-        $client->request('GET', '/api/me', [], [], [
+        $this->client->request('GET', '/api/me', [], [], [
             'HTTP_AUTHORIZATION' => 'Bearer ' . $userToken->token
         ]);
 
         $this->assertResponseStatusCodeSame(401);
-        
-        $responseData = json_decode($client->getResponse()->getContent(), true);
+
+        $responseData = json_decode($this->client->getResponse()->getContent(), true);
         $this->assertEquals('Authentication failed', $responseData['error']);
     }
 
     public function testPublicEndpointsRemainAccessible(): void
     {
-        $client = static::createClient();
 
         // Test register endpoint
-        $client->request('POST', '/api/register', [], [], [
+        $this->client->request('POST', '/api/register', [], [], [
             'CONTENT_TYPE' => 'application/json',
         ], json_encode([
             'email' => 'newuser@example.com',
@@ -138,7 +134,7 @@ class AuthTokenTest extends WebTestCase
         $this->assertResponseStatusCodeSame(201);
 
         // Test login endpoint
-        $client->request('POST', '/api/login', [], [], [
+        $this->client->request('POST', '/api/login', [], [], [
             'CONTENT_TYPE' => 'application/json',
         ], json_encode([
             'email' => 'newuser@example.com',

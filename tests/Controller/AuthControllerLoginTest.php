@@ -14,16 +14,17 @@ class AuthControllerLoginTest extends WebTestCase
     private EntityManagerInterface $entityManager;
     private UserPasswordHasherInterface $passwordHasher;
     private UserTokenRepository $userTokenRepository;
+    private $client;
 
     protected function setUp(): void
     {
-        $kernel = self::bootKernel();
+        $this->client = static::createClient();
         $container = static::getContainer();
-        
+
         $this->entityManager = $container->get(EntityManagerInterface::class);
         $this->passwordHasher = $container->get(UserPasswordHasherInterface::class);
         $this->userTokenRepository = $container->get(UserTokenRepository::class);
-        
+
         $this->entityManager->beginTransaction();
     }
 
@@ -35,7 +36,6 @@ class AuthControllerLoginTest extends WebTestCase
 
     public function testLoginSuccess(): void
     {
-        $client = static::createClient();
 
         $user = new User();
         $user->setEmail('test@example.com');
@@ -45,7 +45,7 @@ class AuthControllerLoginTest extends WebTestCase
         $this->entityManager->persist($user);
         $this->entityManager->flush();
 
-        $client->request('POST', '/api/login', [], [], [
+        $this->client->request('POST', '/api/login', [], [], [
             'CONTENT_TYPE' => 'application/json',
         ], json_encode([
             'email' => 'test@example.com',
@@ -53,24 +53,24 @@ class AuthControllerLoginTest extends WebTestCase
         ]));
 
         $this->assertResponseIsSuccessful();
-        
-        $responseData = json_decode($client->getResponse()->getContent(), true);
-        
+
+        $responseData = json_decode($this->client->getResponse()->getContent(), true);
+
         $this->assertArrayHasKey('token', $responseData);
         $this->assertArrayHasKey('created_at', $responseData);
         $this->assertArrayHasKey('expires_at', $responseData);
         $this->assertArrayHasKey('user', $responseData);
-        
+
         $this->assertNotEmpty($responseData['token']);
         $this->assertNotEmpty($responseData['created_at']);
         $this->assertNotEmpty($responseData['expires_at']);
-        
+
         $this->assertEquals('test@example.com', $responseData['user']['email']);
         $this->assertEquals('testuser', $responseData['user']['pseudo']);
-        
+
         $this->assertTrue(\DateTime::createFromFormat(\DateTimeInterface::ATOM, $responseData['created_at']) !== false);
         $this->assertTrue(\DateTime::createFromFormat(\DateTimeInterface::ATOM, $responseData['expires_at']) !== false);
-        
+
         $userToken = $this->userTokenRepository->findOneBy(['token' => $responseData['token']]);
         $this->assertNotNull($userToken);
         $this->assertEquals($responseData['token'], $userToken->token);
@@ -81,7 +81,6 @@ class AuthControllerLoginTest extends WebTestCase
 
     public function testLoginInvalidCredentials(): void
     {
-        $client = static::createClient();
 
         $user = new User();
         $user->setEmail('test@example.com');
@@ -91,7 +90,7 @@ class AuthControllerLoginTest extends WebTestCase
         $this->entityManager->persist($user);
         $this->entityManager->flush();
 
-        $client->request('POST', '/api/login', [], [], [
+        $this->client->request('POST', '/api/login', [], [], [
             'CONTENT_TYPE' => 'application/json',
         ], json_encode([
             'email' => 'test@example.com',
@@ -99,16 +98,15 @@ class AuthControllerLoginTest extends WebTestCase
         ]));
 
         $this->assertResponseStatusCodeSame(401);
-        
-        $responseData = json_decode($client->getResponse()->getContent(), true);
+
+        $responseData = json_decode($this->client->getResponse()->getContent(), true);
         $this->assertEquals('Invalid credentials', $responseData['error']);
     }
 
     public function testLoginNonExistentUser(): void
     {
-        $client = static::createClient();
 
-        $client->request('POST', '/api/login', [], [], [
+        $this->client->request('POST', '/api/login', [], [], [
             'CONTENT_TYPE' => 'application/json',
         ], json_encode([
             'email' => 'nonexistent@example.com',
@@ -116,16 +114,15 @@ class AuthControllerLoginTest extends WebTestCase
         ]));
 
         $this->assertResponseStatusCodeSame(401);
-        
-        $responseData = json_decode($client->getResponse()->getContent(), true);
+
+        $responseData = json_decode($this->client->getResponse()->getContent(), true);
         $this->assertEquals('Invalid credentials', $responseData['error']);
     }
 
     public function testLoginValidationErrors(): void
     {
-        $client = static::createClient();
 
-        $client->request('POST', '/api/login', [], [], [
+        $this->client->request('POST', '/api/login', [], [], [
             'CONTENT_TYPE' => 'application/json',
         ], json_encode([
             'email' => 'invalid-email',

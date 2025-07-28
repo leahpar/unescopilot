@@ -13,10 +13,11 @@ class AuthControllerMultipleTokensTest extends WebTestCase
     private EntityManagerInterface $entityManager;
     private UserPasswordHasherInterface $passwordHasher;
     private UserTokenRepository $userTokenRepository;
+    private $client;
 
     protected function setUp(): void
     {
-        $kernel = self::bootKernel();
+        $this->client = static::createClient();
         $container = static::getContainer();
         
         $this->entityManager = $container->get(EntityManagerInterface::class);
@@ -34,7 +35,6 @@ class AuthControllerMultipleTokensTest extends WebTestCase
 
     public function testMultipleTokensForSameUser(): void
     {
-        $client = static::createClient();
 
         $user = new User();
         $user->setEmail('test@example.com');
@@ -45,7 +45,7 @@ class AuthControllerMultipleTokensTest extends WebTestCase
         $this->entityManager->flush();
 
         // First login
-        $client->request('POST', '/api/login', [], [], [
+        $this->client->request('POST', '/api/login', [], [], [
             'CONTENT_TYPE' => 'application/json',
         ], json_encode([
             'email' => 'test@example.com',
@@ -53,11 +53,11 @@ class AuthControllerMultipleTokensTest extends WebTestCase
         ]));
 
         $this->assertResponseIsSuccessful();
-        $firstResponse = json_decode($client->getResponse()->getContent(), true);
+        $firstResponse = json_decode($this->client->getResponse()->getContent(), true);
         $firstToken = $firstResponse['token'];
 
         // Second login (different device/session)
-        $client->request('POST', '/api/login', [], [], [
+        $this->client->request('POST', '/api/login', [], [], [
             'CONTENT_TYPE' => 'application/json',
         ], json_encode([
             'email' => 'test@example.com',
@@ -65,7 +65,7 @@ class AuthControllerMultipleTokensTest extends WebTestCase
         ]));
 
         $this->assertResponseIsSuccessful();
-        $secondResponse = json_decode($client->getResponse()->getContent(), true);
+        $secondResponse = json_decode($this->client->getResponse()->getContent(), true);
         $secondToken = $secondResponse['token'];
 
         // Verify tokens are different

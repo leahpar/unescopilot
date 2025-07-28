@@ -38,6 +38,7 @@ security:
     # Note: Only the *first* access control that matches will be used
     access_control:
         - { path: ^/api/(register|login), roles: PUBLIC_ACCESS }
+        - { path: ^/api/sites, roles: PUBLIC_ACCESS }
         - { path: ^/api, roles: ROLE_USER }
         # - { path: ^/admin, roles: ROLE_ADMIN }
         # - { path: ^/profile, roles: ROLE_USER }

@@ -15,6 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 #[Route('/api')]
@@ -25,7 +26,8 @@ class AuthController extends AbstractController
         private readonly UserPasswordHasherInterface $passwordHasher,
         private readonly ValidatorInterface $validator,
         private readonly UserRepository $userRepository,
-        private readonly UserTokenRepository $userTokenRepository
+        private readonly UserTokenRepository $userTokenRepository,
+        private readonly SerializerInterface $serializer
     ) {
     }
 
@@ -47,11 +49,7 @@ class AuthController extends AbstractController
 
         return $this->json([
             'message' => 'User registered successfully',
-            'user' => [
-                'id' => $user->getId(),
-                'email' => $user->getEmail(),
-                'pseudo' => $user->getPseudo()
-            ]
+            'user' => $user
         ], 201);
     }
 
@@ -79,27 +77,17 @@ class AuthController extends AbstractController
 
         return $this->json([
             'token' => $tokenString,
-            'created_at' => $createdAt->format(\DateTimeInterface::ATOM),
-            'expires_at' => $expiresAt->format(\DateTimeInterface::ATOM),
-            'user' => [
-                'id' => $user->getId(),
-                'email' => $user->getEmail(),
-                'pseudo' => $user->getPseudo()
-            ]
+            'created_at' => $createdAt,
+            'expires_at' => $expiresAt,
+            'user' => $user,
         ]);
     }
 
     #[Route('/me', name: 'app_api_me', methods: ['GET'])]
     public function me(): JsonResponse
     {
-        $user = $this->getUser();
-        
         return $this->json([
-            'user' => [
-                'id' => $user->getId(),
-                'email' => $user->getEmail(),
-                'pseudo' => $user->getPseudo()
-            ]
+            'user' => $this->getUser()
         ]);
     }
 }

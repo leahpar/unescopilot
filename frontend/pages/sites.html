@@ -32,7 +32,7 @@
                             <input
                                 type="text"
                                 id="search"
-                                x-model="filters.search"
+                                x-model="filters.q"
                                 @input.debounce.300ms="searchSites()"
                                 placeholder="Nom du site, pays..."
                                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
@@ -98,7 +98,7 @@
             <!-- Liste des sites -->
             <div x-show="!loading && !error" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <template x-for="site in sites" :key="site.id">
-                    <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow cursor-pointer" @click="navigateToSite(site.id, $event)">
                         <!-- Image -->
                         <div class="h-48 bg-gray-200 relative">
                             <img
@@ -123,18 +123,11 @@
                             <p class="text-sm text-gray-500 mb-4 line-clamp-3" x-text="getShortDescription(site.shortDescription)"></p>
 
                             <!-- Actions -->
-                            <div class="flex justify-between items-center">
-                                <a
-                                    :href="`site-detail.html?id=${site.id}`"
-                                    class="text-blue-600 hover:text-blue-800 text-sm font-medium"
-                                >
-                                    Voir détails →
-                                </a>
-
+                            <div class="flex justify-end items-center">
                                 <!-- Boutons visite (si connecté) -->
                                 <div x-show="window.appState.isAuthenticated" class="flex space-x-2">
                                     <button
-                                        @click="toggleVisit(site.id, 'visited')"
+                                        @click.stop="toggleVisit(site.id, 'visited')"
                                         :class="isVisited(site.id, 'visited') ? 'text-green-600 bg-green-50' : 'text-gray-400 bg-gray-50'"
                                         class="p-1 rounded-full hover:bg-green-100"
                                         title="Marquer comme visité"
@@ -142,7 +135,7 @@
                                         ✓
                                     </button>
                                     <button
-                                        @click="toggleVisit(site.id, 'wishlist')"
+                                        @click.stop="toggleVisit(site.id, 'wishlist')"
                                         :class="isVisited(site.id, 'wishlist') ? 'text-red-600 bg-red-50' : 'text-gray-400 bg-gray-50'"
                                         class="p-1 rounded-full hover:bg-red-100"
                                         title="Ajouter à mes lieux à découvrir"
@@ -174,7 +167,7 @@
                 loading: true,
                 error: '',
                 filters: {
-                    search: '',
+                    q: '',
                     region: '',
                     category: ''
                 },
@@ -193,7 +186,13 @@
                     try {
                         this.loading = true;
                         this.error = '';
-                        const response = await window.api.getSites(this.filters);
+                        
+                        // Filtrer les paramètres vides
+                        const params = Object.fromEntries(
+                            Object.entries(this.filters).filter(([key, value]) => value !== '')
+                        );
+                        
+                        const response = await window.api.getSites(params);
                         this.sites = response.data || response;
                     } catch (error) {
                         this.error = 'Erreur lors du chargement des sites';
@@ -251,6 +250,14 @@
                         console.error('Error toggling visit:', error);
                         window.utils.showToast('Erreur lors de la mise à jour', 'error');
                     }
+                },
+
+                navigateToSite(siteId, event) {
+                    // Vérifier si le clic provient d'un bouton d'action
+                    if (event.target.closest('button')) {
+                        return; // Ne pas naviguer si on clique sur un bouton
+                    }
+                    window.location.href = `site-detail.html?id=${siteId}`;
                 }
             }
         }

@@ -11,7 +11,7 @@
 <body class="min-h-screen bg-gray-50 flex flex-col" x-data="homePage()">
     
     <!-- Header -->
-    <div id="header"></div>
+    <div x-init="loadComponent($el, 'header')"></div>
     
     <!-- Hero Section -->
     <section class="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-20">
@@ -133,15 +133,13 @@
     </section>
     
     <!-- Footer -->
-    <div id="footer"></div>
+    <div x-init="loadComponent($el, 'footer')"></div>
     
     <script>
         function homePage() {
             return {
                 async init() {
-                    // Charger les composants
-                    await window.components.loadComponent('header', 'components/header.html');
-                    await window.components.loadComponent('footer', 'components/footer.html');
+                    // Les composants sont chargés automatiquement via x-init
                 }
             }
         }

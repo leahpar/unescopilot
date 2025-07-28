@@ -11,7 +11,7 @@
 <body class="min-h-screen bg-gray-50 flex flex-col" x-data="loginPage()">
     
     <!-- Header -->
-    <div id="header"></div>
+    <div x-init="loadComponent($el, 'header')"></div>
     
     <!-- Contenu principal -->
     <main class="flex-1 flex items-center justify-center px-4 py-12">
@@ -91,7 +91,7 @@
     </main>
     
     <!-- Footer -->
-    <div id="footer"></div>
+    <div x-init="loadComponent($el, 'footer')"></div>
     
     <script>
         function loginPage() {
@@ -104,9 +104,7 @@
                 error: '',
                 
                 async init() {
-                    // Charger les composants
-                    await window.components.loadComponent('header', '../components/header.html');
-                    await window.components.loadComponent('footer', '../components/footer.html');
+                    // Les composants sont chargés automatiquement via x-init
                     
                     // Rediriger si déjà connecté
                     if (window.auth.isLoggedIn()) {

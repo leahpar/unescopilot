@@ -15,14 +15,14 @@ window.auth = {
   getToken() {
     return localStorage.getItem('unescopilot_token');
   },
-  
+
   // Sauvegarder le token
   setToken(token) {
     localStorage.setItem('unescopilot_token', token);
     window.appState.token = token;
     window.appState.isAuthenticated = true;
   },
-  
+
   // Supprimer le token
   removeToken() {
     localStorage.removeItem('unescopilot_token');
@@ -30,7 +30,7 @@ window.auth = {
     window.appState.isAuthenticated = false;
     window.appState.user = null;
   },
-  
+
   // Vérifier si l'utilisateur est connecté
   isLoggedIn() {
     const token = this.getToken();
@@ -41,7 +41,7 @@ window.auth = {
     }
     return false;
   },
-  
+
   // Déconnexion
   logout() {
     this.removeToken();
@@ -55,14 +55,14 @@ window.api = {
   async request(endpoint, options = {}) {
     const url = `${API_BASE_URL}${endpoint}`;
     const token = window.auth.getToken();
-    
+
     const defaultOptions = {
       headers: {
         'Content-Type': 'application/json',
         ...(token && { 'Authorization': `Bearer ${token}` })
       }
     };
-    
+
     const config = {
       ...defaultOptions,
       ...options,
@@ -71,27 +71,27 @@ window.api = {
         ...options.headers
       }
     };
-    
+
     try {
       const response = await fetch(url, config);
-      
+
       // Gérer les erreurs d'authentification
       if (response.status === 401) {
         window.auth.logout();
         return;
       }
-      
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       return await response.json();
     } catch (error) {
       console.error('API Error:', error);
       throw error;
     }
   },
-  
+
   // Méthodes spécifiques
   async login(credentials) {
     return this.request('/login', {
@@ -99,46 +99,46 @@ window.api = {
       body: JSON.stringify(credentials)
     });
   },
-  
+
   async register(userData) {
     return this.request('/register', {
       method: 'POST',
       body: JSON.stringify(userData)
     });
   },
-  
+
   async getProfile() {
     return this.request('/me');
   },
-  
+
   async updateProfile(userData) {
     return this.request('/me', {
       method: 'PUT',
       body: JSON.stringify(userData)
     });
   },
-  
+
   async getSites(params = {}) {
     const queryString = new URLSearchParams(params).toString();
     const endpoint = queryString ? `/sites?${queryString}` : '/sites';
     return this.request(endpoint);
   },
-  
+
   async getSite(id) {
     return this.request(`/sites/${id}`);
   },
-  
+
   async getVisits() {
     return this.request('/me/visit');
   },
-  
+
   async addVisit(siteId, type) {
     return this.request('/me/visit', {
       method: 'POST',
       body: JSON.stringify({ site_id: siteId, type })
     });
   },
-  
+
   async removeVisit(siteId) {
     return this.request(`/me/visit/${siteId}`, {
       method: 'DELETE'
@@ -146,19 +146,30 @@ window.api = {
   }
 };
 
-// Utilitaires pour le chargement des composants
-window.components = {
-  async loadComponent(elementId, componentPath) {
+/**
+ * Charge un composant HTML depuis une URL et l'injecte dans un élément du DOM.
+ * @param {HTMLElement} element - L'élément DOM où le contenu doit être injecté.
+ * @param {string} component - Le nom du composant à charger (sans extension).
+ * ex: <div x-init="loadComponent($el, 'header')"></div>
+ */
+async function loadComponent(element, component) {
     try {
-      const response = await fetch(componentPath);
-      const html = await response.text();
-      document.getElementById(elementId).innerHTML = html;
-    } catch (error) {
-      console.error(`Erreur lors du chargement du composant ${componentPath}:`, error);
-    }
-  }
-};
+        const basePath = '/components/';
 
+        const response = await fetch(basePath + component + '.html');
+        if (!response.ok) {
+            throw new Error(`Échec du chargement du composant ${component}: ${response.statusText}`);
+        }
+        element.innerHTML = await response.text();
+        // Important : Si le contenu injecté contient lui-même des directives Alpine.js,
+        // il faut demander à Alpine de le scanner pour les initialiser.
+        // C'est particulièrement utile si les composants ont leur propre x-data.
+        window.Alpine.discoverUninitialized();
+    } catch (error) {
+        console.error('Erreur lors du chargement du composant :', error);
+        element.innerHTML = `<p style="color: red;">Échec du chargement du composant.</p>`; // Message d'erreur simple pour l'utilisateur
+    }
+}
 // Utilitaires généraux
 window.utils = {
   // Afficher un message toast
@@ -166,12 +177,12 @@ window.utils = {
     // TODO: Implémenter un système de notifications toast
     console.log(`Toast ${type}: ${message}`);
   },
-  
+
   // Formater une date
   formatDate(dateString) {
     return new Date(dateString).toLocaleDateString('fr-FR');
   },
-  
+
   // Tronquer un texte
   truncateText(text, maxLength) {
     if (text.length <= maxLength) return text;

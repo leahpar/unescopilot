@@ -11,7 +11,7 @@
 <body class="min-h-screen bg-gray-50 flex flex-col" x-data="sitesPage()">
     
     <!-- Header -->
-    <div id="header"></div>
+    <div x-init="loadComponent($el, 'header')"></div>
     
     <!-- Contenu principal -->
     <main class="flex-1 container mx-auto px-4 py-8">
@@ -146,7 +146,7 @@
     </main>
     
     <!-- Footer -->
-    <div id="footer"></div>
+    <div x-init="loadComponent($el, 'footer')"></div>
     
     <script>
         function sitesPage() {
@@ -161,9 +161,7 @@
                 },
                 
                 async init() {
-                    // Charger les composants
-                    await window.components.loadComponent('header', '../components/header.html');
-                    await window.components.loadComponent('footer', '../components/footer.html');
+                    // Les composants sont chargés automatiquement via x-init
                     
                     // Charger les données
                     await this.loadSites();

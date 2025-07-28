@@ -43,7 +43,25 @@ Content-Type: application/json
   "password": "azeaze"
 }
 
-### Get current user info (protected endpoint)
+### Get current user info
 # First login to get a token, then use it here
 GET {{baseUrl}}/api/me
+Authorization: Bearer ecb470bfd8412de91c719f90f720ae1122bfb971ce108418463b60dde88dc7ea
+
+### Add a visit
+POST {{baseUrl}}/api/visits
+Content-Type: application/json
+Authorization: Bearer ecb470bfd8412de91c719f90f720ae1122bfb971ce108418463b60dde88dc7ea
+
+{
+  "siteId": 1133,
+  "visitDate": "2024-07-15"
+}
+
+### Get user's visits
+GET {{baseUrl}}/api/visits
+Authorization: Bearer ecb470bfd8412de91c719f90f720ae1122bfb971ce108418463b60dde88dc7ea
+
+### Delete a visit
+DELETE {{baseUrl}}/api/visits/1
 Authorization: Bearer ecb470bfd8412de91c719f90f720ae1122bfb971ce108418463b60dde88dc7ea

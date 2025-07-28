@@ -62,8 +62,14 @@
                 map: null,
                 sitesLayer: null,
                 apiBaseUrl: 'http://localhost:8016/api',
+                allSites: [],
+                cacheKey: 'unesco_sites_full_cache',
+                cacheTTL: 24 * 60 * 60 * 1000, // 24 heures
 
                 async init() {
+                    // Charger le cache complet au démarrage
+                    await this.loadAllSites();
+                    
                     // Attendre que Leaflet soit disponible et initialiser la carte
                     setTimeout(() => {
                         if (typeof L !== 'undefined') {
@@ -95,11 +101,11 @@
                     this.centerOnUserLocation();
 
                     // Charger les sites après l'initialisation
-                    this.loadSites();
+                    this.displaySitesInBounds();
 
                     // Écouter les événements de déplacement de la carte
                     this.map.on('moveend', () => {
-                        this.loadSites();
+                        this.displaySitesInBounds();
                     });
 
                     // Ajuster la taille de la carte après initialisation
@@ -140,35 +146,89 @@
                     }
                 },
 
-                async loadSites() {
-                    if (!this.map) return;
+                async loadAllSites() {
+                    // Vérifier le cache en premier
+                    const cached = this.getCachedSites();
+                    if (cached) {
+                        this.allSites = cached;
+                        console.log('Sites chargés depuis le cache:', this.allSites.length);
+                        return;
+                    }
+
+                    // Charger depuis l'API si pas de cache
+                    try {
+                        console.log('Chargement de tous les sites depuis l\'API...');
+                        const response = await fetch(`${this.apiBaseUrl}/sites?limit=1500`);
+                        const data = await response.json();
+                        
+                        this.allSites = data.data;
+                        
+                        // Sauvegarder en cache
+                        this.setCachedSites(this.allSites);
+                        
+                        console.log('Sites chargés depuis l\'API:', this.allSites.length);
+                    } catch (error) {
+                        console.error('Erreur lors du chargement des sites:', error);
+                        this.allSites = [];
+                    }
+                },
+
+                getCachedSites() {
+                    try {
+                        const cached = localStorage.getItem(this.cacheKey);
+                        if (!cached) return null;
+
+                        const data = JSON.parse(cached);
+                        
+                        // Vérifier si le cache n'est pas expiré
+                        if (Date.now() - data.timestamp > this.cacheTTL) {
+                            localStorage.removeItem(this.cacheKey);
+                            return null;
+                        }
+
+                        return data.sites;
+                    } catch (error) {
+                        console.error('Erreur lecture cache:', error);
+                        return null;
+                    }
+                },
+
+                setCachedSites(sites) {
+                    try {
+                        const cacheData = {
+                            sites: sites,
+                            timestamp: Date.now(),
+                            version: '1.0'
+                        };
+                        localStorage.setItem(this.cacheKey, JSON.stringify(cacheData));
+                    } catch (error) {
+                        console.error('Erreur sauvegarde cache:', error);
+                    }
+                },
+
+                displaySitesInBounds() {
+                    if (!this.map || this.allSites.length === 0) return;
 
                     // Obtenir les limites actuelles de la carte
                     const bounds = this.map.getBounds();
-                    const params = new URLSearchParams({
-                        minLat: bounds.getSouth().toString(),
-                        maxLat: bounds.getNorth().toString(),
-                        minLon: bounds.getWest().toString(),
-                        maxLon: bounds.getEast().toString(),
-                        limit: '500' // Limiter pour éviter trop de marqueurs
+                    
+                    // Filtrer les sites dans les limites actuelles
+                    const sitesInBounds = this.allSites.filter(site => {
+                        return site.latitude >= bounds.getSouth() &&
+                               site.latitude <= bounds.getNorth() &&
+                               site.longitude >= bounds.getWest() &&
+                               site.longitude <= bounds.getEast();
                     });
 
-                    try {
-                        const response = await fetch(`${this.apiBaseUrl}/sites?${params}`);
-                        const data = await response.json();
-                        
-                        // Effacer les marqueurs existants
-                        this.sitesLayer.clearLayers();
+                    // Effacer les marqueurs existants
+                    this.sitesLayer.clearLayers();
 
-                        // Ajouter les nouveaux marqueurs
-                        data.data.forEach(site => {
-                            if (site.latitude && site.longitude) {
-                                this.createSiteMarker(site);
-                            }
-                        });
-                    } catch (error) {
-                        console.error('Erreur lors du chargement des sites:', error);
-                    }
+                    // Ajouter les nouveaux marqueurs
+                    sitesInBounds.forEach(site => {
+                        if (site.latitude && site.longitude) {
+                            this.createSiteMarker(site);
+                        }
+                    });
                 },
 
                 createSiteMarker(site) {

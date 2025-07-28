@@ -94,7 +94,7 @@ window.api = {
       if (response.status === 204) {
         return null;
       }
-      
+
       return await response.json();
     } catch (error) {
       console.error('API Error:', error);
@@ -210,6 +210,17 @@ window.utils = {
 document.addEventListener('DOMContentLoaded', function() {
   // Vérifier l'authentification au chargement
   window.auth.isLoggedIn();
+
+  // Enregistrer le service worker pour la PWA
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/service-worker.js')
+      .then(registration => {
+        console.log('Service Worker enregistré avec succès:');
+      })
+      .catch(error => {
+        console.log("Échec de l'enregistrement du Service Worker:", error);
+      });
+  }
 });
 
 // Fonctions globales pour Alpine.js

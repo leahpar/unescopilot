@@ -11,6 +11,11 @@
     <!-- Leaflet -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- Leaflet MarkerCluster -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+    <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
 
     <style>
         body {
@@ -77,8 +82,14 @@
                         maxZoom: 18
                     }).addTo(this.map);
 
-                    // Créer une couche pour les sites
-                    this.sitesLayer = L.layerGroup().addTo(this.map);
+                    // Créer un groupe de marqueurs avec clustering
+                    this.sitesLayer = L.markerClusterGroup({
+                        chunkedLoading: true,
+                        spiderfyOnMaxZoom: true,
+                        showCoverageOnHover: false,
+                        zoomToBoundsOnClick: true,
+                        maxClusterRadius: 50
+                    }).addTo(this.map);
 
                     // Centrer sur la position de l'utilisateur si disponible
                     this.centerOnUserLocation();
@@ -173,7 +184,7 @@
                     // Ajouter une popup avec le nom du site
                     marker.bindPopup(`<strong>${site.name}</strong><br>${site.states}`);
 
-                    // Ajouter le marqueur à la couche des sites
+                    // Ajouter le marqueur au groupe de clustering
                     this.sitesLayer.addLayer(marker);
                 }
             }

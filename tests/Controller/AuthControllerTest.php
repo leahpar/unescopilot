@@ -103,10 +103,10 @@ class AuthControllerTest extends WebTestCase
             json_encode($userData)
         );
 
-        $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        $this->assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
         
         $responseData = json_decode($this->client->getResponse()->getContent(), true);
-        $this->assertArrayHasKey('errors', $responseData);
+        $this->assertArrayHasKey('error', $responseData);
     }
 
     public function testRegisterMissingFields(): void
@@ -124,9 +124,9 @@ class AuthControllerTest extends WebTestCase
             json_encode($userData)
         );
 
-        $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        $this->assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
         
         $responseData = json_decode($this->client->getResponse()->getContent(), true);
-        $this->assertArrayHasKey('errors', $responseData);
+        $this->assertArrayHasKey('error', $responseData);
     }
 }

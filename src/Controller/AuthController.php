@@ -28,14 +28,6 @@ class AuthController extends AbstractController
     #[Route('/register', name: 'app_api_register', methods: ['POST'])]
     public function register(#[MapRequestPayload] RegisterUserDTO $registerDTO): JsonResponse
     {
-        $errors = $this->validator->validate($registerDTO);
-        if (count($errors) > 0) {
-            $errorMessages = [];
-            foreach ($errors as $error) {
-                $errorMessages[$error->getPropertyPath()] = $error->getMessage();
-            }
-            return $this->json(['errors' => $errorMessages], 400);
-        }
 
         if ($this->userRepository->findOneBy(['email' => $registerDTO->email])) {
             return $this->json(['error' => 'Email already exists'], 409);

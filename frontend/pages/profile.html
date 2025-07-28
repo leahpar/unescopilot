@@ -9,14 +9,14 @@
     <script src="../assets/js/app.js"></script>
 </head>
 <body class="min-h-screen bg-gray-50 flex flex-col" x-data="profilePage()">
-    
+
     <!-- Header -->
     <div x-init="loadComponent($el, 'header')"></div>
-    
+
     <!-- Contenu principal -->
     <main class="flex-1 container mx-auto px-4 py-8">
         <div class="max-w-4xl mx-auto">
-            
+
             <!-- En-tête du profil -->
             <div class="bg-white rounded-lg shadow-md p-6 mb-8">
                 <div class="flex items-center space-x-4">
@@ -27,7 +27,7 @@
                         <h1 class="text-2xl font-bold text-gray-900" x-text="user?.pseudo || 'Utilisateur'"></h1>
                         <p class="text-gray-600" x-text="user?.email"></p>
                     </div>
-                    <button 
+                    <button
                         @click="editMode = !editMode"
                         class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
@@ -35,31 +35,31 @@
                     </button>
                 </div>
             </div>
-            
+
             <!-- Formulaire d'édition -->
             <div x-show="editMode" class="bg-white rounded-lg shadow-md p-6 mb-8">
                 <h2 class="text-xl font-semibold text-gray-900 mb-6">Modifier mon profil</h2>
-                
+
                 <form @submit.prevent="updateProfile()" class="space-y-4">
                     <div>
                         <label for="pseudo" class="block text-sm font-medium text-gray-700 mb-2">
                             Pseudo
                         </label>
-                        <input 
-                            type="text" 
+                        <input
+                            type="text"
                             id="pseudo"
                             x-model="editForm.pseudo"
                             required
                             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                         >
                     </div>
-                    
+
                     <div>
                         <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
                             Email
                         </label>
-                        <input 
-                            type="email" 
+                        <input
+                            type="email"
                             id="email"
                             x-model="editForm.email"
                             disabled
@@ -67,7 +67,7 @@
                         >
                         <p class="text-sm text-gray-500 mt-1">L'adresse email ne peut pas être modifiée</p>
                     </div>
-                    
+
                     <!-- Messages d'erreur -->
                     <div x-show="updateError" class="rounded-md bg-red-50 p-4">
                         <div class="flex">
@@ -76,7 +76,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <!-- Message de succès -->
                     <div x-show="updateSuccess" class="rounded-md bg-green-50 p-4">
                         <div class="flex">
@@ -85,17 +85,17 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="flex space-x-4">
-                        <button 
-                            type="submit" 
+                        <button
+                            type="submit"
                             :disabled="updateLoading"
                             class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
                         >
                             <span x-show="!updateLoading">Sauvegarder</span>
                             <span x-show="updateLoading">Sauvegarde...</span>
                         </button>
-                        <button 
+                        <button
                             type="button"
                             @click="cancelEdit()"
                             class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500"
@@ -105,7 +105,7 @@
                     </div>
                 </form>
             </div>
-            
+
             <!-- Statistiques -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                 <div class="bg-white rounded-lg shadow-md p-6">
@@ -125,7 +125,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="bg-white rounded-lg shadow-md p-6">
                     <h3 class="text-lg font-semibold text-gray-900 mb-4">Progression</h3>
                     <div class="space-y-3">
@@ -135,7 +135,7 @@
                                 <span x-text="`${getVisitPercentage('visited')}%`"></span>
                             </div>
                             <div class="w-full bg-gray-200 rounded-full h-2">
-                                <div 
+                                <div
                                     class="bg-green-600 h-2 rounded-full transition-all duration-300"
                                     :style="`width: ${getVisitPercentage('visited')}%`"
                                 ></div>
@@ -144,56 +144,75 @@
                     </div>
                 </div>
             </div>
-            
+
             <!-- Listes des sites -->
             <div class="space-y-8">
-                
-                <!-- Sites visités -->
+
+                <!-- Lieux à découvrir -->
                 <div class="bg-white rounded-lg shadow-md">
                     <div class="px-6 py-4 border-b border-gray-200">
-                        <h3 class="text-lg font-semibold text-gray-900">Sites visités</h3>
+                        <h3 class="text-lg font-semibold text-gray-900">Mes lieux à découvrir</h3>
                     </div>
                     <div class="p-6">
-                        <div x-show="getVisitedSites('visited').length === 0" class="text-center py-8 text-gray-500">
-                            Vous n'avez encore visité aucun site.
+                        <!-- Loading -->
+                        <div x-show="visits.length === 0 && !visitsLoaded" class="text-center py-8 text-gray-500">
+                            <div class="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mb-2"></div>
+                            <p>Chargement de vos lieux à découvrir...</p>
                         </div>
-                        <div x-show="getVisitedSites('visited').length > 0" class="overflow-x-auto">
+
+                        <!-- Empty state -->
+                        <div x-show="getVisitedSites('wishlist').length === 0 && visitsLoaded" class="text-center py-8 text-gray-500">
+                            Votre liste de lieux à découvrir est vide.
+                        </div>
+                        <div x-show="getVisitedSites('wishlist').length > 0" class="overflow-x-auto">
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-gray-50">
                                     <tr>
-                                        <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Site</th>
-                                        <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pays</th>
-                                        <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Catégorie</th>
-                                        <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date d'inscription</th>
-                                        <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                        <th class="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Site</th>
+                                        <th class="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pays</th>
+                                        <th class="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Catégorie</th>
+                                        <th class="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date d'inscription</th>
+                                        <th class="px-2 py-1 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Carte</th>
+                                        <th class="px-2 py-1 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Détails</th>
                                     </tr>
                                 </thead>
                                 <tbody class="bg-white divide-y divide-gray-200">
-                                    <template x-for="item in getVisitedSitesFlat('visited')" :key="item.id">
+                                    <template x-for="item in getVisitedSitesFlat('wishlist')" :key="item.id">
                                         <tr :class="item.isRegionHeader ? 'bg-gray-100' : 'hover:bg-gray-50'">
-                                            <td x-show="item.isRegionHeader" colspan="5" class="px-3 py-3 text-sm font-semibold text-gray-800 bg-gray-100 border-t-2 border-gray-300">
+                                            <td x-show="item.isRegionHeader" colspan="6" class="px-2 py-1 text-sm font-semibold text-gray-800 bg-gray-100 border-t-2 border-gray-300">
                                                 <span x-text="item.region || 'Région non spécifiée'"></span>
                                             </td>
-                                            <td x-show="!item.isRegionHeader" class="px-3 py-2 whitespace-nowrap">
+                                            <td x-show="!item.isRegionHeader" class="px-2 py-1 whitespace-nowrap">
                                                 <div class="text-sm font-medium text-gray-900" x-text="item.visit?.site?.name"></div>
                                             </td>
-                                            <td x-show="!item.isRegionHeader" class="px-3 py-2 whitespace-nowrap">
+                                            <td x-show="!item.isRegionHeader" class="px-2 py-1 whitespace-nowrap">
                                                 <div class="text-sm text-gray-900" x-text="item.visit?.site?.states"></div>
                                             </td>
-                                            <td x-show="!item.isRegionHeader" class="px-3 py-2 whitespace-nowrap">
-                                                <span 
-                                                    class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
-                                                    :class="item.visit?.site?.category === 'Cultural' ? 'bg-blue-100 text-blue-800' : item.visit?.site?.category === 'Natural' ? 'bg-green-100 text-green-800' : 'bg-purple-100 text-purple-800'"
-                                                    x-text="item.visit?.site?.category === 'Cultural' ? 'Culturel' : item.visit?.site?.category === 'Natural' ? 'Naturel' : 'Mixte'"
-                                                ></span>
+                                            <td x-show="!item.isRegionHeader" class="px-2 py-1 whitespace-nowrap">
+                                                <span class="text-sm text-gray-900" x-text="item.visit?.site?.category === 'Cultural' ? 'Culturel' : item.visit?.site?.category === 'Natural' ? 'Naturel' : 'Mixte'"></span>
                                             </td>
-                                            <td x-show="!item.isRegionHeader" class="px-3 py-2 whitespace-nowrap text-sm text-gray-900" x-text="item.visit?.site?.dateInscribed || 'N/A'"></td>
-                                            <td x-show="!item.isRegionHeader" class="px-3 py-2 whitespace-nowrap text-sm font-medium">
-                                                <a 
-                                                    :href="`site-detail.html?id=${item.visit?.site?.id}`"
-                                                    class="text-blue-600 hover:text-blue-900"
+                                            <td x-show="!item.isRegionHeader" class="px-2 py-1 whitespace-nowrap text-sm text-gray-900" x-text="item.visit?.site?.dateInscribed || 'N/A'"></td>
+                                            <td x-show="!item.isRegionHeader" class="px-2 py-1 whitespace-nowrap text-center">
+                                                <button
+                                                    @click="showSiteOnMap(item.visit?.site?.id)"
+                                                    class="text-blue-600 hover:text-blue-900 p-0.5"
+                                                    title="Voir sur la carte"
                                                 >
-                                                    Voir détails
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                                    </svg>
+                                                </button>
+                                            </td>
+                                            <td x-show="!item.isRegionHeader" class="px-2 py-1 whitespace-nowrap text-center">
+                                                <a
+                                                    :href="`site-detail.html?id=${item.visit?.site?.id}`"
+                                                    class="text-blue-600 hover:text-blue-900 p-0.5"
+                                                    title="Voir les détails"
+                                                >
+                                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                                    </svg>
                                                 </a>
                                             </td>
                                         </tr>
@@ -203,53 +222,66 @@
                         </div>
                     </div>
                 </div>
-                
-                <!-- Lieux à découvrir -->
+
+                <!-- Sites visités -->
                 <div class="bg-white rounded-lg shadow-md">
                     <div class="px-6 py-4 border-b border-gray-200">
-                        <h3 class="text-lg font-semibold text-gray-900">Mes lieux à découvrir</h3>
+                        <h3 class="text-lg font-semibold text-gray-900">Sites visités</h3>
                     </div>
                     <div class="p-6">
-                        <div x-show="getVisitedSites('wishlist').length === 0" class="text-center py-8 text-gray-500">
-                            Votre liste de lieux à découvrir est vide.
+                        <!-- Loading -->
+                        <div x-show="visits.length === 0 && !visitsLoaded" class="text-center py-8 text-gray-500">
+                            <div class="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mb-2"></div>
+                            <p>Chargement de vos sites visités...</p>
                         </div>
-                        <div x-show="getVisitedSites('wishlist').length > 0" class="overflow-x-auto">
+
+                        <!-- Empty state -->
+                        <div x-show="getVisitedSites('visited').length === 0 && visitsLoaded" class="text-center py-8 text-gray-500">
+                            Vous n'avez encore visité aucun site.
+                        </div>
+                        <div x-show="getVisitedSites('visited').length > 0" class="overflow-x-auto">
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-gray-50">
                                     <tr>
-                                        <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Site</th>
-                                        <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pays</th>
-                                        <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Catégorie</th>
-                                        <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date d'inscription</th>
-                                        <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                        <th class="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Site</th>
+                                        <th class="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pays</th>
+                                        <th class="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Catégorie</th>
+                                        <th class="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date d'inscription</th>
+                                        <th class="px-2 py-1 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Carte</th>
+                                        <th class="px-2 py-1 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Détails</th>
                                     </tr>
                                 </thead>
                                 <tbody class="bg-white divide-y divide-gray-200">
-                                    <template x-for="item in getVisitedSitesFlat('wishlist')" :key="item.id">
+                                    <template x-for="item in getVisitedSitesFlat('visited')" :key="item.id">
                                         <tr :class="item.isRegionHeader ? 'bg-gray-100' : 'hover:bg-gray-50'">
-                                            <td x-show="item.isRegionHeader" colspan="5" class="px-3 py-3 text-sm font-semibold text-gray-800 bg-gray-100 border-t-2 border-gray-300">
+                                            <td x-show="item.isRegionHeader" colspan="6" class="px-2 py-1 text-sm font-semibold text-gray-800 bg-gray-100 border-t-2 border-gray-300">
                                                 <span x-text="item.region || 'Région non spécifiée'"></span>
                                             </td>
-                                            <td x-show="!item.isRegionHeader" class="px-3 py-2 whitespace-nowrap">
+                                            <td x-show="!item.isRegionHeader" class="px-2 py-1 whitespace-nowrap">
                                                 <div class="text-sm font-medium text-gray-900" x-text="item.visit?.site?.name"></div>
                                             </td>
-                                            <td x-show="!item.isRegionHeader" class="px-3 py-2 whitespace-nowrap">
+                                            <td x-show="!item.isRegionHeader" class="px-2 py-1 whitespace-nowrap">
                                                 <div class="text-sm text-gray-900" x-text="item.visit?.site?.states"></div>
                                             </td>
-                                            <td x-show="!item.isRegionHeader" class="px-3 py-2 whitespace-nowrap">
-                                                <span 
-                                                    class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
-                                                    :class="item.visit?.site?.category === 'Cultural' ? 'bg-blue-100 text-blue-800' : item.visit?.site?.category === 'Natural' ? 'bg-green-100 text-green-800' : 'bg-purple-100 text-purple-800'"
-                                                    x-text="item.visit?.site?.category === 'Cultural' ? 'Culturel' : item.visit?.site?.category === 'Natural' ? 'Naturel' : 'Mixte'"
-                                                ></span>
+                                            <td x-show="!item.isRegionHeader" class="px-2 py-1 whitespace-nowrap">
+                                                <span class="text-sm text-gray-900" x-text="item.visit?.site?.category === 'Cultural' ? 'Culturel' : item.visit?.site?.category === 'Natural' ? 'Naturel' : 'Mixte'"></span>
                                             </td>
-                                            <td x-show="!item.isRegionHeader" class="px-3 py-2 whitespace-nowrap text-sm text-gray-900" x-text="item.visit?.site?.dateInscribed || 'N/A'"></td>
-                                            <td x-show="!item.isRegionHeader" class="px-3 py-2 whitespace-nowrap text-sm font-medium">
-                                                <a 
-                                                    :href="`site-detail.html?id=${item.visit?.site?.id}`"
-                                                    class="text-blue-600 hover:text-blue-900"
+                                            <td x-show="!item.isRegionHeader" class="px-2 py-1 whitespace-nowrap text-sm text-gray-900" x-text="item.visit?.site?.dateInscribed || 'N/A'"></td>
+                                            <td x-show="!item.isRegionHeader" class="px-2 py-1 whitespace-nowrap text-center">
+                                                <button
+                                                    @click="showSiteOnMap(item.visit?.site?.id)"
+                                                    class="text-blue-600 hover:text-blue-900 p-0.5"
+                                                    title="Voir sur la carte"
                                                 >
-                                                    Voir détails
+                                                    Carte
+                                                </button>
+                                            </td>
+                                            <td x-show="!item.isRegionHeader" class="px-2 py-1 whitespace-nowrap text-center">
+                                                <a
+                                                    :href="`site-detail.html?id=${item.visit?.site?.id}`"
+                                                    class="text-blue-600 hover:text-blue-900 p-0.5"
+                                                >
+                                                    Détails
                                                 </a>
                                             </td>
                                         </tr>
@@ -262,15 +294,16 @@
             </div>
         </div>
     </main>
-    
+
     <!-- Footer -->
     <div x-init="loadComponent($el, 'footer')"></div>
-    
+
     <script>
         function profilePage() {
             return {
                 user: null,
                 visits: [],
+                visitsLoaded: false,
                 editMode: false,
                 editForm: {
                     pseudo: '',
@@ -279,21 +312,21 @@
                 updateLoading: false,
                 updateError: '',
                 updateSuccess: false,
-                
+
                 async init() {
                     // Vérifier si l'utilisateur est connecté
                     if (!window.auth.isLoggedIn()) {
                         window.location.href = 'login.html';
                         return;
                     }
-                    
+
                     // Les composants sont chargés automatiquement via x-init
-                    
+
                     // Charger les données
                     await this.loadProfile();
                     await this.loadVisits();
                 },
-                
+
                 async loadProfile() {
                     try {
                         const response = await window.api.getProfile();
@@ -302,7 +335,7 @@
                         this.user = response.user || response.data || response;
                         console.log('User data:', this.user); // Debug temporaire
                         window.appState.user = this.user;
-                        
+
                         // Préremplir le formulaire d'édition
                         this.editForm.pseudo = this.user?.pseudo || '';
                         this.editForm.email = this.user?.email || '';
@@ -311,7 +344,7 @@
                         window.auth.logout();
                     }
                 },
-                
+
                 async loadVisits() {
                     try {
                         const response = await window.api.getVisits();
@@ -323,14 +356,16 @@
                         }
                     } catch (error) {
                         console.error('Error loading visits:', error);
+                    } finally {
+                        this.visitsLoaded = true;
                     }
                 },
-                
+
                 async updateProfile() {
                     this.updateLoading = true;
                     this.updateError = '';
                     this.updateSuccess = false;
-                    
+
                     try {
                         // Ne pas envoyer l'email car il ne peut pas être modifié
                         const updateData = {
@@ -347,7 +382,7 @@
                         this.updateLoading = false;
                     }
                 },
-                
+
                 cancelEdit() {
                     this.editMode = false;
                     this.editForm.pseudo = this.user.pseudo;
@@ -355,22 +390,22 @@
                     this.updateError = '';
                     this.updateSuccess = false;
                 },
-                
+
                 getInitials() {
                     if (!this.user?.pseudo) return 'U';
                     // Prendre les 2 premiers caractères du pseudo pour les initiales
                     return this.user.pseudo.substring(0, 2).toUpperCase();
                 },
-                
+
                 getVisitCount(type) {
                     return this.visits.filter(visit => visit.type === type).length;
                 },
-                
+
                 getVisitPercentage(type) {
                     const count = this.getVisitCount(type);
                     return Math.round((count / 1154) * 100 * 100) / 100; // Arrondi à 2 décimales
                 },
-                
+
                 getVisitedSites(type) {
                     return this.visits
                         .filter(visit => visit.type === type)
@@ -387,16 +422,16 @@
                         acc[region].push(visit);
                         return acc;
                     }, {});
-                    
+
                     // Trier les sites dans chaque région par nom
                     Object.keys(groupedByRegion).forEach(region => {
-                        groupedByRegion[region].sort((a, b) => 
+                        groupedByRegion[region].sort((a, b) =>
                             a.site.name.localeCompare(b.site.name, 'fr', { sensitivity: 'base' })
                         );
                     });
-                    
+
                     // Retourner un tableau de [région, sites] trié par nom de région
-                    return Object.entries(groupedByRegion).sort(([a], [b]) => 
+                    return Object.entries(groupedByRegion).sort(([a], [b]) =>
                         a.localeCompare(b, 'fr', { sensitivity: 'base' })
                     );
                 },
@@ -404,7 +439,7 @@
                 getVisitedSitesFlat(type) {
                     const groupedData = this.getVisitedSitesByRegion(type);
                     const flatData = [];
-                    
+
                     groupedData.forEach(([region, sites]) => {
                         // Ajouter l'en-tête de région
                         flatData.push({
@@ -412,7 +447,7 @@
                             isRegionHeader: true,
                             region: region
                         });
-                        
+
                         // Ajouter tous les sites de cette région
                         sites.forEach(visit => {
                             flatData.push({
@@ -422,8 +457,15 @@
                             });
                         });
                     });
-                    
+
                     return flatData;
+                },
+
+                showSiteOnMap(siteId) {
+                    // TODO: Implémenter la redirection vers la carte avec le site sélectionné
+                    console.log('Afficher le site sur la carte:', siteId);
+                    // Pour l'instant, redirection simple vers la carte
+                    window.location.href = 'map.html';
                 }
             }
         }

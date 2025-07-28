@@ -24,7 +24,7 @@
                         <span class="text-2xl font-bold text-blue-600" x-text="getInitials()"></span>
                     </div>
                     <div class="flex-1">
-                        <h1 class="text-2xl font-bold text-gray-900" x-text="user?.name || 'Utilisateur'"></h1>
+                        <h1 class="text-2xl font-bold text-gray-900" x-text="user?.pseudo || 'Utilisateur'"></h1>
                         <p class="text-gray-600" x-text="user?.email"></p>
                     </div>
                     <button 
@@ -42,13 +42,13 @@
                 
                 <form @submit.prevent="updateProfile()" class="space-y-4">
                     <div>
-                        <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
-                            Nom complet
+                        <label for="pseudo" class="block text-sm font-medium text-gray-700 mb-2">
+                            Pseudo
                         </label>
                         <input 
                             type="text" 
-                            id="name"
-                            x-model="editForm.name"
+                            id="pseudo"
+                            x-model="editForm.pseudo"
                             required
                             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                         >
@@ -62,9 +62,10 @@
                             type="email" 
                             id="email"
                             x-model="editForm.email"
-                            required
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                            disabled
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-500 cursor-not-allowed"
                         >
+                        <p class="text-sm text-gray-500 mt-1">L'adresse email ne peut pas être modifiée</p>
                     </div>
                     
                     <!-- Messages d'erreur -->
@@ -213,7 +214,7 @@
                 sites: {},
                 editMode: false,
                 editForm: {
-                    name: '',
+                    pseudo: '',
                     email: ''
                 },
                 updateLoading: false,
@@ -237,12 +238,15 @@
                 async loadProfile() {
                     try {
                         const response = await window.api.getProfile();
-                        this.user = response.data || response;
+                        console.log('Profile API response:', response); // Debug temporaire
+                        // Selon la doc API, la réponse contient { "user": {...} }
+                        this.user = response.user || response.data || response;
+                        console.log('User data:', this.user); // Debug temporaire
                         window.appState.user = this.user;
                         
                         // Préremplir le formulaire d'édition
-                        this.editForm.name = this.user.name;
-                        this.editForm.email = this.user.email;
+                        this.editForm.pseudo = this.user?.pseudo || '';
+                        this.editForm.email = this.user?.email || '';
                     } catch (error) {
                         console.error('Error loading profile:', error);
                         window.auth.logout();
@@ -276,7 +280,11 @@
                     this.updateSuccess = false;
                     
                     try {
-                        const response = await window.api.updateProfile(this.editForm);
+                        // Ne pas envoyer l'email car il ne peut pas être modifié
+                        const updateData = {
+                            pseudo: this.editForm.pseudo
+                        };
+                        const response = await window.api.updateProfile(updateData);
                         this.user = response.data || response;
                         window.appState.user = this.user;
                         this.updateSuccess = true;
@@ -290,19 +298,16 @@
                 
                 cancelEdit() {
                     this.editMode = false;
-                    this.editForm.name = this.user.name;
+                    this.editForm.pseudo = this.user.pseudo;
                     this.editForm.email = this.user.email;
                     this.updateError = '';
                     this.updateSuccess = false;
                 },
                 
                 getInitials() {
-                    if (!this.user?.name) return 'U';
-                    return this.user.name.split(' ')
-                        .map(name => name.charAt(0))
-                        .join('')
-                        .toUpperCase()
-                        .substring(0, 2);
+                    if (!this.user?.pseudo) return 'U';
+                    // Prendre les 2 premiers caractères du pseudo pour les initiales
+                    return this.user.pseudo.substring(0, 2).toUpperCase();
                 },
                 
                 getVisitCount(type) {

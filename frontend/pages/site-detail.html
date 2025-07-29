@@ -93,7 +93,13 @@
                                 </div>
                                 <div x-show="site.criteriaTxt">
                                     <dt class="text-sm font-medium text-gray-500">Critères</dt>
-                                    <dd class="text-sm text-gray-900" x-text="site.criteriaTxt"></dd>
+                                    <dd class="text-sm text-gray-900">
+                                        <button
+                                            @click="showCriteriaPopup = true"
+                                            class="text-blue-600 hover:text-blue-800 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 rounded"
+                                            x-text="site.criteriaTxt"
+                                        ></button>
+                                    </dd>
                                 </div>
                                 <div x-show="site.latitude && site.longitude">
                                     <dt class="text-sm font-medium text-gray-500">Localisation</dt>
@@ -163,6 +169,92 @@
         </div>
     </main>
 
+    <!-- Popup Critères UNESCO -->
+    <div x-show="showCriteriaPopup"
+         class="fixed inset-0 z-50 overflow-y-auto"
+         style="display: none;"
+         x-transition:enter="ease-out duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="ease-in duration-200"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0">
+        <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:p-0">
+            <!-- Overlay -->
+            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
+                 @click="showCriteriaPopup = false"></div>
+
+            <!-- Modal -->
+            <div class="relative inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="sm:flex sm:items-start">
+                        <div class="w-full">
+                            <div class="mb-4">
+                                <h3 class="text-lg leading-6 font-medium text-gray-900 text-center">
+                                    Critères de sélection UNESCO
+                                </h3>
+                            </div>
+
+                            <div class="max-h-96 overflow-y-auto">
+                                <div class="space-y-4 text-sm text-gray-700">
+                                    <div class="border-b pb-3">
+                                        <h4 class="font-semibold text-gray-900 mb-2">(i)</h4>
+                                        <p>représenter un chef-d'œuvre du génie créateur humain ;</p>
+                                    </div>
+
+                                    <div class="border-b pb-3">
+                                        <h4 class="font-semibold text-gray-900 mb-2">(ii)</h4>
+                                        <p>témoigner d'un échange d'influences considérable pendant une période donnée ou dans une aire culturelle déterminée, sur le développement de l'architecture ou de la technologie, des arts monumentaux, de la planification des villes ou de la création de paysages ;</p>
+                                    </div>
+
+                                    <div class="border-b pb-3">
+                                        <h4 class="font-semibold text-gray-900 mb-2">(iii)</h4>
+                                        <p>apporter un témoignage unique ou du moins exceptionnel sur une tradition culturelle ou une civilisation vivante ou disparue ;</p>
+                                    </div>
+
+                                    <div class="border-b pb-3">
+                                        <h4 class="font-semibold text-gray-900 mb-2">(iv)</h4>
+                                        <p>offrir un exemple éminent d'un type de construction ou d'ensemble architectural ou technologique ou de paysage illustrant une ou des périodes significative(s) de l'histoire humaine ;</p>
+                                    </div>
+
+                                    <div class="border-b pb-3">
+                                        <h4 class="font-semibold text-gray-900 mb-2">(v)</h4>
+                                        <p>être un exemple éminent d'établissement humain traditionnel, de l'utilisation traditionnelle du territoire ou de la mer, qui soit représentatif d'une culture (ou de cultures), ou de l'interaction humaine avec l'environnement, spécialement quand celui-ci est devenu vulnérable sous l'impact d'une mutation irréversible ;</p>
+                                    </div>
+
+                                    <div class="border-b pb-3">
+                                        <h4 class="font-semibold text-gray-900 mb-2">(vi)</h4>
+                                        <p>être directement ou matériellement associé à des événements ou des traditions vivantes, des idées, des croyances ou des œuvres artistiques et littéraires ayant une signification universelle exceptionnelle (Le Comité considère que ce critère doit préférablement être utilisé en conjonction avec d'autres critères) ;</p>
+                                    </div>
+
+                                    <div class="border-b pb-3">
+                                        <h4 class="font-semibold text-gray-900 mb-2">(vii)</h4>
+                                        <p>représenter des phénomènes naturels ou des aires d'une beauté naturelle et d'une importance esthétique exceptionnelles ;</p>
+                                    </div>
+
+                                    <div class="border-b pb-3">
+                                        <h4 class="font-semibold text-gray-900 mb-2">(viii)</h4>
+                                        <p>être des exemples éminemment représentatifs des grands stades de l'histoire de la terre, y compris le témoignage de la vie, de processus géologiques en cours dans le développement des formes terrestres ou d'éléments géomorphiques ou physiographiques ayant une grande signification ;</p>
+                                    </div>
+
+                                    <div class="border-b pb-3">
+                                        <h4 class="font-semibold text-gray-900 mb-2">(ix)</h4>
+                                        <p>être des exemples éminemment représentatifs de processus écologiques et biologiques en cours dans l'évolution et le développement des écosystèmes et communautés de plantes et d'animaux terrestres, aquatiques, côtiers et marins ;</p>
+                                    </div>
+
+                                    <div>
+                                        <h4 class="font-semibold text-gray-900 mb-2">(x)</h4>
+                                        <p>contenir les habitats naturels les plus représentatifs et les plus importants pour la conservation in situ de la diversité biologique, y compris ceux où survivent des espèces menacées ayant une valeur universelle exceptionnelle du point de vue de la science ou de la conservation.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Footer -->
     <div x-init="loadComponent($el, 'footer')"></div>
 
@@ -175,6 +267,7 @@
                 error: '',
                 siteId: null,
                 isAuthenticated: false,
+                showCriteriaPopup: false,
 
                 async init() {
                     // Récupérer l'ID depuis l'URL

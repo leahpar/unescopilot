@@ -60,7 +60,6 @@
         .pin-head {
             width: 24px;
             height: 24px;
-            background: #e53e3e;
             border: 2px solid #ffffff;
             border-radius: 50% 50% 50% 0;
             transform: rotate(-45deg);
@@ -85,13 +84,20 @@
         .pin-point {
             width: 2px;
             height: 8px;
-            background: #e53e3e;
             position: absolute;
             bottom: 0;
             left: 11px;
             transform: rotate(45deg);
             transform-origin: bottom;
         }
+
+        /* Pin colors */
+        .pin-head-red { background-color: #e53e3e; }
+        .pin-point-red { background-color: #e53e3e; }
+        .pin-head-green { background-color: #34d399; } /* Vert */
+        .pin-point-green { background-color: #34d399; }
+        .pin-head-blue { background-color: #60a5fa; } /* Bleu */
+        .pin-point-blue { background-color: #60a5fa; }
 
         /* Styles pour les popups avec images */
         .site-popup {
@@ -271,8 +277,8 @@
                             </button>
                             <button
                                 @click.stop="toggleVisit(selectedSite.id, 'wishlist')"
-                                :class="isVisited(selectedSite.id, 'wishlist') ? 'text-white bg-red-600 shadow-md' : 'text-red-600 bg-white border-2 border-red-600'"
-                                class="min-w-12 h-10 px-3 rounded-full hover:bg-red-700 hover:text-white transition-all duration-200 font-semibold flex items-center justify-center"
+                                :class="isVisited(selectedSite.id, 'wishlist') ? 'text-white bg-blue-600 shadow-md' : 'text-blue-600 bg-white border-2 border-blue-600'"
+                                class="min-w-12 h-10 px-3 rounded-full hover:bg-blue-700 hover:text-white transition-all duration-200 font-semibold flex items-center justify-center"
                                 title="Ajouter à mes lieux à découvrir"
                             >
                                 ♥
@@ -439,9 +445,16 @@
                 },
 
                 createSiteMarker(site) {
+                    let colorClass = 'red';
+                    if (this.isVisited(site.id, 'visited')) {
+                        colorClass = 'green';
+                    } else if (this.isVisited(site.id, 'wishlist')) {
+                        colorClass = 'blue';
+                    }
+
                     const pinIcon = L.divIcon({
                         className: 'custom-pin-marker',
-                        html: '<div class="pin-container"><div class="pin-head"></div><div class="pin-point"></div></div>',
+                        html: `<div class="pin-container"><div class="pin-head pin-head-${colorClass}"></div><div class="pin-point pin-point-${colorClass}"></div></div>`,
                         iconSize: [24, 36],
                         iconAnchor: [12, 36],
                         popupAnchor: [0, -36]
@@ -526,6 +539,7 @@
                             
                             await this.loadVisits();
                         }
+                        this.displaySitesInBounds(); // Redessiner les markers
                     } catch (error) {
                         this.visits = originalVisits;
                         console.error('Error toggling visit:', error);

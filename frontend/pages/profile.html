@@ -193,16 +193,13 @@
                                             </td>
                                             <td x-show="!item.isRegionHeader" class="px-2 py-1 whitespace-nowrap text-sm text-gray-900" x-text="item.visit?.site?.dateInscribed || 'N/A'"></td>
                                             <td x-show="!item.isRegionHeader" class="px-2 py-1 whitespace-nowrap text-center">
-                                                <button
-                                                    @click="showSiteOnMap(item.visit?.site?.id)"
+                                                <a
+                                                    :href="`map.html?site=${item.visit?.site?.id}`"
                                                     class="text-blue-600 hover:text-blue-900 p-0.5"
                                                     title="Voir sur la carte"
                                                 >
-                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                                    </svg>
-                                                </button>
+                                                    Carte
+                                                </a>
                                             </td>
                                             <td x-show="!item.isRegionHeader" class="px-2 py-1 whitespace-nowrap text-center">
                                                 <a
@@ -210,9 +207,7 @@
                                                     class="text-blue-600 hover:text-blue-900 p-0.5"
                                                     title="Voir les détails"
                                                 >
-                                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                                                    </svg>
+                                                    Détails
                                                 </a>
                                             </td>
                                         </tr>
@@ -268,13 +263,13 @@
                                             </td>
                                             <td x-show="!item.isRegionHeader" class="px-2 py-1 whitespace-nowrap text-sm text-gray-900" x-text="item.visit?.site?.dateInscribed || 'N/A'"></td>
                                             <td x-show="!item.isRegionHeader" class="px-2 py-1 whitespace-nowrap text-center">
-                                                <button
-                                                    @click="showSiteOnMap(item.visit?.site?.id)"
+                                                <a
+                                                    :href="`map.html?site=${item.visit?.site?.id}`"
                                                     class="text-blue-600 hover:text-blue-900 p-0.5"
                                                     title="Voir sur la carte"
                                                 >
                                                     Carte
-                                                </button>
+                                                </a>
                                             </td>
                                             <td x-show="!item.isRegionHeader" class="px-2 py-1 whitespace-nowrap text-center">
                                                 <a
@@ -330,10 +325,8 @@
                 async loadProfile() {
                     try {
                         const response = await window.api.getProfile();
-                        console.log('Profile API response:', response); // Debug temporaire
                         // Selon la doc API, la réponse contient { "user": {...} }
                         this.user = response.user || response.data || response;
-                        console.log('User data:', this.user); // Debug temporaire
                         window.appState.user = this.user;
 
                         // Préremplir le formulaire d'édition
@@ -350,9 +343,7 @@
                         const response = await window.api.getVisits();
                         // L'API retourne directement un tableau de visites avec les sites inclus
                         this.visits = Array.isArray(response) ? response : (response.data || response);
-                        console.log('Visits loaded:', this.visits); // Debug temporaire
                         if (this.visits.length > 0) {
-                            console.log('First visit structure:', this.visits[0]); // Debug temporaire
                         }
                     } catch (error) {
                         console.error('Error loading visits:', error);
@@ -461,12 +452,7 @@
                     return flatData;
                 },
 
-                showSiteOnMap(siteId) {
-                    // TODO: Implémenter la redirection vers la carte avec le site sélectionné
-                    console.log('Afficher le site sur la carte:', siteId);
-                    // Pour l'instant, redirection simple vers la carte
-                    window.location.href = 'map.html';
-                }
+                
             }
         }
     </script>

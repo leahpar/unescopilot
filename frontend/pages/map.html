@@ -323,7 +323,19 @@
                 },
 
                 initMap() {
-                    this.map = L.map('map', {zoomAnimation:true}).setView([50.0, 10.0], 4);
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const siteIdFromUrl = parseInt(urlParams.get('site'));
+                    const siteToFocus = siteIdFromUrl ? this.allSites.find(s => s.id === siteIdFromUrl) : null;
+
+                    let initialView = [47, 2];
+                    let initialZoom = 5;
+
+                    if (siteToFocus) {
+                        initialView = [siteToFocus.latitude, siteToFocus.longitude];
+                        initialZoom = 12;
+                    }
+                    
+                    this.map = L.map('map', {zoomAnimation:true}).setView(initialView, initialZoom);
 
                     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                         attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
@@ -338,8 +350,11 @@
                         maxClusterRadius: 50
                     }).addTo(this.map);
 
-                    this.centerOnUserLocation();
                     this.displaySitesInBounds();
+                    
+                    if (siteToFocus) {
+                        this.selectedSite = siteToFocus;
+                    }
                     
                     // Masquer le loading une fois la carte initialisée
                     setTimeout(() => {
@@ -362,27 +377,6 @@
                     });
 
                     setTimeout(() => this.map.invalidateSize(), 200);
-                },
-
-                centerOnUserLocation() {
-                    if (navigator.geolocation) {
-                        navigator.geolocation.getCurrentPosition(
-                            (position) => {
-                                const lat = position.coords.latitude;
-                                const lng = position.coords.longitude;
-                                this.map.setView([lat, lng], 10);
-                                L.circleMarker([lat, lng], {
-                                    color: '#1976D2',
-                                    fillColor: '#2196F3',
-                                    fillOpacity: 0.8,
-                                    radius: 8,
-                                    weight: 2
-                                }).addTo(this.map);
-                            },
-                            (error) => console.log('Géolocalisation non disponible ou refusée:', error.message),
-                            { enableHighAccuracy: true, timeout: 5000, maximumAge: 300000 }
-                        );
-                    }
                 },
 
                 async loadAllSites() {

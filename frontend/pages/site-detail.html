@@ -20,7 +20,7 @@
             <!-- Navigation retour -->
             <div class="mb-6">
                 <button @click="goBack()" class="inline-flex items-center text-blue-600 hover:text-blue-800 cursor-pointer">
-                    ← Retour à la page précédente
+                    ← Retour
                 </button>
             </div>
 
@@ -102,7 +102,7 @@
                                             class="inline-flex items-center text-blue-600 hover:text-blue-800 text-sm"
                                             title="Voir sur la carte"
                                         >
-                                        <span x-text="site?.latitude"></span>, <span x-text="site?.longitude"></span>
+                                        <span x-text="formattedCoordinates"></span>
                                         </a>
                                     </dd>
                                 </div>
@@ -148,11 +148,11 @@
 
 
                     <!-- Lien officiel -->
-                    <div x-show="site?.httpUrl" class="border-t border-gray-200 pt-6">
+                    <div x-show="site?.httpUrl" class="border-t border-gray-200 pt-6 text-right">
                         <a
                             :href="site?.httpUrl"
                             target="_blank"
-                            class="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium"
+                            class="text-blue-600 hover:text-blue-800 font-medium"
                         >
                             Voir la page officielle UNESCO →
                         </a>
@@ -224,8 +224,20 @@
 
                 isVisited(type) {
                     return this.visits.some(visit =>
-                        visit.site?.id == this.siteId && visit.type === type
+                        visit.site?.id === this.siteId && visit.type === type
                     );
+                },
+
+                get formattedCoordinates() {
+                    if (!this.site?.latitude || !this.site?.longitude) return 'Non disponible';
+
+                    const lat = parseFloat(this.site.latitude);
+                    const lon = parseFloat(this.site.longitude);
+
+                    const latDir = lat >= 0 ? 'N' : 'S';
+                    const lonDir = lon >= 0 ? 'E' : 'O';
+
+                    return `${Math.abs(lat).toFixed(2)} ${latDir}, ${Math.abs(lon).toFixed(2)} ${lonDir}`;
                 },
 
                 get cleanDescription() {

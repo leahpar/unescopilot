@@ -40,34 +40,35 @@
             </div>
 
             <!-- Détail du site -->
-            <div x-show="site && !loading" class="bg-white rounded-lg shadow-lg overflow-hidden">
+            <template x-if="site && !loading">
+                <div class="bg-white rounded-lg shadow-lg overflow-hidden">
 
                 <!-- Image principale (si disponible) -->
-                <div x-show="site?.imageUrl" class="h-64 md:h-96 relative">
+                <div x-show="site.imageUrl" class="h-64 md:h-96 relative">
                     <img
-                        :src="site?.imageUrl"
-                        :alt="site?.name || 'Site UNESCO'"
+                        :src="site.imageUrl"
+                        :alt="site.name || 'Site UNESCO'"
                         class="w-full h-full object-cover"
                     >
                     <div class="absolute inset-0 bg-black bg-opacity-30 flex items-end">
                         <div class="p-6 text-white">
                             <span
                                 class="inline-block px-3 py-1 text-sm font-semibold rounded-full mb-3"
-                                :class="site?.category === 'Cultural' ? 'bg-blue-600' : site?.category === 'Natural' ? 'bg-green-600' : 'bg-purple-600'"
-                                x-text="site?.category === 'Cultural' ? 'Site Culturel' : site?.category === 'Natural' ? 'Site Naturel' : 'Site Mixte'"
+                                :class="site.category === 'Cultural' ? 'bg-blue-600' : site.category === 'Natural' ? 'bg-green-600' : 'bg-purple-600'"
+                                x-text="site.category === 'Cultural' ? 'Site Culturel' : site.category === 'Natural' ? 'Site Naturel' : 'Site Mixte'"
                             ></span>
-                            <h1 class="text-3xl md:text-4xl font-bold" x-text="site?.name || 'Chargement...'"></h1>
+                            <h1 class="text-3xl md:text-4xl font-bold" x-text="site.name || 'Chargement...'"></h1>
                         </div>
                     </div>
                 </div>
 
                 <!-- Header sans image -->
-                <div x-show="!site?.imageUrl && site" class="p-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+                <div x-show="!site.imageUrl && site" class="p-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
                     <span
                         class="inline-block px-3 py-1 text-sm font-semibold rounded-full mb-3 bg-white bg-opacity-20"
-                        x-text="site?.category === 'Cultural' ? 'Site Culturel' : site?.category === 'Natural' ? 'Site Naturel' : 'Site Mixte'"
+                        x-text="site.category === 'Cultural' ? 'Site Culturel' : site.category === 'Natural' ? 'Site Naturel' : 'Site Mixte'"
                     ></span>
-                    <h1 class="text-3xl md:text-4xl font-bold" x-text="site?.name || 'Chargement...'"></h1>
+                    <h1 class="text-3xl md:text-4xl font-bold" x-text="site.name || 'Chargement...'"></h1>
                 </div>
 
                 <!-- Contenu -->
@@ -80,25 +81,25 @@
                             <dl class="space-y-2">
                                 <div>
                                     <dt class="text-sm font-medium text-gray-500">Pays/États</dt>
-                                    <dd class="text-sm text-gray-900" x-text="site?.states || 'Non renseigné'"></dd>
+                                    <dd class="text-sm text-gray-900" x-text="site.states || 'Non renseigné'"></dd>
                                 </div>
                                 <div>
                                     <dt class="text-sm font-medium text-gray-500">Région</dt>
-                                    <dd class="text-sm text-gray-900" x-text="site?.region || 'Non renseigné'"></dd>
+                                    <dd class="text-sm text-gray-900" x-text="site.region || 'Non renseigné'"></dd>
                                 </div>
                                 <div>
                                     <dt class="text-sm font-medium text-gray-500">Date d'inscription</dt>
-                                    <dd class="text-sm text-gray-900" x-text="site?.dateInscribed || 'Non renseigné'"></dd>
+                                    <dd class="text-sm text-gray-900" x-text="site.dateInscribed || 'Non renseigné'"></dd>
                                 </div>
-                                <div x-show="site?.criteriaTxt">
+                                <div x-show="site.criteriaTxt">
                                     <dt class="text-sm font-medium text-gray-500">Critères</dt>
-                                    <dd class="text-sm text-gray-900" x-text="site?.criteriaTxt"></dd>
+                                    <dd class="text-sm text-gray-900" x-text="site.criteriaTxt"></dd>
                                 </div>
-                                <div x-show="site?.latitude && site?.longitude">
+                                <div x-show="site.latitude && site.longitude">
                                     <dt class="text-sm font-medium text-gray-500">Localisation</dt>
                                     <dd class="text-sm text-gray-900">
                                         <a
-                                            :href="`map.html?site=${site?.id}`"
+                                            :href="`map.html?site=${site.id}`"
                                             class="inline-flex items-center text-blue-600 hover:text-blue-800 text-sm"
                                             title="Voir sur la carte"
                                         >
@@ -141,16 +142,16 @@
                     </div>
 
                     <!-- Description -->
-                    <div x-show="site?.shortDescription" class="mb-8">
+                    <div x-show="site.shortDescription" class="mb-8">
                         <h3 class="text-lg font-semibold text-gray-900 mb-3">Description</h3>
                         <div class="prose max-w-none text-gray-700" x-html="cleanDescription"></div>
                     </div>
 
 
                     <!-- Lien officiel -->
-                    <div x-show="site?.httpUrl" class="border-t border-gray-200 pt-6 text-right">
+                    <div x-show="site.httpUrl" class="border-t border-gray-200 pt-6 text-right">
                         <a
-                            :href="site?.httpUrl"
+                            :href="site.httpUrl"
                             target="_blank"
                             class="text-blue-600 hover:text-blue-800 font-medium"
                         >
@@ -158,7 +159,7 @@
                         </a>
                     </div>
                 </div>
-            </div>
+            </template>
         </div>
     </main>
 

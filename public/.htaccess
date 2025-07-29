@@ -24,6 +24,23 @@ DirectoryIndex index.php
 
     RewriteEngine On
 
+    ### FRONTEND ROUTING
+    # Redirect to remove .html from the URL
+    RewriteCond %{THE_REQUEST} ^[A-Z]{3,}\s([^.]+)\.html [NC]
+    RewriteRule ^ %1 [R=301,L]
+
+    # Internally rewrite to the file in the /pages directory if it exists
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{DOCUMENT_ROOT}/pages%{REQUEST_URI}.html -f
+    RewriteRule ^(.*?)/?$ /pages/$1.html [L]
+
+    # Internally rewrite to the file in the root directory if it exists
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME}.html -f
+    RewriteRule ^(.*?)/?$ $1.html [L]
+    ### END FRONTEND ROUTING
+
     # Determine the RewriteBase automatically and set it as environment variable.
     # If you are using Apache aliases to do mass virtual hosting or installed the
     # project in a subdirectory, the base path will be prepended to allow proper

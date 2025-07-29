@@ -318,7 +318,7 @@
 
                 isVisited(type) {
                     return this.visits.some(visit =>
-                        visit.site?.id === this.siteId && visit.type === type
+                        visit.site?.id == this.siteId && visit.type == type
                     );
                 },
 

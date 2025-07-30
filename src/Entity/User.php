@@ -44,6 +44,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private Collection $tokens;
 
     #[ORM\OneToMany(targetEntity: Visit::class, mappedBy: 'user', cascade: ['persist', 'remove'])]
+    #[Ignore]
     private Collection $visits;
 
     public function __construct()

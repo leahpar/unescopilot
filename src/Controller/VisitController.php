@@ -41,8 +41,6 @@ class VisitController extends AbstractController
         return $this->json($visits);
     }
 
-    
-
     #[Route('', name: 'app_api_visit_create', methods: ['POST'])]
     public function create(#[MapRequestPayload] CreateVisitDTO $dto): JsonResponse
     {

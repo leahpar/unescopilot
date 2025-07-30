@@ -291,6 +291,27 @@ Récupérer la visite de l'utilisateur pour un site spécifique.
 
 ---
 
+## Endpoint de classement
+
+### GET `/api/ranking`
+Récupère le classement des utilisateurs par nombre de sites visités dans chaque région.
+
+**Réponse (200) :**
+```json
+{
+  "username1": {
+    "Europe et Amérique du Nord": 10,
+    "Asie et Pacifique": 5
+  },
+  "username2": {
+    "Afrique": 8,
+    "États arabes": 3
+  }
+}
+```
+
+---
+
 ## Types de données
 
 ### VisitType

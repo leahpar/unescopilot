@@ -39,6 +39,11 @@ DirectoryIndex index.php
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME}.html -f
     RewriteRule ^(.*?)/?$ $1.html [L]
+
+    # Handle the root path specifically for index.html
+    RewriteCond %{REQUEST_URI} ^/$
+    RewriteCond %{DOCUMENT_ROOT}/index.html -f
+    RewriteRule ^$ /index.html [L]
     ### END FRONTEND ROUTING
 
     # Determine the RewriteBase automatically and set it as environment variable.

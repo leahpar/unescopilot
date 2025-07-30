@@ -20,24 +20,11 @@
             <!-- En-tête -->
             <div class="bg-white rounded-lg shadow-md p-6 mb-8">
                 <h1 class="text-3xl font-bold text-gray-900 mb-4">🏆 Classement des explorateurs</h1>
-                <p class="text-gray-600">Découvrez les utilisateurs les plus actifs par région UNESCO</p>
+                <p class="text-gray-600">Découvrez les explorateurs les plus actifs</p>
             </div>
 
             <!-- Statistiques globales -->
             <div x-show="!loading && !error" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Utilisateurs actifs</h3>
-                    <p class="text-3xl font-bold text-blue-600" x-text="Object.keys(rankings).length"></p>
-                </div>
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Top explorateur</h3>
-                    <p class="text-lg font-medium text-green-600" x-text="getTopUser()?.username || 'N/A'"></p>
-                    <p class="text-sm text-gray-500" x-text="getTopUser() ? `${getTopUser().total} sites` : ''"></p>
-                </div>
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Moyenne par utilisateur</h3>
-                    <p class="text-3xl font-bold text-purple-600" x-text="getAverageVisits()"></p>
-                </div>
                 <!-- Card du classement utilisateur courant -->
                 <div x-show="currentUser" class="bg-gradient-to-br from-blue-50 to-indigo-100 rounded-lg shadow-md p-6 border-2 border-blue-200">
                     <h3 class="text-lg font-semibold text-gray-900 mb-2">Votre classement</h3>
@@ -50,13 +37,26 @@
                         <p class="text-xs text-gray-400">Visitez des sites pour apparaître dans le classement !</p>
                     </div>
                 </div>
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Top explorateur</h3>
+                    <p class="text-lg font-medium text-green-600" x-text="getTopUser()?.username || 'N/A'"></p>
+                    <p class="text-sm text-gray-500" x-text="getTopUser() ? `${getTopUser().total} sites` : ''"></p>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Moyenne par explorateur</h3>
+                    <p class="text-3xl font-bold text-purple-600" x-text="getAverageVisits()"></p>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Explorateurs actifs</h3>
+                    <p class="text-3xl font-bold text-blue-600" x-text="Object.keys(rankings).length"></p>
+                </div>
             </div>
 
             <!-- Tableau de classement -->
             <div class="bg-white rounded-lg shadow-md">
                 <div class="px-6 py-4 border-b border-gray-200">
                     <h3 class="text-lg font-semibold text-gray-900">Classement des explorateurs</h3>
-                    <p class="text-sm text-gray-500 mt-1" x-show="!loading">Cliquez sur les en-têtes pour trier par région</p>
+                    <p class="text-xs text-gray-500 mt-1" x-show="!loading">(Cliquez sur les en-têtes pour trier par région)</p>
                 </div>
 
                 <!-- État de chargement -->
@@ -82,7 +82,7 @@
                         <thead class="bg-gray-50">
                             <tr>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rang</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Utilisateur</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Explorateur</th>
                                 <th @click="sortByColumn('Europe et Amérique du Nord')" class="px-6 py-3 text-center text-xs font-medium uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none" :class="getSortColumnClass('Europe et Amérique du Nord')">
                                     <div class="flex items-center justify-center space-x-1">
                                         <span>Europe & Amérique du Nord</span>
@@ -125,7 +125,7 @@
                             <template x-for="(user, index) in sortedUsers" :key="user.username">
                                 <tr class="hover:bg-gray-50" :class="[
                                     index < 3 ? 'bg-yellow-50' : '',
-                                    isCurrentUser(user.username) ? 'bg-blue-50 border-l-4 border-blue-500 font-medium' : ''
+                                    isCurrentUser(user.username) ? 'bg-blue-50 font-bold' : ''
                                 ]">
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="flex items-center">
@@ -137,15 +137,9 @@
                                         </div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="flex items-center">
-                                            <div class="w-10 h-10 rounded-full flex items-center justify-center mr-3" :class="isCurrentUser(user.username) ? 'bg-blue-200' : 'bg-blue-100'">
-                                                <span class="text-sm font-bold" :class="isCurrentUser(user.username) ? 'text-blue-800' : 'text-blue-600'" x-text="user.username.substring(0, 2).toUpperCase()"></span>
-                                            </div>
-                                            <div class="flex items-center space-x-2">
-                                                <div class="text-sm font-medium text-gray-900" x-text="user.username"></div>
-                                                <span x-show="isCurrentUser(user.username)" class="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">Vous</span>
-                                            </div>
-                                        </div>
+                                        <span class="text-sm text-gray-900"
+                                              :class="{'bg-blue-200 rounded-full px-2 py-1': isCurrentUser(user.username)}"
+                                              x-text="user.username"></span>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-center">
                                         <span class="text-sm text-gray-900" x-text="user.regions['Europe et Amérique du Nord'] || 0"></span>
@@ -189,6 +183,7 @@
                     'États arabes'
                 ],
                 sortedUsers: [],
+                defaultSortedUsers: [], // Classement par total pour la card individuelle
                 currentSort: 'total',
                 sortDirection: 'desc',
                 loading: true,
@@ -205,7 +200,7 @@
                             console.error('Error loading user profile:', error);
                         }
                     }
-                    
+
                     await this.loadRanking();
                 },
 
@@ -216,6 +211,18 @@
                     try {
                         const response = await window.api.getRanking();
                         this.rankings = response || {};
+
+                        // Créer le classement par défaut (total décroissant) pour la card individuelle
+                        this.defaultSortedUsers = Object.entries(this.rankings)
+                            .map(([username, regions]) => ({
+                                username,
+                                regions,
+                                total: this.getTotalVisits(regions)
+                            }))
+                            .sort((a, b) => b.total - a.total);
+
+                        // Initialiser l'affichage avec le tri par total décroissant
+                        this.currentSort = '';  // Réinitialiser pour forcer le tri desc
                         this.sortByColumn('total');
                     } catch (error) {
                         console.error('Error loading ranking:', error);
@@ -243,6 +250,17 @@
                             "États arabes": 3
                         }
                     };
+
+                    // Créer le classement par défaut pour les données de fallback
+                    this.defaultSortedUsers = Object.entries(this.rankings)
+                        .map(([username, regions]) => ({
+                            username,
+                            regions,
+                            total: this.getTotalVisits(regions)
+                        }))
+                        .sort((a, b) => b.total - a.total);
+
+                    this.currentSort = '';  // Réinitialiser pour forcer le tri desc
                     this.sortByColumn('total');
                 },
 
@@ -285,14 +303,14 @@
                 },
 
                 getTopUser() {
-                    if (this.sortedUsers.length === 0) return null;
-                    return this.sortedUsers[0];
+                    if (this.defaultSortedUsers.length === 0) return null;
+                    return this.defaultSortedUsers[0];
                 },
 
                 getAverageVisits() {
-                    if (this.sortedUsers.length === 0) return 0;
-                    const total = this.sortedUsers.reduce((sum, user) => sum + user.total, 0);
-                    return Math.round(total / this.sortedUsers.length);
+                    if (this.defaultSortedUsers.length === 0) return 0;
+                    const total = this.defaultSortedUsers.reduce((sum, user) => sum + user.total, 0);
+                    return Math.round(total / this.defaultSortedUsers.length);
                 },
 
                 getRankStyle(index) {
@@ -311,18 +329,20 @@
 
                 getCurrentUserRank() {
                     if (!this.currentUser || !this.currentUser.pseudo) return null;
-                    
-                    const userIndex = this.sortedUsers.findIndex(user => 
+
+                    // Utilise toujours le classement par total pour la card individuelle
+                    const userIndex = this.defaultSortedUsers.findIndex(user =>
                         user.username === this.currentUser.pseudo
                     );
-                    
+
                     return userIndex !== -1 ? userIndex + 1 : null;
                 },
 
                 getCurrentUserData() {
                     if (!this.currentUser || !this.currentUser.pseudo) return null;
-                    
-                    return this.sortedUsers.find(user => 
+
+                    // Utilise toujours le classement par total pour la card individuelle
+                    return this.defaultSortedUsers.find(user =>
                         user.username === this.currentUser.pseudo
                     );
                 },

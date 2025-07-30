@@ -3,32 +3,32 @@
 # Just for convenience api usage, we dont test the API here (ie no check for errors test cases)
 
 ### Variables
-@host = 127.0.0.1:8016
-@baseUrl = http://{{host}}
+#@apiUrl = http://127.0.0.1:8016/api
+@apiUrl = https://unescopilot.com/api
 
 ### Get all sites
-GET {{baseUrl}}/api/sites
+GET {{apiUrl}}/sites
 
 ### Search sites by general query (name or country)
-GET {{baseUrl}}/api/sites?q=paris
+GET {{apiUrl}}/sites?q=paris
 
 ### Search sites by name
-GET {{baseUrl}}/api/sites?name=toto
+GET {{apiUrl}}/sites?name=toto
 
 ### Search sites by geographic bounds (rectangle)
-GET {{baseUrl}}/api/sites?minLat=48.0&maxLat=49.0&minLon=2.0&maxLon=3.0
+GET {{apiUrl}}/sites?minLat=48.0&maxLat=49.0&minLon=2.0&maxLon=3.0
 
 ### Search sites in Europe (approximate bounds)
-GET {{baseUrl}}/api/sites?minLat=35.0&maxLat=70.0&minLon=-10.0&maxLon=40.0
+GET {{apiUrl}}/sites?minLat=35.0&maxLat=70.0&minLon=-10.0&maxLon=40.0
 
 ### Search sites with multiple criteria (name + geographic bounds)
-GET {{baseUrl}}/api/sites?name=château&minLat=45.0&maxLat=50.0&minLon=0.0&maxLon=8.0
+GET {{apiUrl}}/sites?name=château&minLat=45.0&maxLat=50.0&minLon=0.0&maxLon=8.0
 
 ### Get specific site by ID (using id_number from XML data)
-GET {{baseUrl}}/api/sites/1133
+GET {{apiUrl}}/sites/1133
 
 ### User Registration - Success
-POST {{baseUrl}}/api/security/register
+POST {{apiUrl}}/security/register
 Content-Type: application/json
 
 {
@@ -38,7 +38,7 @@ Content-Type: application/json
 }
 
 ### User Login - Success
-POST {{baseUrl}}/api/security/login
+POST {{apiUrl}}/security/login
 Content-Type: application/json
 
 {
@@ -48,11 +48,11 @@ Content-Type: application/json
 
 ### Get current user info
 # First login to get a token, then use it here
-GET {{baseUrl}}/api/me
+GET {{apiUrl}}/me
 Authorization: Bearer ecb470bfd8412de91c719f90f720ae1122bfb971ce108418463b60dde88dc7ea
 
 ### Add a visit
-POST {{baseUrl}}/api/visits
+POST {{apiUrl}}/visits
 Content-Type: application/json
 Authorization: Bearer ecb470bfd8412de91c719f90f720ae1122bfb971ce108418463b60dde88dc7ea
 
@@ -62,9 +62,9 @@ Authorization: Bearer ecb470bfd8412de91c719f90f720ae1122bfb971ce108418463b60dde8
 }
 
 ### Get user's visits
-GET {{baseUrl}}/api/visits
+GET {{apiUrl}}/visits
 Authorization: Bearer ecb470bfd8412de91c719f90f720ae1122bfb971ce108418463b60dde88dc7ea
 
 ### Delete a visit
-DELETE {{baseUrl}}/api/visits/1
+DELETE {{apiUrl}}/visits/1
 Authorization: Bearer ecb470bfd8412de91c719f90f720ae1122bfb971ce108418463b60dde88dc7ea

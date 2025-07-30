@@ -14,6 +14,29 @@ Unescopilot est une application web légère et conviviale pour recenser, explor
 - **Frontend :** JavaScript vanilla avec [Alpine.js](https://alpinejs.dev/) pour l'interactivité.
 - **Styling :** [Tailwind CSS](https://tailwindcss.com/).
 
+## API Backend
+
+L'application communique avec un backend Symfony via une API REST :
+
+- `POST /api/login` - Connexion
+- `POST /api/register` - Inscription
+- `GET /api/me` - Profil utilisateur
+- `PUT /api/me` - Mise à jour du profil
+- `GET /api/sites` - Liste des sites (avec filtres)
+- `GET /api/sites/{id}` - Détail d'un site
+- `GET /api/me/visit` - Visites de l'utilisateur
+- `POST /api/me/visit` - Ajouter une visite
+- `DELETE /api/me/visit/{site_id}` - Supprimer une visite
+
+## Documentation
+
+Le dossier `doc/` contient les documents suivants :
+
+- [`apidoc.md`](doc/apidoc.md) : Documentation de l'API.
+- [`owasp.md`](doc/owasp.md) : Audit de sécurité basé sur l'OWASP Top 10.
+- [`specifications.md`](doc/specifications.md) : Spécifications techniques du projet.
+
+
 ## 🛠️ Installation et Lancement
 
 1.  **Clonez le dépôt :**
@@ -62,16 +85,3 @@ Pour garantir la qualité et la stabilité du code, utilisez les commandes suiva
   make stan
   ```
   
-## API Backend
-
-L'application communique avec un backend Symfony via une API REST :
-
-- `POST /api/login` - Connexion
-- `POST /api/register` - Inscription
-- `GET /api/me` - Profil utilisateur
-- `PUT /api/me` - Mise à jour du profil
-- `GET /api/sites` - Liste des sites (avec filtres)
-- `GET /api/sites/{id}` - Détail d'un site
-- `GET /api/me/visit` - Visites de l'utilisateur
-- `POST /api/me/visit` - Ajouter une visite
-- `DELETE /api/me/visit/{site_id}` - Supprimer une visite

@@ -169,11 +169,8 @@
                         
                         const response = await window.api.register(userData);
                         
-                        if (response.token) {
-                            window.auth.setToken(response.token);
-                            window.appState.user = response.user;
-                            window.location.href = 'sites.html';
-                        }
+                        // Redirection vers la page de login après inscription réussie
+                        window.location.href = 'login.html';
                     } catch (error) {
                         // Gestion spécifique des erreurs HTTP
                         if (error.status === 409) {

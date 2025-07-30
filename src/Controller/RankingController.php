@@ -15,6 +15,7 @@ class RankingController extends AbstractController
     }
 
     #[Route('/ranking', name: 'app_api_ranking', methods: ['GET'])]
+    #[IsGranted('ROLE_USER')]
     public function getRanking(): JsonResponse
     {
         $ranking = $this->rankingService->getRanking();

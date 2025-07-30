@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Classement - Unescopilot</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="../assets/js/app.js"></script>
+</head>
+<body class="min-h-screen bg-gray-50 flex flex-col" x-data="rankingPage()">
+
+    <!-- Header -->
+    <div x-init="loadComponent($el, 'header')"></div>
+
+    <!-- Contenu principal -->
+    <main class="flex-1 container mx-auto px-4 py-8">
+        <div class="max-w-6xl mx-auto">
+            
+            <!-- En-tête -->
+            <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+                <h1 class="text-3xl font-bold text-gray-900 mb-4">🏆 Classement des explorateurs</h1>
+                <p class="text-gray-600">Découvrez les utilisateurs les plus actifs par région UNESCO</p>
+            </div>
+
+
+            <!-- Statistiques globales -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Utilisateurs actifs</h3>
+                    <p class="text-3xl font-bold text-blue-600" x-text="Object.keys(rankings).length"></p>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Top explorateur</h3>
+                    <p class="text-lg font-medium text-green-600" x-text="getTopUser()?.username || 'N/A'"></p>
+                    <p class="text-sm text-gray-500" x-text="getTopUser() ? `${getTopUser().total} sites` : ''"></p>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Moyenne par utilisateur</h3>
+                    <p class="text-3xl font-bold text-purple-600" x-text="getAverageVisits()"></p>
+                </div>
+            </div>
+
+            <!-- Tableau de classement -->
+            <div class="bg-white rounded-lg shadow-md">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-900">Classement des explorateurs</h3>
+                    <p class="text-sm text-gray-500 mt-1">Cliquez sur les en-têtes pour trier par région</p>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rang</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Utilisateur</th>
+                                <th @click="sortByColumn('Europe et Amérique du Nord')" class="px-6 py-3 text-center text-xs font-medium uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none" :class="getSortColumnClass('Europe et Amérique du Nord')">
+                                    <div class="flex items-center justify-center space-x-1">
+                                        <span>Europe & Amérique du Nord</span>
+                                        <span x-show="currentSort === 'Europe et Amérique du Nord'" x-text="sortDirection === 'desc' ? '↓' : '↑'" class="text-blue-600"></span>
+                                    </div>
+                                </th>
+                                <th @click="sortByColumn('Asie et Pacifique')" class="px-6 py-3 text-center text-xs font-medium uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none" :class="getSortColumnClass('Asie et Pacifique')">
+                                    <div class="flex items-center justify-center space-x-1">
+                                        <span>Asie & Pacifique</span>
+                                        <span x-show="currentSort === 'Asie et Pacifique'" x-text="sortDirection === 'desc' ? '↓' : '↑'" class="text-blue-600"></span>
+                                    </div>
+                                </th>
+                                <th @click="sortByColumn('Afrique')" class="px-6 py-3 text-center text-xs font-medium uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none" :class="getSortColumnClass('Afrique')">
+                                    <div class="flex items-center justify-center space-x-1">
+                                        <span>Afrique</span>
+                                        <span x-show="currentSort === 'Afrique'" x-text="sortDirection === 'desc' ? '↓' : '↑'" class="text-blue-600"></span>
+                                    </div>
+                                </th>
+                                <th @click="sortByColumn('Amérique latine et Caraïbes')" class="px-6 py-3 text-center text-xs font-medium uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none" :class="getSortColumnClass('Amérique latine et Caraïbes')">
+                                    <div class="flex items-center justify-center space-x-1">
+                                        <span>Amérique latine & Caraïbes</span>
+                                        <span x-show="currentSort === 'Amérique latine et Caraïbes'" x-text="sortDirection === 'desc' ? '↓' : '↑'" class="text-blue-600"></span>
+                                    </div>
+                                </th>
+                                <th @click="sortByColumn('États arabes')" class="px-6 py-3 text-center text-xs font-medium uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none" :class="getSortColumnClass('États arabes')">
+                                    <div class="flex items-center justify-center space-x-1">
+                                        <span>États arabes</span>
+                                        <span x-show="currentSort === 'États arabes'" x-text="sortDirection === 'desc' ? '↓' : '↑'" class="text-blue-600"></span>
+                                    </div>
+                                </th>
+                                <th @click="sortByColumn('total')" class="px-6 py-3 text-center text-xs font-medium uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none" :class="getSortColumnClass('total')">
+                                    <div class="flex items-center justify-center space-x-1">
+                                        <span>Total</span>
+                                        <span x-show="currentSort === 'total'" x-text="sortDirection === 'desc' ? '↓' : '↑'" class="text-blue-600"></span>
+                                    </div>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <template x-for="(user, index) in sortedUsers" :key="user.username">
+                                <tr class="hover:bg-gray-50" :class="index < 3 ? 'bg-yellow-50' : ''">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <span 
+                                                class="inline-flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium"
+                                                :class="getRankStyle(index)"
+                                                x-text="index + 1"
+                                            ></span>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                                                <span class="text-sm font-bold text-blue-600" x-text="user.username.substring(0, 2).toUpperCase()"></span>
+                                            </div>
+                                            <div class="text-sm font-medium text-gray-900" x-text="user.username"></div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                                        <span class="text-sm text-gray-900" x-text="user.regions['Europe et Amérique du Nord'] || 0"></span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                                        <span class="text-sm text-gray-900" x-text="user.regions['Asie et Pacifique'] || 0"></span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                                        <span class="text-sm text-gray-900" x-text="user.regions['Afrique'] || 0"></span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                                        <span class="text-sm text-gray-900" x-text="user.regions['Amérique latine et Caraïbes'] || 0"></span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                                        <span class="text-sm text-gray-900" x-text="user.regions['États arabes'] || 0"></span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                                        <span class="text-lg font-semibold text-blue-600" x-text="user.total"></span>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Empty state -->
+                <div x-show="sortedUsers.length === 0" class="text-center py-12 text-gray-500">
+                    <div class="text-4xl mb-4">🏆</div>
+                    <p>Aucun utilisateur trouvé pour cette région.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <div x-init="loadComponent($el, 'footer')"></div>
+
+    <script>
+        function rankingPage() {
+            return {
+                rankings: {},
+                regions: [
+                    'Europe et Amérique du Nord',
+                    'Asie et Pacifique', 
+                    'Afrique',
+                    'Amérique latine et Caraïbes',
+                    'États arabes'
+                ],
+                sortedUsers: [],
+                currentSort: 'total',
+                sortDirection: 'desc',
+
+                init() {
+                    this.loadMockData();
+                    this.sortByColumn('total');
+                },
+
+                loadMockData() {
+                    this.rankings = {
+                        "Marie_Explorer": {
+                            "Europe et Amérique du Nord": 15,
+                            "Asie et Pacifique": 8,
+                            "Afrique": 3,
+                            "Amérique latine et Caraïbes": 2,
+                            "États arabes": 1
+                        },
+                        "Jean_Voyageur": {
+                            "Europe et Amérique du Nord": 12,
+                            "Asie et Pacifique": 15,
+                            "Afrique": 5,
+                            "Amérique latine et Caraïbes": 4,
+                            "États arabes": 3
+                        },
+                        "Lucie_Aventure": {
+                            "Europe et Amérique du Nord": 8,
+                            "Asie et Pacifique": 6,
+                            "Afrique": 12,
+                            "Amérique latine et Caraïbes": 7,
+                            "États arabes": 2
+                        },
+                        "Pierre_Nomade": {
+                            "Europe et Amérique du Nord": 20,
+                            "Asie et Pacifique": 4,
+                            "Afrique": 1,
+                            "Amérique latine et Caraïbes": 8,
+                            "États arabes": 0
+                        },
+                        "Ana_Cultural": {
+                            "Europe et Amérique du Nord": 6,
+                            "Asie et Pacifique": 3,
+                            "Afrique": 2,
+                            "Amérique latine et Caraïbes": 18,
+                            "États arabes": 5
+                        },
+                        "Ahmed_Heritage": {
+                            "Europe et Amérique du Nord": 2,
+                            "Asie et Pacifique": 7,
+                            "Afrique": 4,
+                            "Amérique latine et Caraïbes": 1,
+                            "États arabes": 15
+                        },
+                        "Sophie_Globe": {
+                            "Europe et Amérique du Nord": 9,
+                            "Asie et Pacifique": 11,
+                            "Afrique": 6,
+                            "Amérique latine et Caraïbes": 3,
+                            "États arabes": 4
+                        },
+                        "Carlos_Mundo": {
+                            "Europe et Amérique du Nord": 3,
+                            "Asie et Pacifique": 2,
+                            "Afrique": 1,
+                            "Amérique latine et Caraïbes": 22,
+                            "États arabes": 1
+                        }
+                    };
+                },
+
+                sortByColumn(column) {
+                    // Toggle direction si même colonne, sinon desc par défaut
+                    if (this.currentSort === column) {
+                        this.sortDirection = this.sortDirection === 'desc' ? 'asc' : 'desc';
+                    } else {
+                        this.currentSort = column;
+                        this.sortDirection = 'desc';
+                    }
+
+                    this.sortedUsers = Object.entries(this.rankings)
+                        .map(([username, regions]) => ({
+                            username,
+                            regions,
+                            total: this.getTotalVisits(regions)
+                        }))
+                        .sort((a, b) => {
+                            let valueA, valueB;
+                            
+                            if (column === 'total') {
+                                valueA = a.total;
+                                valueB = b.total;
+                            } else {
+                                valueA = a.regions[column] || 0;
+                                valueB = b.regions[column] || 0;
+                            }
+                            
+                            if (this.sortDirection === 'desc') {
+                                return valueB - valueA || b.total - a.total; // Tri secondaire par total
+                            } else {
+                                return valueA - valueB || b.total - a.total; // Tri secondaire par total
+                            }
+                        });
+                },
+
+                getTotalVisits(regions) {
+                    return Object.values(regions).reduce((sum, count) => sum + count, 0);
+                },
+
+                getTopUser() {
+                    if (this.sortedUsers.length === 0) return null;
+                    return this.sortedUsers[0];
+                },
+
+                getAverageVisits() {
+                    if (this.sortedUsers.length === 0) return 0;
+                    const total = this.sortedUsers.reduce((sum, user) => sum + user.total, 0);
+                    return Math.round(total / this.sortedUsers.length);
+                },
+
+                getRankStyle(index) {
+                    if (index === 0) return 'bg-yellow-400 text-yellow-900'; // Or
+                    if (index === 1) return 'bg-gray-300 text-gray-800'; // Argent
+                    if (index === 2) return 'bg-yellow-600 text-yellow-100'; // Bronze
+                    return 'bg-blue-100 text-blue-800';
+                },
+
+                getSortColumnClass(column) {
+                    if (this.currentSort === column) {
+                        return 'text-blue-600 bg-blue-50';
+                    }
+                    return 'text-gray-500';
+                }
+            }
+        }
+    </script>
+</body>
+</html>

@@ -3,7 +3,6 @@
 /.env.local.php
 /.env.*.local
 /config/secrets/prod/prod.decrypt.private.php
-/public/
 /public/bundles/
 /var/
 /vendor/
@@ -13,6 +12,10 @@
 .idea
 .editorconfig
 
+# Builed files
+/public/index.html
+/public/pages/*.html
+
 ###> phpstan/phpstan ###
 phpstan.neon
 ###< phpstan/phpstan ###
@@ -21,3 +24,4 @@ phpstan.neon
 /phpunit.xml
 /.phpunit.cache/
 ###< phpunit/phpunit ###
+

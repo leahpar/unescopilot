@@ -172,7 +172,14 @@ Détail d'un site spécifique.
 🔒 **Tous les endpoints des visites nécessitent une authentification**
 
 ### GET `/api/visits`
-Liste toutes les visites de l'utilisateur connecté.
+Liste toutes les visites de l'utilisateur connecté, avec un filtrage optionnel par type.
+
+**Paramètres de requête (optionnels) :**
+- `type` : Filtre par type de visite ("visited" ou "wishlist")
+
+**Exemples :**
+- `/api/visits` : Retourne toutes les visites.
+- `/api/visits?type=wishlist` : Retourne uniquement les visites de type "wishlist".
 
 **Tri :** Par date de visite décroissante, puis par ID décroissant
 
@@ -192,16 +199,6 @@ Liste toutes les visites de l'utilisateur connecté.
   }
 ]
 ```
-
-### GET `/api/visits/wishlist`
-Liste des sites en liste de souhaits de l'utilisateur.
-
-**Réponse (200) :** Même structure que `/api/visits` mais filtrée sur `type: "wishlist"`
-
-### GET `/api/visits/visited`
-Liste des sites visités par l'utilisateur.
-
-**Réponse (200) :** Même structure que `/api/visits` mais filtrée sur `type: "visited"`
 
 ### POST `/api/visits`
 Créer une nouvelle visite.

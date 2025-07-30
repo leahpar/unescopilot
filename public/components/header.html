@@ -5,11 +5,11 @@
       <div class="flex items-center">
         <a href="/" class="text-xl font-bold text-gray-900 hover:text-blue-600 transition-colors">Unescopilot</a>
       </div>
-      
+
       <!-- Navigation mobile -->
       <div class="md:hidden">
-        <button 
-          @click="mobileMenuOpen = !mobileMenuOpen" 
+        <button
+          @click="mobileMenuOpen = !mobileMenuOpen"
           class="text-gray-600 hover:text-gray-900 focus:outline-none focus:text-gray-900"
         >
           <svg class="h-6 w-6 fill-current" viewBox="0 0 24 24">
@@ -18,12 +18,12 @@
           </svg>
         </button>
       </div>
-      
+
       <!-- Navigation desktop -->
       <nav class="hidden md:flex items-center space-x-6">
-        <a href="/pages/sites.html" class="text-gray-600 hover:text-gray-900">Sites</a>
-        <a href="/pages/map.html" class="text-gray-600 hover:text-gray-900">Carte</a>
-        <a href="/pages/ranking.html" class="text-gray-600 hover:text-gray-900">Classement</a>
+        <a x-show="isAuthenticated" href="/pages/sites.html" class="text-gray-600 hover:text-gray-900">Sites</a>
+        <a x-show="isAuthenticated" href="/pages/map.html" class="text-gray-600 hover:text-gray-900">Carte</a>
+        <a x-show="isAuthenticated" href="/pages/ranking.html" class="text-gray-600 hover:text-gray-900">Classement</a>
         <div x-show="isAuthenticated" class="flex items-center space-x-4">
           <a href="/pages/profile.html" class="text-gray-600 hover:text-gray-900" title="Mon Profil">
             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -42,13 +42,13 @@
         </div>
       </nav>
     </div>
-    
+
     <!-- Menu mobile -->
     <div x-show="mobileMenuOpen" class="md:hidden mt-4 pb-4 border-t border-gray-200 pt-4">
       <nav class="flex flex-col space-y-3">
-        <a href="/pages/sites.html" class="text-gray-600 hover:text-gray-900">Sites</a>
-        <a href="/pages/map.html" class="text-gray-600 hover:text-gray-900">Carte</a>
-        <a href="/pages/ranking.html" class="text-gray-600 hover:text-gray-900">Classement</a>
+        <a x-show="isAuthenticated" href="/pages/sites.html" class="text-gray-600 hover:text-gray-900">Sites</a>
+        <a x-show="isAuthenticated" href="/pages/map.html" class="text-gray-600 hover:text-gray-900">Carte</a>
+        <a x-show="isAuthenticated" href="/pages/ranking.html" class="text-gray-600 hover:text-gray-900">Classement</a>
         <div x-show="isAuthenticated" class="flex flex-col space-y-3">
           <a href="/pages/profile.html" class="text-gray-600 hover:text-gray-900">Mon Profil</a>
           <button @click="logout()" class="text-gray-600 hover:text-gray-900 text-left">Déconnexion</button>

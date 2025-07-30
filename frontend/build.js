@@ -8,6 +8,12 @@ const distDir = path.join(__dirname, '../public');
 const pagesDir = path.join(srcDir, 'pages');
 const indexFile = path.join(srcDir, 'index.html');
 
+const env = process.env.APP_ENV || 'dev';
+console.log(`Mode de build détecté : ${env}`);
+
+const apiBaseUrl = process.env.API_URL || 'http://localhost:8016/api';
+console.log(`URL de l'API : ${apiBaseUrl}`);
+
 // Crée une nouvelle instance de LiquidJS
 const engine = new Liquid({
     root: [
@@ -34,7 +40,7 @@ fs.readdirSync(pagesDir).forEach(pageFile => {
         const templatePath = path.join('pages', pageFile);
         const outputFilePath = path.join(distDir, 'pages', pageFile);
 
-        engine.renderFile(templatePath, {})
+        engine.renderFile(templatePath, { env: env, api_base_url: apiBaseUrl })
             .then(html => {
                 fs.writeFileSync(outputFilePath, html);
                 console.log(`Généré : ${outputFilePath}`);
@@ -47,7 +53,7 @@ fs.readdirSync(pagesDir).forEach(pageFile => {
 
 // Traite le fichier index.html
 const indexOutputFilePath = path.join(distDir, 'index.html');
-engine.renderFile(indexFile, {})
+engine.renderFile(indexFile, { env: env, api_base_url: apiBaseUrl })
     .then(html => {
         fs.writeFileSync(indexOutputFilePath, html);
         console.log(`Généré : ${indexOutputFilePath}`);

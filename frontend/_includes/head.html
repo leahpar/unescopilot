@@ -5,6 +5,17 @@
 <link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32x32.png">
 <link rel="apple-touch-icon" sizes="180x180" href="/assets/img/apple-touch-icon.png">
 <link rel="manifest" href="/site.webmanifest">
+
+<!-- Tailwind CSS -->
+{% if env == "prod" %}
+<link rel="stylesheet" href="/assets/css/style.css">
+{% else %}
 <script src="https://cdn.tailwindcss.com"></script>
+{% endif %}
+
+<!-- Alpine.js -->
 <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+<script>
+    window.API_BASE_URL = '{{ api_base_url }}';
+</script>
 <script src="/assets/js/app.js"></script>

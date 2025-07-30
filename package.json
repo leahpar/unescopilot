@@ -1,13 +1,11 @@
 {
-  "devDependencies": {
+  "dependencies": {
+    "@tailwindcss/cli": "^4.1.11",
     "liquidjs": "^10.21.1",
-    "nodemon": "^2.0.22",
-    "tailwindcss": "^3.3.2"
+    "tailwindcss": "^4.1.11"
   },
   "scripts": {
     "build": "node frontend/build.js",
-    "build:watch": "nodemon --exec node build.js",
-    "tailwind": "npx tailwindcss -i ./src/input.css -o ./dist/output.css",
-    "tailwind:watch": "npx tailwindcss -i ./src/input.css -o ./dist/output.css --watch"
+    "tailwind": "npx tailwindcss -i ./frontend/style.css -o ./public/assets/css/style.css --minify"
   }
 }

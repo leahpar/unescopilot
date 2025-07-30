@@ -16,13 +16,12 @@
     <!-- Contenu principal -->
     <main class="flex-1 container mx-auto px-4 py-8">
         <div class="max-w-6xl mx-auto">
-            
+
             <!-- En-tête -->
             <div class="bg-white rounded-lg shadow-md p-6 mb-8">
                 <h1 class="text-3xl font-bold text-gray-900 mb-4">🏆 Classement des explorateurs</h1>
                 <p class="text-gray-600">Découvrez les utilisateurs les plus actifs par région UNESCO</p>
             </div>
-
 
             <!-- Statistiques globales -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -47,7 +46,7 @@
                     <h3 class="text-lg font-semibold text-gray-900">Classement des explorateurs</h3>
                     <p class="text-sm text-gray-500 mt-1">Cliquez sur les en-têtes pour trier par région</p>
                 </div>
-                
+
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
@@ -97,7 +96,7 @@
                                 <tr class="hover:bg-gray-50" :class="index < 3 ? 'bg-yellow-50' : ''">
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="flex items-center">
-                                            <span 
+                                            <span
                                                 class="inline-flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium"
                                                 :class="getRankStyle(index)"
                                                 x-text="index + 1"
@@ -135,12 +134,6 @@
                         </tbody>
                     </table>
                 </div>
-
-                <!-- Empty state -->
-                <div x-show="sortedUsers.length === 0" class="text-center py-12 text-gray-500">
-                    <div class="text-4xl mb-4">🏆</div>
-                    <p>Aucun utilisateur trouvé pour cette région.</p>
-                </div>
             </div>
         </div>
     </main>
@@ -154,7 +147,7 @@
                 rankings: {},
                 regions: [
                     'Europe et Amérique du Nord',
-                    'Asie et Pacifique', 
+                    'Asie et Pacifique',
                     'Afrique',
                     'Amérique latine et Caraïbes',
                     'États arabes'
@@ -246,7 +239,7 @@
                         }))
                         .sort((a, b) => {
                             let valueA, valueB;
-                            
+
                             if (column === 'total') {
                                 valueA = a.total;
                                 valueB = b.total;
@@ -254,7 +247,7 @@
                                 valueA = a.regions[column] || 0;
                                 valueB = b.regions[column] || 0;
                             }
-                            
+
                             if (this.sortDirection === 'desc') {
                                 return valueB - valueA || b.total - a.total; // Tri secondaire par total
                             } else {

@@ -19,7 +19,7 @@ jobs:
         username: ${{ secrets.DEPLOY_USER }}
         key: ${{ secrets.DEPLOY_KEY }}
         port: ${{ secrets.DEPLOY_PORT }}
-        envs: APP_ENV
+        envs: APP_ENV, API_URL
         script: |
           cd ${{ secrets.DEPLOY_PATH }}
           git pull origin master

@@ -3,7 +3,7 @@
 namespace App\Controller;
 
 use App\DTO\CreateVisitDTO;
-use App\DTO\UpdateVisitDTO;
+use App\DTO\SearchVisitDTO;
 use App\Entity\Site;
 use App\Entity\Visit;
 use App\Repository\SiteRepository;
@@ -12,6 +12,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\MapQueryString;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
@@ -28,28 +29,15 @@ class VisitController extends AbstractController
     }
 
     #[Route('', name: 'app_api_visit_list', methods: ['GET'])]
-    public function list(): JsonResponse
+    public function list(#[MapQueryString] ?SearchVisitDTO $dto): JsonResponse
     {
-        $visits = $this->visitRepository->findByUser($this->getUser());
+        $dto ??= new SearchVisitDTO();
+        $visits = $this->visitRepository->findByUser($this->getUser(), $dto);
 
         return $this->json($visits);
     }
 
-    #[Route('/wishlist', name: 'app_api_visit_wishlist', methods: ['GET'])]
-    public function wishlist(): JsonResponse
-    {
-        $visits = $this->visitRepository->findWishlistByUser($this->getUser());
-
-        return $this->json($visits);
-    }
-
-    #[Route('/visited', name: 'app_api_visit_visited', methods: ['GET'])]
-    public function visited(): JsonResponse
-    {
-        $visits = $this->visitRepository->findVisitedByUser($this->getUser());
-
-        return $this->json($visits);
-    }
+    
 
     #[Route('', name: 'app_api_visit_create', methods: ['POST'])]
     public function create(#[MapRequestPayload] CreateVisitDTO $dto): JsonResponse

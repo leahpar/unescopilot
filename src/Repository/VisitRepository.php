@@ -2,9 +2,10 @@
 
 namespace App\Repository;
 
-use App\Entity\Visit;
-use App\Entity\User;
+use App\DTO\SearchVisitDTO;
 use App\Entity\Site;
+use App\Entity\User;
+use App\Entity\Visit;
 use App\Enum\VisitType;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -19,42 +20,23 @@ class VisitRepository extends ServiceEntityRepository
         parent::__construct($registry, Visit::class);
     }
 
-    public function findByUser(User $user): array
+    public function findByUser(User $user, SearchVisitDTO $searchVisitDTO): array
     {
-        return $this->createQueryBuilder('v')
+        $qb = $this->createQueryBuilder('v')
             ->andWhere('v.user = :user')
             ->setParameter('user', $user)
             ->orderBy('v.visitedAt', 'DESC')
-            ->addOrderBy('v.id', 'DESC')
-            ->getQuery()
-            ->getResult();
+            ->addOrderBy('v.id', 'DESC');
+
+        if ($searchVisitDTO->type) {
+            $qb->andWhere('v.type = :type')
+                ->setParameter('type', $searchVisitDTO->type);
+        }
+
+        return $qb->getQuery()->getResult();
     }
 
-    public function findWishlistByUser(User $user): array
-    {
-        return $this->createQueryBuilder('v')
-            ->andWhere('v.user = :user')
-            ->andWhere('v.type = :type')
-            ->setParameter('user', $user)
-            ->setParameter('type', VisitType::WISHLIST)
-            ->orderBy('v.visitedAt', 'DESC')
-            ->addOrderBy('v.id', 'DESC')
-            ->getQuery()
-            ->getResult();
-    }
-
-    public function findVisitedByUser(User $user): array
-    {
-        return $this->createQueryBuilder('v')
-            ->andWhere('v.user = :user')
-            ->andWhere('v.type = :type')
-            ->setParameter('user', $user)
-            ->setParameter('type', VisitType::VISITED)
-            ->orderBy('v.visitedAt', 'DESC')
-            ->addOrderBy('v.id', 'DESC')
-            ->getQuery()
-            ->getResult();
-    }
+    
 
     public function findUserVisitForSite(User $user, Site $site): ?Visit
     {

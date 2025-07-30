@@ -57,11 +57,11 @@ class SiteControllerTest extends WebTestCase
         $this->assertResponseIsSuccessful();
         $responseData = json_decode($this->client->getResponse()->getContent(), true);
 
-        $this->assertIsArray($responseData);
-        $this->assertGreaterThanOrEqual(1, count($responseData));
+        $this->assertIsArray($responseData['data']);
+        $this->assertGreaterThanOrEqual(1, count($responseData['data']));
 
         $foundSite = null;
-        foreach ($responseData as $siteData) {
+        foreach ($responseData['data'] as $siteData) {
             if ($siteData['id'] === 9999) {
                 $foundSite = $siteData;
                 break;

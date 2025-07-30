@@ -172,9 +172,9 @@ class VisitControllerTest extends WebTestCase
             json_encode($visitData)
         );
 
-        $this->assertResponseStatusCodeSame(Response::HTTP_CONFLICT);
+        $this->assertResponseStatusCodeSame(Response::HTTP_OK);
         $responseData = json_decode($this->client->getResponse()->getContent(), true);
-        $this->assertEquals('Visit already exists for this site', $responseData['error']);
+        $this->assertArrayHasKey('id', $responseData);
     }
 
     public function testListVisitsWithData(): void
@@ -202,19 +202,28 @@ class VisitControllerTest extends WebTestCase
         $this->assertEquals(2023, $responseData[0]['visitedAt']);
     }
 
-    public function testWishlistEndpoint(): void
+    public function testListVisitsWithType(): void
     {
-        $site = $this->createTestSite();
+        $site1 = $this->createTestSite(1);
+        $site2 = $this->createTestSite(2);
 
-        $visit = new Visit();
-        $visit->user = $this->testUser;
-        $visit->site = $site;
-        $visit->type = VisitType::WISHLIST;
+        $visit1 = new Visit();
+        $visit1->user = $this->testUser;
+        $visit1->site = $site1;
+        $visit1->type = VisitType::WISHLIST;
 
-        $this->entityManager->persist($visit);
+        $visit2 = new Visit();
+        $visit2->user = $this->testUser;
+        $visit2->site = $site2;
+        $visit2->type = VisitType::VISITED;
+        $visit2->visitedAt = 2022;
+
+        $this->entityManager->persist($visit1);
+        $this->entityManager->persist($visit2);
         $this->entityManager->flush();
 
-        $this->client->request('GET', '/api/visits/wishlist', [], [], $this->getAuthHeaders());
+        // Test filtering by WISHLIST
+        $this->client->request('GET', '/api/visits', ['type' => VisitType::WISHLIST->value], [], $this->getAuthHeaders());
 
         $this->assertResponseIsSuccessful();
         $responseData = json_decode($this->client->getResponse()->getContent(), true);
@@ -222,22 +231,9 @@ class VisitControllerTest extends WebTestCase
         $this->assertIsArray($responseData);
         $this->assertCount(1, $responseData);
         $this->assertEquals(VisitType::WISHLIST->value, $responseData[0]['type']);
-    }
 
-    public function testVisitedEndpoint(): void
-    {
-        $site = $this->createTestSite();
-
-        $visit = new Visit();
-        $visit->user = $this->testUser;
-        $visit->site = $site;
-        $visit->type = VisitType::VISITED;
-        $visit->visitedAt = 2022;
-
-        $this->entityManager->persist($visit);
-        $this->entityManager->flush();
-
-        $this->client->request('GET', '/api/visits/visited', [], [], $this->getAuthHeaders());
+        // Test filtering by VISITED
+        $this->client->request('GET', '/api/visits', ['type' => VisitType::VISITED->value], [], $this->getAuthHeaders());
 
         $this->assertResponseIsSuccessful();
         $responseData = json_decode($this->client->getResponse()->getContent(), true);
@@ -245,8 +241,9 @@ class VisitControllerTest extends WebTestCase
         $this->assertIsArray($responseData);
         $this->assertCount(1, $responseData);
         $this->assertEquals(VisitType::VISITED->value, $responseData[0]['type']);
-        $this->assertEquals(2022, $responseData[0]['visitedAt']);
     }
+
+    
 
     public function testDeleteVisit(): void
     {

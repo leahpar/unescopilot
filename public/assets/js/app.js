@@ -138,8 +138,11 @@ window.api = {
     return this.request(`/sites/${id}`);
   },
 
-  async getVisits() {
-    return this.request('/visits');
+  async getVisits(type = null) {
+    const params = type ? { type } : {};
+    const queryString = new URLSearchParams(params).toString();
+    const endpoint = queryString ? `/visits?${queryString}` : '/visits';
+    return this.request(endpoint);
   },
 
   async addVisit(siteId, type, visitedAt = null) {

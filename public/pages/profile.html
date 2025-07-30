@@ -352,6 +352,16 @@
                     }
                 },
 
+                async loadVisitsByType(type) {
+                    try {
+                        const response = await window.api.getVisits(type);
+                        return Array.isArray(response) ? response : (response.data || response);
+                    } catch (error) {
+                        console.error(`Error loading ${type} visits:`, error);
+                        return [];
+                    }
+                },
+
                 async updateProfile() {
                     this.updateLoading = true;
                     this.updateError = '';

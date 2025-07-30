@@ -243,6 +243,34 @@ class VisitControllerTest extends WebTestCase
         $this->assertEquals(VisitType::VISITED->value, $responseData[0]['type']);
     }
 
+    public function testListVisitsForAnotherUser(): void
+    {
+        $otherUser = new User();
+        $otherUser->setEmail('otheruser@example.com');
+        $otherUser->setPseudo('otheruser');
+        $otherUser->setPassword($this->passwordHasher->hashPassword($otherUser, 'password123'));
+        $this->entityManager->persist($otherUser);
+
+        $site = $this->createTestSite(1);
+
+        $visit = new Visit();
+        $visit->user = $otherUser;
+        $visit->site = $site;
+        $visit->type = VisitType::WISHLIST;
+
+        $this->entityManager->persist($visit);
+        $this->entityManager->flush();
+
+        $this->client->request('GET', '/api/visits', ['userId' => $otherUser->getId()], [], $this->getAuthHeaders());
+
+        $this->assertResponseIsSuccessful();
+        $responseData = json_decode($this->client->getResponse()->getContent(), true);
+
+        $this->assertIsArray($responseData);
+        $this->assertCount(1, $responseData);
+        $this->assertEquals($visit->id, $responseData[0]['id']);
+    }
+
     
 
     public function testDeleteVisit(): void

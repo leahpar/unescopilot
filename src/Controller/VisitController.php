@@ -32,6 +32,10 @@ class VisitController extends AbstractController
     public function list(#[MapQueryString] ?SearchVisitDTO $dto): JsonResponse
     {
         $dto ??= new SearchVisitDTO();
+        if (null === $dto->userId) {
+            $dto->userId = $this->getUser()->getId();
+        }
+
         $visits = $this->visitRepository->findByUser($this->getUser(), $dto);
 
         return $this->json($visits);

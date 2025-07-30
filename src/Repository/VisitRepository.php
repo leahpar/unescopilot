@@ -22,10 +22,17 @@ class VisitRepository extends ServiceEntityRepository
 
     public function findByUser(User $user, SearchVisitDTO $searchVisitDTO): array
     {
-        $qb = $this->createQueryBuilder('v')
-            ->andWhere('v.user = :user')
-            ->setParameter('user', $user)
-            ->orderBy('v.visitedAt', 'DESC')
+        $qb = $this->createQueryBuilder('v');
+
+        if ($searchVisitDTO->userId) {
+            $qb->andWhere('v.user = :userId')
+                ->setParameter('userId', $searchVisitDTO->userId);
+        } else {
+            $qb->andWhere('v.user = :user')
+                ->setParameter('user', $user);
+        }
+
+        $qb->orderBy('v.visitedAt', 'DESC')
             ->addOrderBy('v.id', 'DESC');
 
         if ($searchVisitDTO->type) {

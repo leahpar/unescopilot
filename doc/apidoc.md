@@ -176,10 +176,12 @@ Liste toutes les visites de l'utilisateur connecté, avec un filtrage optionnel 
 
 **Paramètres de requête (optionnels) :**
 - `type` : Filtre par type de visite ("visited" ou "wishlist")
+- `userId` : Filtre par utilisateur. Si non fourni, l'utilisateur courant est utilisé.
 
 **Exemples :**
-- `/api/visits` : Retourne toutes les visites.
-- `/api/visits?type=wishlist` : Retourne uniquement les visites de type "wishlist".
+- `/api/visits` : Retourne toutes les visites de l'utilisateur courant.
+- `/api/visits?type=wishlist` : Retourne uniquement les visites de type "wishlist" de l'utilisateur courant.
+- `/api/visits?userId=2` : Retourne les visites de l'utilisateur avec l'ID 2.
 
 **Tri :** Par date de visite décroissante, puis par ID décroissant
 

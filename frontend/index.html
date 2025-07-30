@@ -5,21 +5,24 @@
 {% block content %}
 <!-- Hero Section -->
 <section class="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-20">
-    <div class="container mx-auto px-4 text-center">
-        <h1 class="text-4xl md:text-6xl font-bold mb-6">
-            Unescopilot
-        </h1>
-        <p class="text-xl md:text-2xl mb-8 max-w-3xl mx-auto">
-            Explorez, découvrez et suivez votre progression<br>
-            à travers les sites du patrimoine mondial de l'UNESCO
-        </p>
-        <div class="flex flex-col sm:flex-row gap-4 justify-center">
-            <a href="pages/map.html" class="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
-                Explorer les sites
-            </a>
-            <a x-show="!isAuthenticated" href="pages/register.html" class="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-colors">
-                Créer un compte
-            </a>
+    <div class="container mx-auto px-4 text-center flex items-center justify-center space-x-4 flex-col md:flex-row">
+        <img src="/assets/img/logo-UN2-750px.png" alt="Unescopilot" class="w-32 h-32 md:w-48 md:h-48">
+        <div>
+            <h1 class="text-4xl md:text-6xl font-bold">
+                Unescopilot
+            </h1>
+            <p class="text-xl md:text-2xl mb-8 max-w-3xl mx-auto">
+                Explorez, découvrez et suivez votre progression<br>
+                à travers les sites du patrimoine mondial de l'UNESCO
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="pages/map.html" class="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+                    Explorer les sites
+                </a>
+                <a x-show="!isAuthenticated" href="pages/register.html" class="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-colors">
+                    Créer un compte
+                </a>
+            </div>
         </div>
     </div>
 </section>

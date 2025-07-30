@@ -32,7 +32,8 @@ sur la simplicité de développement et la facilité d'utilisation, avec une app
 
 ## Ressources utiles
 
-- [Cahier des charges](specifications.md)
+- [Cahier des charges](doc/specifications.md)
+- [Documentation de l'API](doc/apidoc.md)
 
 ## Comment travailler
 

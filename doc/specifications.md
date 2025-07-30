@@ -118,26 +118,7 @@ Utilisation d'un **simple token** pour sécuriser les requêtes des utilisateurs
 
 ## 9.Liste des endpoints API
 
-## 1. Authentification
-
-- `POST /api/register`
-- `POST /api/login`
-
-## 2. Sites UNESCO
-
-- `GET /api/sites`
-- `GET /api/sites/{id}`
-
-## 3. Profil Utilisateur
-
-- `GET /api/me`
-- `PUT /api/me`
-
-## 4. Statuts de Visite (Listes personnelles)
-
-- `GET /api/me/visit`
-- `POST /api/me/visit`
-- `DELETE /api/me/visit/{site_id}`
+cf [doc/apidoc.md](doc/apidoc.md)
 
 ## 10. Données Initiales 
 

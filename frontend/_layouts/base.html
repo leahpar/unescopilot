@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    {% include 'head' %}
+    <title>{{ title | default: "Unescopilot - Exploration du patrimoine mondial UNESCO" }}</title>
+    {% block headExtra %}{% endblock %}
+</head>
+<body class="min-h-screen bg-gray-50 flex flex-col" x-data="{% block alpineData %}{% endblock %}">
+
+    {% include 'header' %}
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    {% include 'footer' %}
+
+</body>
+</html>

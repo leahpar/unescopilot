@@ -24,7 +24,7 @@
             </div>
 
             <!-- Statistiques globales -->
-            <div x-show="!loading && !error" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div x-show="!loading && !error" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 <div class="bg-white rounded-lg shadow-md p-6">
                     <h3 class="text-lg font-semibold text-gray-900 mb-2">Utilisateurs actifs</h3>
                     <p class="text-3xl font-bold text-blue-600" x-text="Object.keys(rankings).length"></p>
@@ -37,6 +37,18 @@
                 <div class="bg-white rounded-lg shadow-md p-6">
                     <h3 class="text-lg font-semibold text-gray-900 mb-2">Moyenne par utilisateur</h3>
                     <p class="text-3xl font-bold text-purple-600" x-text="getAverageVisits()"></p>
+                </div>
+                <!-- Card du classement utilisateur courant -->
+                <div x-show="currentUser" class="bg-gradient-to-br from-blue-50 to-indigo-100 rounded-lg shadow-md p-6 border-2 border-blue-200">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Votre classement</h3>
+                    <div x-show="getCurrentUserRank()">
+                        <p class="text-3xl font-bold text-indigo-600" x-text="`#${getCurrentUserRank()}`"></p>
+                        <p class="text-sm text-indigo-700" x-text="getCurrentUserData() ? `${getCurrentUserData().total} sites visités` : ''"></p>
+                    </div>
+                    <div x-show="!getCurrentUserRank()" class="text-center">
+                        <p class="text-gray-500 text-sm">Pas encore classé</p>
+                        <p class="text-xs text-gray-400">Visitez des sites pour apparaître dans le classement !</p>
+                    </div>
                 </div>
             </div>
 
@@ -111,7 +123,10 @@
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
                             <template x-for="(user, index) in sortedUsers" :key="user.username">
-                                <tr class="hover:bg-gray-50" :class="index < 3 ? 'bg-yellow-50' : ''">
+                                <tr class="hover:bg-gray-50" :class="[
+                                    index < 3 ? 'bg-yellow-50' : '',
+                                    isCurrentUser(user.username) ? 'bg-blue-50 border-l-4 border-blue-500 font-medium' : ''
+                                ]">
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="flex items-center">
                                             <span
@@ -123,10 +138,13 @@
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="flex items-center">
-                                            <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-3">
-                                                <span class="text-sm font-bold text-blue-600" x-text="user.username.substring(0, 2).toUpperCase()"></span>
+                                            <div class="w-10 h-10 rounded-full flex items-center justify-center mr-3" :class="isCurrentUser(user.username) ? 'bg-blue-200' : 'bg-blue-100'">
+                                                <span class="text-sm font-bold" :class="isCurrentUser(user.username) ? 'text-blue-800' : 'text-blue-600'" x-text="user.username.substring(0, 2).toUpperCase()"></span>
                                             </div>
-                                            <div class="text-sm font-medium text-gray-900" x-text="user.username"></div>
+                                            <div class="flex items-center space-x-2">
+                                                <div class="text-sm font-medium text-gray-900" x-text="user.username"></div>
+                                                <span x-show="isCurrentUser(user.username)" class="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">Vous</span>
+                                            </div>
                                         </div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-center">
@@ -175,8 +193,19 @@
                 sortDirection: 'desc',
                 loading: true,
                 error: null,
+                currentUser: null,
 
                 async init() {
+                    // Charger les infos de l'utilisateur connecté
+                    if (window.auth?.isLoggedIn()) {
+                        try {
+                            const userResponse = await window.api.getProfile();
+                            this.currentUser = userResponse.user || userResponse;
+                        } catch (error) {
+                            console.error('Error loading user profile:', error);
+                        }
+                    }
+                    
                     await this.loadRanking();
                 },
 
@@ -278,6 +307,28 @@
                         return 'text-blue-600 bg-blue-50';
                     }
                     return 'text-gray-500';
+                },
+
+                getCurrentUserRank() {
+                    if (!this.currentUser || !this.currentUser.pseudo) return null;
+                    
+                    const userIndex = this.sortedUsers.findIndex(user => 
+                        user.username === this.currentUser.pseudo
+                    );
+                    
+                    return userIndex !== -1 ? userIndex + 1 : null;
+                },
+
+                getCurrentUserData() {
+                    if (!this.currentUser || !this.currentUser.pseudo) return null;
+                    
+                    return this.sortedUsers.find(user => 
+                        user.username === this.currentUser.pseudo
+                    );
+                },
+
+                isCurrentUser(username) {
+                    return this.currentUser && this.currentUser.pseudo === username;
                 }
             }
         }

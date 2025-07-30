@@ -16,7 +16,7 @@ class Visit
     #[ORM\Column]
     public ?int $id = null;
 
-    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'visits')]
     #[ORM\JoinColumn(nullable: false)]
     public ?User $user = null;
 

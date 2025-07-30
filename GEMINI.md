@@ -44,6 +44,7 @@ Pour chaque tâche :
 
 ## Git
 
+- Les commits ne doivent inclure que les fichiers modifiés par la tâche en cours, ignorer les autres fichiers modifiés par quelque chose d'autre.
 - Les messages de commits doivent être en anglais.
 - Les messages de commits doivent commencer par le picto 🤖 et garder un message concernant les modifications seulement.
 

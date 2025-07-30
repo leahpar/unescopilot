@@ -24,7 +24,7 @@
             </div>
 
             <!-- Statistiques globales -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div x-show="!loading && !error" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 <div class="bg-white rounded-lg shadow-md p-6">
                     <h3 class="text-lg font-semibold text-gray-900 mb-2">Utilisateurs actifs</h3>
                     <p class="text-3xl font-bold text-blue-600" x-text="Object.keys(rankings).length"></p>
@@ -44,10 +44,28 @@
             <div class="bg-white rounded-lg shadow-md">
                 <div class="px-6 py-4 border-b border-gray-200">
                     <h3 class="text-lg font-semibold text-gray-900">Classement des explorateurs</h3>
-                    <p class="text-sm text-gray-500 mt-1">Cliquez sur les en-têtes pour trier par région</p>
+                    <p class="text-sm text-gray-500 mt-1" x-show="!loading">Cliquez sur les en-têtes pour trier par région</p>
                 </div>
 
-                <div class="overflow-x-auto">
+                <!-- État de chargement -->
+                <div x-show="loading" class="text-center py-12">
+                    <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-4"></div>
+                    <p class="text-gray-500">Chargement du classement...</p>
+                </div>
+
+                <!-- Message d'erreur -->
+                <div x-show="error && !loading" class="text-center py-12">
+                    <div class="text-red-500 text-4xl mb-4">⚠️</div>
+                    <p class="text-red-600 mb-4" x-text="error"></p>
+                    <button
+                        @click="loadRanking()"
+                        class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                        Réessayer
+                    </button>
+                </div>
+
+                <div x-show="!loading && !error" class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
@@ -155,13 +173,31 @@
                 sortedUsers: [],
                 currentSort: 'total',
                 sortDirection: 'desc',
+                loading: true,
+                error: null,
 
-                init() {
-                    this.loadMockData();
-                    this.sortByColumn('total');
+                async init() {
+                    await this.loadRanking();
                 },
 
-                loadMockData() {
+                async loadRanking() {
+                    this.loading = true;
+                    this.error = null;
+
+                    try {
+                        const response = await window.api.getRanking();
+                        this.rankings = response || {};
+                        this.sortByColumn('total');
+                    } catch (error) {
+                        console.error('Error loading ranking:', error);
+                        this.error = 'Erreur lors du chargement du classement';
+                        this.loadFallbackData();
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+
+                loadFallbackData() {
                     this.rankings = {
                         "Marie_Explorer": {
                             "Europe et Amérique du Nord": 15,
@@ -176,50 +212,9 @@
                             "Afrique": 5,
                             "Amérique latine et Caraïbes": 4,
                             "États arabes": 3
-                        },
-                        "Lucie_Aventure": {
-                            "Europe et Amérique du Nord": 8,
-                            "Asie et Pacifique": 6,
-                            "Afrique": 12,
-                            "Amérique latine et Caraïbes": 7,
-                            "États arabes": 2
-                        },
-                        "Pierre_Nomade": {
-                            "Europe et Amérique du Nord": 20,
-                            "Asie et Pacifique": 4,
-                            "Afrique": 1,
-                            "Amérique latine et Caraïbes": 8,
-                            "États arabes": 0
-                        },
-                        "Ana_Cultural": {
-                            "Europe et Amérique du Nord": 6,
-                            "Asie et Pacifique": 3,
-                            "Afrique": 2,
-                            "Amérique latine et Caraïbes": 18,
-                            "États arabes": 5
-                        },
-                        "Ahmed_Heritage": {
-                            "Europe et Amérique du Nord": 2,
-                            "Asie et Pacifique": 7,
-                            "Afrique": 4,
-                            "Amérique latine et Caraïbes": 1,
-                            "États arabes": 15
-                        },
-                        "Sophie_Globe": {
-                            "Europe et Amérique du Nord": 9,
-                            "Asie et Pacifique": 11,
-                            "Afrique": 6,
-                            "Amérique latine et Caraïbes": 3,
-                            "États arabes": 4
-                        },
-                        "Carlos_Mundo": {
-                            "Europe et Amérique du Nord": 3,
-                            "Asie et Pacifique": 2,
-                            "Afrique": 1,
-                            "Amérique latine et Caraïbes": 22,
-                            "États arabes": 1
                         }
                     };
+                    this.sortByColumn('total');
                 },
 
                 sortByColumn(column) {

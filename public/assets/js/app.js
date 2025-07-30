@@ -156,6 +156,10 @@ window.api = {
     return this.request(`/visits/${visitId}`, {
       method: 'DELETE'
     });
+  },
+
+  async getRanking() {
+    return this.request('/ranking');
   }
 };
 

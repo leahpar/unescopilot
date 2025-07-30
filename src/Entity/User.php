@@ -43,9 +43,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Ignore]
     private Collection $tokens;
 
+    #[ORM\OneToMany(targetEntity: Visit::class, mappedBy: 'user', cascade: ['persist', 'remove'])]
+    private Collection $visits;
+
     public function __construct()
     {
         $this->tokens = new ArrayCollection();
+        $this->visits = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -155,6 +159,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         if ($this->tokens->removeElement($token)) {
             if ($token->user === $this) {
                 $token->user = new User();
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Visit>|
+     */
+    public function getVisits(): Collection
+    {
+        return $this->visits;
+    }
+
+    public function addVisit(Visit $visit): static
+    {
+        if (!$this->visits->contains($visit)) {
+            $this->visits->add($visit);
+            $visit->user = $this;
+        }
+
+        return $this;
+    }
+
+    public function removeVisit(Visit $visit): static
+    {
+        if ($this->visits->removeElement($visit)) {
+            // set the owning side to null (unless already changed)
+            if ($visit->user === $this) {
+                $visit->user = null;
             }
         }
 

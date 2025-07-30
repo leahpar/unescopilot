@@ -1,392 +1,373 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/x-icon" href="/assets/img/favicon.ico">
-    <link rel="icon" type="image/png" sizes="16x16" href="/assets/img/favicon-16x16.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32x32.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="/assets/img/apple-touch-icon.png">
-    <link rel="manifest" href="/site.webmanifest">
-    <title>Sites UNESCO - Unescopilot</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <script src="../assets/js/app.js"></script>
-</head>
-<body class="min-h-screen bg-gray-50 flex flex-col" x-data="sitesPage()">
+{% layout 'base' %}
+{% assign title = "Sites UNESCO - Unescopilot" %}
+{% block alpineData %}sitesPage(){% endblock %}
 
-    <!-- Header -->
-    <div x-init="loadComponent($el, 'header')"></div>
+{% block content %}
+<!-- Contenu principal -->
+<main class="flex-1 container mx-auto px-4 py-8">
+    <div class="max-w-7xl mx-auto">
 
-    <!-- Contenu principal -->
-    <main class="flex-1 container mx-auto px-4 py-8">
-        <div class="max-w-7xl mx-auto">
+        <!-- En-tête de la page -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 mb-4">Sites du patrimoine mondial UNESCO</h1>
 
-            <!-- En-tête de la page -->
-            <div class="mb-8">
-                <h1 class="text-3xl font-bold text-gray-900 mb-4">Sites du patrimoine mondial UNESCO</h1>
+            <!-- Barre de recherche et filtres -->
+            <div class="bg-white rounded-lg shadow p-6 mb-6">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <!-- Recherche -->
+                    <div class="md:col-span-2">
+                        <label for="search" class="block text-sm font-medium text-gray-700 mb-2">
+                            Rechercher un site
+                        </label>
+                        <input
+                            type="text"
+                            id="search"
+                            x-model="filters.q"
+                            @input.debounce.300ms="searchSites()"
+                            placeholder="Nom du site, pays..."
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        >
+                    </div>
 
-                <!-- Barre de recherche et filtres -->
-                <div class="bg-white rounded-lg shadow p-6 mb-6">
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <!-- Recherche -->
-                        <div class="md:col-span-2">
-                            <label for="search" class="block text-sm font-medium text-gray-700 mb-2">
-                                Rechercher un site
-                            </label>
-                            <input
-                                type="text"
-                                id="search"
-                                x-model="filters.q"
-                                @input.debounce.300ms="searchSites()"
-                                placeholder="Nom du site, pays..."
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                            >
-                        </div>
+                    <!-- Filtre par région -->
+                    <div>
+                        <label for="region" class="block text-sm font-medium text-gray-700 mb-2">
+                            Région
+                        </label>
+                        <select
+                            id="region"
+                            x-model="filters.region"
+                            @change="searchSites()"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        >
+                            <option value="">Toutes les régions</option>
+                            <option value="Europe et Amérique du Nord">Europe et Amérique du Nord</option>
+                            <option value="Asie et Pacifique">Asie et Pacifique</option>
+                            <option value="Afrique">Afrique</option>
+                            <option value="Amérique latine et Caraïbes">Amérique latine et Caraïbes</option>
+                            <option value="États arabes">États arabes</option>
+                        </select>
+                    </div>
 
-                        <!-- Filtre par région -->
-                        <div>
-                            <label for="region" class="block text-sm font-medium text-gray-700 mb-2">
-                                Région
-                            </label>
-                            <select
-                                id="region"
-                                x-model="filters.region"
-                                @change="searchSites()"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                            >
-                                <option value="">Toutes les régions</option>
-                                <option value="Europe et Amérique du Nord">Europe et Amérique du Nord</option>
-                                <option value="Asie et Pacifique">Asie et Pacifique</option>
-                                <option value="Afrique">Afrique</option>
-                                <option value="Amérique latine et Caraïbes">Amérique latine et Caraïbes</option>
-                                <option value="États arabes">États arabes</option>
-                            </select>
-                        </div>
-
-                        <!-- Filtre par catégorie -->
-                        <div>
-                            <label for="category" class="block text-sm font-medium text-gray-700 mb-2">
-                                Catégorie
-                            </label>
-                            <select
-                                id="category"
-                                x-model="filters.category"
-                                @change="searchSites()"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                            >
-                                <option value="">Toutes les catégories</option>
-                                <option value="Cultural">Culturel</option>
-                                <option value="Natural">Naturel</option>
-                                <option value="Mixed">Mixte</option>
-                            </select>
-                        </div>
+                    <!-- Filtre par catégorie -->
+                    <div>
+                        <label for="category" class="block text-sm font-medium text-gray-700 mb-2">
+                            Catégorie
+                        </label>
+                        <select
+                            id="category"
+                            x-model="filters.category"
+                            @change="searchSites()"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        >
+                            <option value="">Toutes les catégories</option>
+                            <option value="Cultural">Culturel</option>
+                            <option value="Natural">Naturel</option>
+                            <option value="Mixed">Mixte</option>
+                        </select>
                     </div>
                 </div>
-            </div>
-
-            <!-- Loading -->
-            <div x-show="loading" class="text-center py-8">
-                <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                <p class="mt-2 text-gray-600">Chargement des sites...</p>
-            </div>
-
-            <!-- Erreur -->
-            <div x-show="error" class="rounded-md bg-red-50 p-4 mb-6">
-                <div class="flex">
-                    <div class="ml-3">
-                        <h3 class="text-sm font-medium text-red-800" x-text="error"></h3>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Liste des sites -->
-            <div x-show="!loading && !error" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <template x-for="site in sites" :key="site.id">
-                    <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow cursor-pointer" @click="navigateToSite(site.id, $event)">
-                        <!-- Image -->
-                        <div class="h-48 bg-gray-200 relative">
-                            <img
-                                :src="site.imageUrl || 'https://via.placeholder.com/400x300?text=UNESCO+Site'"
-                                :alt="site.name"
-                                class="w-full h-full object-cover"
-                                loading="lazy"
-                            >
-                            <div class="absolute top-2 right-2">
-                                <span
-                                    class="px-2 py-1 text-xs font-semibold rounded-full"
-                                    :class="site.category === 'Cultural' ? 'bg-blue-100 text-blue-800' : site.category === 'Natural' ? 'bg-green-100 text-green-800' : 'bg-purple-100 text-purple-800'"
-                                    x-text="site.category === 'Cultural' ? 'Culturel' : site.category === 'Natural' ? 'Naturel' : 'Mixte'"
-                                ></span>
-                            </div>
-                        </div>
-
-                        <!-- Contenu -->
-                        <div class="p-4">
-                            <h3 class="font-bold text-lg text-gray-900 mb-2 line-clamp-2" x-text="site.name"></h3>
-                            <p class="text-sm text-gray-600 mb-2" x-text="site.states"></p>
-                            <p class="text-sm text-gray-500 mb-4 line-clamp-3" x-text="getShortDescription(site.shortDescription)"></p>
-
-                            <!-- Actions -->
-                            <div class="flex justify-end items-center">
-                                <!-- Boutons visite (si connecté) -->
-                                <div x-show="window.appState.isAuthenticated" class="flex space-x-2">
-                                    <button
-                                        @click.stop="toggleVisit(site.id, 'visited')"
-                                        :class="isVisited(site.id, 'visited') ? 'text-white bg-green-600 shadow-md' : 'text-green-600 bg-white border-2 border-green-600'"
-                                        class="min-w-12 h-10 px-3 rounded-full hover:bg-green-700 hover:text-white transition-all duration-200 font-semibold flex items-center justify-center"
-                                        title="Marquer comme visité"
-                                    >
-                                        ✓
-                                    </button>
-                                    <button
-                                        @click.stop="toggleVisit(site.id, 'wishlist')"
-                                        :class="isVisited(site.id, 'wishlist') ? 'text-white bg-red-600 shadow-md' : 'text-red-600 bg-white border-2 border-red-600'"
-                                        class="min-w-12 h-10 px-3 rounded-full hover:bg-red-700 hover:text-white transition-all duration-200 font-semibold flex items-center justify-center"
-                                        title="Ajouter à mes lieux à découvrir"
-                                    >
-                                        ♥
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </template>
-            </div>
-
-            <!-- Message si aucun résultat -->
-            <div x-show="!loading && !error && sites.length === 0" class="text-center py-12">
-                <p class="text-gray-500 text-lg">Aucun site trouvé avec ces critères.</p>
-            </div>
-
-            <!-- Pagination -->
-            <div x-show="!loading && !error && sites.length > 0 && totalPages > 1" class="mt-8 flex justify-center items-center space-x-2">
-                <!-- Bouton Précédent -->
-                <button 
-                    @click="changePage(currentPage - 1)"
-                    :disabled="currentPage === 1"
-                    :class="currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-50'"
-                    class="px-3 py-2 text-sm font-medium text-blue-600 bg-white border border-gray-300 rounded-md"
-                >
-                    Précédent
-                </button>
-
-                <!-- Pages -->
-                <template x-for="page in visiblePages" :key="page">
-                    <button
-                        @click="changePage(page)"
-                        :class="page === currentPage ? 'bg-blue-600 text-white' : 'text-blue-600 bg-white hover:bg-blue-50'"
-                        class="px-3 py-2 text-sm font-medium border border-gray-300 rounded-md"
-                        x-text="page"
-                    ></button>
-                </template>
-
-                <!-- Bouton Suivant -->
-                <button 
-                    @click="changePage(currentPage + 1)"
-                    :disabled="currentPage === totalPages"
-                    :class="currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-50'"
-                    class="px-3 py-2 text-sm font-medium text-blue-600 bg-white border border-gray-300 rounded-md"
-                >
-                    Suivant
-                </button>
-            </div>
-
-            <!-- Informations sur la pagination -->
-            <div x-show="!loading && !error && sites.length > 0" class="mt-4 text-center text-sm text-gray-600">
-                <span x-text="`Page ${currentPage} sur ${totalPages} (${totalSites} sites au total)`"></span>
             </div>
         </div>
-    </main>
 
-    <!-- Footer -->
-    <div x-init="loadComponent($el, 'footer')"></div>
+        <!-- Loading -->
+        <div x-show="loading" class="text-center py-8">
+            <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <p class="mt-2 text-gray-600">Chargement des sites...</p>
+        </div>
 
-    <script>
-        function sitesPage() {
-            return {
-                sites: [],
-                visits: [],
-                loading: true,
-                error: '',
-                filters: {
-                    q: '',
-                    region: '',
-                    category: ''
-                },
-                // Pagination
-                currentPage: 1,
-                totalPages: 1,
-                totalSites: 0,
-                pageSize: 18,
+        <!-- Erreur -->
+        <div x-show="error" class="rounded-md bg-red-50 p-4 mb-6">
+            <div class="flex">
+                <div class="ml-3">
+                    <h3 class="text-sm font-medium text-red-800" x-text="error"></h3>
+                </div>
+            </div>
+        </div>
 
-                async init() {
-                    // Les composants sont chargés automatiquement via x-init
+        <!-- Liste des sites -->
+        <div x-show="!loading && !error" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <template x-for="site in sites" :key="site.id">
+                <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow cursor-pointer" @click="navigateToSite(site.id, $event)">
+                    <!-- Image -->
+                    <div class="h-48 bg-gray-200 relative">
+                        <img
+                            :src="site.imageUrl || 'https://via.placeholder.com/400x300?text=UNESCO+Site'"
+                            :alt="site.name"
+                            class="w-full h-full object-cover"
+                            loading="lazy"
+                        >
+                        <div class="absolute top-2 right-2">
+                            <span
+                                class="px-2 py-1 text-xs font-semibold rounded-full"
+                                :class="site.category === 'Cultural' ? 'bg-blue-100 text-blue-800' : site.category === 'Natural' ? 'bg-green-100 text-green-800' : 'bg-purple-100 text-purple-800'"
+                                x-text="site.category === 'Cultural' ? 'Culturel' : site.category === 'Natural' ? 'Naturel' : 'Mixte'"
+                            ></span>
+                        </div>
+                    </div>
 
-                    // Charger les données
-                    await this.loadSites();
-                    if (window.auth.isLoggedIn()) {
+                    <!-- Contenu -->
+                    <div class="p-4">
+                        <h3 class="font-bold text-lg text-gray-900 mb-2 line-clamp-2" x-text="site.name"></h3>
+                        <p class="text-sm text-gray-600 mb-2" x-text="site.states"></p>
+                        <p class="text-sm text-gray-500 mb-4 line-clamp-3" x-text="getShortDescription(site.shortDescription)"></p>
+
+                        <!-- Actions -->
+                        <div class="flex justify-end items-center">
+                            <!-- Boutons visite (si connecté) -->
+                            <div x-show="window.appState.isAuthenticated" class="flex space-x-2">
+                                <button
+                                    @click.stop="toggleVisit(site.id, 'visited')"
+                                    :class="isVisited(site.id, 'visited') ? 'text-white bg-green-600 shadow-md' : 'text-green-600 bg-white border-2 border-green-600'"
+                                    class="min-w-12 h-10 px-3 rounded-full hover:bg-green-700 hover:text-white transition-all duration-200 font-semibold flex items-center justify-center"
+                                    title="Marquer comme visité"
+                                >
+                                    ✓
+                                </button>
+                                <button
+                                    @click.stop="toggleVisit(site.id, 'wishlist')"
+                                    :class="isVisited(site.id, 'wishlist') ? 'text-white bg-red-600 shadow-md' : 'text-red-600 bg-white border-2 border-red-600'"
+                                    class="min-w-12 h-10 px-3 rounded-full hover:bg-red-700 hover:text-white transition-all duration-200 font-semibold flex items-center justify-center"
+                                    title="Ajouter à mes lieux à découvrir"
+                                >
+                                    ♥
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </div>
+
+        <!-- Message si aucun résultat -->
+        <div x-show="!loading && !error && sites.length === 0" class="text-center py-12">
+            <p class="text-gray-500 text-lg">Aucun site trouvé avec ces critères.</p>
+        </div>
+
+        <!-- Pagination -->
+        <div x-show="!loading && !error && sites.length > 0 && totalPages > 1" class="mt-8 flex justify-center items-center space-x-2">
+            <!-- Bouton Précédent -->
+            <button
+                @click="changePage(currentPage - 1)"
+                :disabled="currentPage === 1"
+                :class="currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-50'"
+                class="px-3 py-2 text-sm font-medium text-blue-600 bg-white border border-gray-300 rounded-md"
+            >
+                Précédent
+            </button>
+
+            <!-- Pages -->
+            <template x-for="page in visiblePages" :key="page">
+                <button
+                    @click="changePage(page)"
+                    :class="page === currentPage ? 'bg-blue-600 text-white' : 'text-blue-600 bg-white hover:bg-blue-50'"
+                    class="px-3 py-2 text-sm font-medium border border-gray-300 rounded-md"
+                    x-text="page"
+                ></button>
+            </template>
+
+            <!-- Bouton Suivant -->
+            <button
+                @click="changePage(currentPage + 1)"
+                :disabled="currentPage === totalPages"
+                :class="currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-50'"
+                class="px-3 py-2 text-sm font-medium text-blue-600 bg-white border border-gray-300 rounded-md"
+            >
+                Suivant
+            </button>
+        </div>
+
+        <!-- Informations sur la pagination -->
+        <div x-show="!loading && !error && sites.length > 0" class="mt-4 text-center text-sm text-gray-600">
+            <span x-text="`Page ${currentPage} sur ${totalPages} (${totalSites} sites au total)`"></span>
+        </div>
+    </div>
+</main>
+
+<script>
+    function sitesPage() {
+        return {
+            sites: [],
+            visits: [],
+            loading: true,
+            error: '',
+            filters: {
+                q: '',
+                region: '',
+                category: ''
+            },
+            // Pagination
+            currentPage: 1,
+            totalPages: 1,
+            totalSites: 0,
+            pageSize: 18,
+
+            async init() {
+                // Les composants sont chargés automatiquement via x-init
+
+                // Charger les données
+                await this.loadSites();
+                if (window.auth.isLoggedIn()) {
+                    await this.loadVisits();
+                }
+            },
+
+            async loadSites() {
+                try {
+                    this.loading = true;
+                    this.error = '';
+
+                    // Filtrer les paramètres vides et ajouter la pagination
+                    const params = Object.fromEntries(
+                        Object.entries(this.filters).filter(([key, value]) => value !== '')
+                    );
+                    params.page = this.currentPage;
+                    params.limit = this.pageSize;
+
+                    const response = await window.api.getSites(params);
+
+                    // Supposer que l'API retourne { data: sites[], total: number, page: number, totalPages: number }
+                    if (response.data) {
+                        this.sites = response.data;
+                        this.totalSites = response.total || response.data.length;
+                        this.totalPages = response.totalPages || Math.ceil(this.totalSites / this.pageSize);
+                    } else {
+                        // Fallback si l'API retourne directement un tableau
+                        this.sites = response;
+                        this.totalSites = response.length;
+                        this.totalPages = 1;
+                    }
+                } catch (error) {
+                    this.error = 'Erreur lors du chargement des sites';
+                    console.error('Error loading sites:', error);
+                } finally {
+                    this.loading = false;
+                }
+            },
+
+            async loadVisits() {
+                try {
+                    const response = await window.api.getVisits();
+                    this.visits = Array.isArray(response) ? response : (response.data || response);
+                } catch (error) {
+                    console.error('Error loading visits:', error);
+                }
+            },
+
+            async searchSites() {
+                this.currentPage = 1; // Reset à la première page lors d'une recherche
+                await this.loadSites();
+            },
+
+            async changePage(page) {
+                if (page < 1 || page > this.totalPages || page === this.currentPage) {
+                    return;
+                }
+                this.currentPage = page;
+                await this.loadSites();
+                // Scroll vers le haut pour une meilleure UX
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            },
+
+            get visiblePages() {
+                const pages = [];
+                const maxVisible = 5; // Nombre maximum de pages visibles
+                let start = Math.max(1, this.currentPage - Math.floor(maxVisible / 2));
+                let end = Math.min(this.totalPages, start + maxVisible - 1);
+
+                // Ajuster le début si on est près de la fin
+                if (end - start + 1 < maxVisible) {
+                    start = Math.max(1, end - maxVisible + 1);
+                }
+
+                for (let i = start; i <= end; i++) {
+                    pages.push(i);
+                }
+
+                return pages;
+            },
+
+            getShortDescription(description) {
+                if (!description) return '';
+                // Décoder les entités HTML, supprimer les balises HTML et tronquer
+                const decoded = window.utils.decodeHtmlEntities(description);
+                const plainText = decoded.replace(/<[^>]*>/g, '');
+                return window.utils.truncateText(plainText, 150);
+            },
+
+            isVisited(siteId, type) {
+                return this.visits.some(visit =>
+                    visit.site?.id === siteId && visit.type === type
+                );
+            },
+
+            async toggleVisit(siteId, type) {
+                if (!window.auth.isLoggedIn()) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                // Sauvegarder l'état actuel pour pouvoir le restaurer en cas d'erreur
+                const originalVisits = [...this.visits];
+
+                try {
+                    if (this.isVisited(siteId, type)) {
+                        // Optimistic UI: supprimer immédiatement de l'affichage
+                        const visit = this.visits.find(visit =>
+                            visit.site?.id === siteId && visit.type === type
+                        );
+                        if (visit) {
+                            this.visits = this.visits.filter(v => v.id !== visit.id);
+                            // Appel API
+                            await window.api.removeVisit(visit.id);
+                        }
+                    } else {
+                        // Supprimer l'autre type de visite s'il existe (exclusivité mutuelle)
+                        const otherType = type === 'visited' ? 'wishlist' : 'visited';
+                        const existingVisit = this.visits.find(visit =>
+                            visit.site?.id === siteId && visit.type === otherType
+                        );
+
+                        // Optimistic UI: mettre à jour l'affichage immédiatement
+                        if (existingVisit) {
+                            this.visits = this.visits.filter(v => v.id !== existingVisit.id);
+                        }
+                        // Ajouter temporairement la nouvelle visite pour l'affichage
+                        this.visits.push({
+                            id: `temp-${Date.now()}`,
+                            site: { id: siteId },
+                            type: type,
+                            temp: true
+                        });
+
+                        // Faire les appels en parallèle
+                        const promises = [];
+                        if (existingVisit) {
+                            promises.push(window.api.removeVisit(existingVisit.id));
+                        }
+                        promises.push(window.api.addVisit(parseInt(siteId), type));
+
+                        await Promise.all(promises);
+
+                        // Recharger les visites pour avoir la structure complète et remplacer les données temporaires
                         await this.loadVisits();
                     }
-                },
-
-                async loadSites() {
-                    try {
-                        this.loading = true;
-                        this.error = '';
-                        
-                        // Filtrer les paramètres vides et ajouter la pagination
-                        const params = Object.fromEntries(
-                            Object.entries(this.filters).filter(([key, value]) => value !== '')
-                        );
-                        params.page = this.currentPage;
-                        params.limit = this.pageSize;
-                        
-                        const response = await window.api.getSites(params);
-                        
-                        // Supposer que l'API retourne { data: sites[], total: number, page: number, totalPages: number }
-                        if (response.data) {
-                            this.sites = response.data;
-                            this.totalSites = response.total || response.data.length;
-                            this.totalPages = response.totalPages || Math.ceil(this.totalSites / this.pageSize);
-                        } else {
-                            // Fallback si l'API retourne directement un tableau
-                            this.sites = response;
-                            this.totalSites = response.length;
-                            this.totalPages = 1;
-                        }
-                    } catch (error) {
-                        this.error = 'Erreur lors du chargement des sites';
-                        console.error('Error loading sites:', error);
-                    } finally {
-                        this.loading = false;
-                    }
-                },
-
-                async loadVisits() {
-                    try {
-                        const response = await window.api.getVisits();
-                        this.visits = Array.isArray(response) ? response : (response.data || response);
-                    } catch (error) {
-                        console.error('Error loading visits:', error);
-                    }
-                },
-
-                async searchSites() {
-                    this.currentPage = 1; // Reset à la première page lors d'une recherche
-                    await this.loadSites();
-                },
-
-                async changePage(page) {
-                    if (page < 1 || page > this.totalPages || page === this.currentPage) {
-                        return;
-                    }
-                    this.currentPage = page;
-                    await this.loadSites();
-                    // Scroll vers le haut pour une meilleure UX
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                },
-
-                get visiblePages() {
-                    const pages = [];
-                    const maxVisible = 5; // Nombre maximum de pages visibles
-                    let start = Math.max(1, this.currentPage - Math.floor(maxVisible / 2));
-                    let end = Math.min(this.totalPages, start + maxVisible - 1);
-                    
-                    // Ajuster le début si on est près de la fin
-                    if (end - start + 1 < maxVisible) {
-                        start = Math.max(1, end - maxVisible + 1);
-                    }
-                    
-                    for (let i = start; i <= end; i++) {
-                        pages.push(i);
-                    }
-                    
-                    return pages;
-                },
-
-                getShortDescription(description) {
-                    if (!description) return '';
-                    // Décoder les entités HTML, supprimer les balises HTML et tronquer
-                    const decoded = window.utils.decodeHtmlEntities(description);
-                    const plainText = decoded.replace(/<[^>]*>/g, '');
-                    return window.utils.truncateText(plainText, 150);
-                },
-
-                isVisited(siteId, type) {
-                    return this.visits.some(visit =>
-                        visit.site?.id === siteId && visit.type === type
-                    );
-                },
-
-                async toggleVisit(siteId, type) {
-                    if (!window.auth.isLoggedIn()) {
-                        window.location.href = 'login.html';
-                        return;
-                    }
-
-                    // Sauvegarder l'état actuel pour pouvoir le restaurer en cas d'erreur
-                    const originalVisits = [...this.visits];
-
-                    try {
-                        if (this.isVisited(siteId, type)) {
-                            // Optimistic UI: supprimer immédiatement de l'affichage
-                            const visit = this.visits.find(visit =>
-                                visit.site?.id === siteId && visit.type === type
-                            );
-                            if (visit) {
-                                this.visits = this.visits.filter(v => v.id !== visit.id);
-                                // Appel API
-                                await window.api.removeVisit(visit.id);
-                            }
-                        } else {
-                            // Supprimer l'autre type de visite s'il existe (exclusivité mutuelle)
-                            const otherType = type === 'visited' ? 'wishlist' : 'visited';
-                            const existingVisit = this.visits.find(visit =>
-                                visit.site?.id === siteId && visit.type === otherType
-                            );
-                            
-                            // Optimistic UI: mettre à jour l'affichage immédiatement
-                            if (existingVisit) {
-                                this.visits = this.visits.filter(v => v.id !== existingVisit.id);
-                            }
-                            // Ajouter temporairement la nouvelle visite pour l'affichage
-                            this.visits.push({
-                                id: `temp-${Date.now()}`,
-                                site: { id: siteId },
-                                type: type,
-                                temp: true
-                            });
-                            
-                            // Faire les appels en parallèle
-                            const promises = [];
-                            if (existingVisit) {
-                                promises.push(window.api.removeVisit(existingVisit.id));
-                            }
-                            promises.push(window.api.addVisit(parseInt(siteId), type));
-                            
-                            await Promise.all(promises);
-                            
-                            // Recharger les visites pour avoir la structure complète et remplacer les données temporaires
-                            await this.loadVisits();
-                        }
-                    } catch (error) {
-                        // Restaurer l'état original en cas d'erreur
-                        this.visits = originalVisits;
-                        console.error('Error toggling visit:', error);
-                        window.utils.showToast('Erreur lors de la mise à jour', 'error');
-                    }
-                },
-
-                navigateToSite(siteId, event) {
-                    // Vérifier si le clic provient d'un bouton d'action
-                    if (event.target.closest('button')) {
-                        return; // Ne pas naviguer si on clique sur un bouton
-                    }
-                    window.location.href = `site-detail.html?id=${siteId}`;
+                } catch (error) {
+                    // Restaurer l'état original en cas d'erreur
+                    this.visits = originalVisits;
+                    console.error('Error toggling visit:', error);
+                    window.utils.showToast('Erreur lors de la mise à jour', 'error');
                 }
+            },
+
+            navigateToSite(siteId, event) {
+                // Vérifier si le clic provient d'un bouton d'action
+                if (event.target.closest('button')) {
+                    return; // Ne pas naviguer si on clique sur un bouton
+                }
+                window.location.href = `site-detail.html?id=${siteId}`;
             }
         }
-    </script>
-</body>
-</html>
+    }
+</script>
+{% endblock %}

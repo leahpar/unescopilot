@@ -1,256 +1,240 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/x-icon" href="/assets/img/favicon.ico">
-    <link rel="icon" type="image/png" sizes="16x16" href="/assets/img/favicon-16x16.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32x32.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="/assets/img/apple-touch-icon.png">
-    <link rel="manifest" href="/site.webmanifest">
-    <title>Détail du site - Unescopilot</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <script src="../assets/js/app.js"></script>
-</head>
-<body class="min-h-screen bg-gray-50 flex flex-col" x-data="siteDetailPage()">
+{% layout 'base' %}
+{% assign title = "Détail du site - Unescopilot" %}
+{% block alpineData %}siteDetailPage(){% endblock %}
 
-    <!-- Header -->
-    <div x-init="loadComponent($el, 'header')"></div>
+{% block content %}
+<!-- Contenu principal -->
+<main class="flex-1 container mx-auto px-4 py-8">
+    <div class="max-w-4xl mx-auto">
 
-    <!-- Contenu principal -->
-    <main class="flex-1 container mx-auto px-4 py-8">
-        <div class="max-w-4xl mx-auto">
-
-            <!-- Navigation retour -->
-            <div class="mb-6">
-                <button @click="goBack()" class="inline-flex items-center text-blue-600 hover:text-blue-800 cursor-pointer">
-                    ← Retour
-                </button>
-            </div>
-
-            <!-- Loading -->
-            <div x-show="loading" class="text-center py-12">
-                <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                <p class="mt-2 text-gray-600">Chargement du site...</p>
-            </div>
-
-            <!-- Erreur -->
-            <div x-show="error" class="rounded-md bg-red-50 p-4 mb-6">
-                <div class="flex">
-                    <div class="ml-3">
-                        <h3 class="text-sm font-medium text-red-800" x-text="error"></h3>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Détail du site -->
-            <template x-if="site && !loading">
-                <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-
-                <!-- Image principale (si disponible) -->
-                <div x-show="site.imageUrl" class="h-64 md:h-96 relative">
-                    <img
-                        :src="site.imageUrl"
-                        :alt="site.name || 'Site UNESCO'"
-                        class="w-full h-full object-cover"
-                    >
-                    <div class="absolute inset-0 bg-black bg-opacity-30 flex items-end">
-                        <div class="p-6 text-white">
-                            <span
-                                class="inline-block px-3 py-1 text-sm font-semibold rounded-full mb-3"
-                                :class="site.category === 'Cultural' ? 'bg-blue-600' : site.category === 'Natural' ? 'bg-green-600' : 'bg-purple-600'"
-                                x-text="site.category === 'Cultural' ? 'Site Culturel' : site.category === 'Natural' ? 'Site Naturel' : 'Site Mixte'"
-                            ></span>
-                            <h1 class="text-3xl md:text-4xl font-bold" x-text="site.name || 'Chargement...'"></h1>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Header sans image -->
-                <div x-show="!site.imageUrl && site" class="p-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
-                    <span
-                        class="inline-block px-3 py-1 text-sm font-semibold rounded-full mb-3 bg-white bg-opacity-20"
-                        x-text="site.category === 'Cultural' ? 'Site Culturel' : site.category === 'Natural' ? 'Site Naturel' : 'Site Mixte'"
-                    ></span>
-                    <h1 class="text-3xl md:text-4xl font-bold" x-text="site.name || 'Chargement...'"></h1>
-                </div>
-
-                <!-- Contenu -->
-                <div class="p-6">
-
-                    <!-- Informations de base -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                        <div>
-                            <h3 class="text-lg font-semibold text-gray-900 mb-3">Informations générales</h3>
-                            <dl class="space-y-2">
-                                <div>
-                                    <dt class="text-sm font-medium text-gray-500">Pays/États</dt>
-                                    <dd class="text-sm text-gray-900" x-text="site.states || 'Non renseigné'"></dd>
-                                </div>
-                                <div>
-                                    <dt class="text-sm font-medium text-gray-500">Région</dt>
-                                    <dd class="text-sm text-gray-900" x-text="site.region || 'Non renseigné'"></dd>
-                                </div>
-                                <div>
-                                    <dt class="text-sm font-medium text-gray-500">Date d'inscription</dt>
-                                    <dd class="text-sm text-gray-900" x-text="site.dateInscribed || 'Non renseigné'"></dd>
-                                </div>
-                                <div x-show="site.criteriaTxt">
-                                    <dt class="text-sm font-medium text-gray-500">Critères</dt>
-                                    <dd class="text-sm text-gray-900">
-                                        <button
-                                            @click="showCriteriaPopup = true"
-                                            class="text-blue-600 hover:text-blue-800 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 rounded"
-                                            x-text="site.criteriaTxt"
-                                        ></button>
-                                    </dd>
-                                </div>
-                                <div x-show="site.latitude && site.longitude">
-                                    <dt class="text-sm font-medium text-gray-500">Localisation</dt>
-                                    <dd class="text-sm text-gray-900">
-                                        <a
-                                            :href="`map.html?site=${site.id}`"
-                                            class="inline-flex items-center text-blue-600 hover:text-blue-800 text-sm"
-                                            title="Voir sur la carte"
-                                        >
-                                        <span x-text="formattedCoordinates"></span>
-                                        </a>
-                                    </dd>
-                                </div>
-                            </dl>
-                        </div>
-
-                        <!-- Actions utilisateur -->
-                        <div x-show="isAuthenticated">
-                            <h3 class="text-lg font-semibold text-gray-900 mb-3">Mes actions</h3>
-                            <div class="space-y-3">
-                                <button
-                                    @click="toggleVisit('visited')"
-                                    :class="isVisited('visited') ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
-                                    class="w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors"
-                                >
-                                    <span x-text="isVisited('visited') ? '✓ Site visité' : 'Marquer comme visité'"></span>
-                                </button>
-
-                                <button
-                                    @click="toggleVisit('wishlist')"
-                                    :class="isVisited('wishlist') ? 'bg-red-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
-                                    class="w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
-                                >
-                                    <span x-text="isVisited('wishlist') ? '♥ Dans mes lieux à découvrir' : 'Ajouter à mes lieux à découvrir'"></span>
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Message si non connecté -->
-                        <div x-show="!isAuthenticated" class="bg-blue-50 border border-blue-200 rounded-md p-4">
-                            <p class="text-sm text-blue-800">
-                                <a href="login.html" class="font-medium underline">Connectez-vous</a>
-                                pour marquer ce site comme visité ou l'ajouter à vos lieux à découvrir.
-                            </p>
-                        </div>
-                    </div>
-
-                    <!-- Description -->
-                    <div x-show="site.shortDescription" class="mb-8">
-                        <h3 class="text-lg font-semibold text-gray-900 mb-3">Description</h3>
-                        <div class="prose max-w-none text-gray-700" x-html="cleanDescription"></div>
-                    </div>
-
-
-                    <!-- Lien officiel -->
-                    <div x-show="site.httpUrl" class="border-t border-gray-200 pt-6 text-right">
-                        <a
-                            :href="site.httpUrl"
-                            target="_blank"
-                            class="text-blue-600 hover:text-blue-800 font-medium"
-                        >
-                            Voir la page officielle UNESCO →
-                        </a>
-                    </div>
-                </div>
-            </template>
+        <!-- Navigation retour -->
+        <div class="mb-6">
+            <button @click="goBack()" class="inline-flex items-center text-blue-600 hover:text-blue-800 cursor-pointer">
+                ← Retour
+            </button>
         </div>
-    </main>
 
-    <!-- Popup Critères UNESCO -->
-    <div x-show="showCriteriaPopup"
-         class="fixed inset-0 z-50 overflow-y-auto"
-         style="display: none;"
-         x-transition:enter="ease-out duration-300"
-         x-transition:enter-start="opacity-0"
-         x-transition:enter-end="opacity-100"
-         x-transition:leave="ease-in duration-200"
-         x-transition:leave-start="opacity-100"
-         x-transition:leave-end="opacity-0">
-        <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:p-0">
-            <!-- Overlay -->
-            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
-                 @click="showCriteriaPopup = false"></div>
+        <!-- Loading -->
+        <div x-show="loading" class="text-center py-12">
+            <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <p class="mt-2 text-gray-600">Chargement du site...</p>
+        </div>
 
-            <!-- Modal -->
-            <div class="relative inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
-                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                    <div class="sm:flex sm:items-start">
-                        <div class="w-full">
-                            <div class="mb-4">
-                                <h3 class="text-lg leading-6 font-medium text-gray-900 text-center">
-                                    Critères de sélection UNESCO
-                                </h3>
+        <!-- Erreur -->
+        <div x-show="error" class="rounded-md bg-red-50 p-4 mb-6">
+            <div class="flex">
+                <div class="ml-3">
+                    <h3 class="text-sm font-medium text-red-800" x-text="error"></h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- Détail du site -->
+        <template x-if="site && !loading">
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+
+            <!-- Image principale (si disponible) -->
+            <div x-show="site.imageUrl" class="h-64 md:h-96 relative">
+                <img
+                    :src="site.imageUrl"
+                    :alt="site.name || 'Site UNESCO'"
+                    class="w-full h-full object-cover"
+                >
+                <div class="absolute inset-0 bg-black bg-opacity-30 flex items-end">
+                    <div class="p-6 text-white">
+                        <span
+                            class="inline-block px-3 py-1 text-sm font-semibold rounded-full mb-3"
+                            :class="site.category === 'Cultural' ? 'bg-blue-600' : site.category === 'Natural' ? 'bg-green-600' : 'bg-purple-600'"
+                            x-text="site.category === 'Cultural' ? 'Site Culturel' : site.category === 'Natural' ? 'Site Naturel' : 'Site Mixte'"
+                        ></span>
+                        <h1 class="text-3xl md:text-4xl font-bold" x-text="site.name || 'Chargement...'"></h1>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Header sans image -->
+            <div x-show="!site.imageUrl && site" class="p-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+                <span
+                    class="inline-block px-3 py-1 text-sm font-semibold rounded-full mb-3 bg-white bg-opacity-20"
+                    x-text="site.category === 'Cultural' ? 'Site Culturel' : site.category === 'Natural' ? 'Site Naturel' : 'Site Mixte'"
+                ></span>
+                <h1 class="text-3xl md:text-4xl font-bold" x-text="site.name || 'Chargement...'"></h1>
+            </div>
+
+            <!-- Contenu -->
+            <div class="p-6">
+
+                <!-- Informations de base -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-3">Informations générales</h3>
+                        <dl class="space-y-2">
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Pays/États</dt>
+                                <dd class="text-sm text-gray-900" x-text="site.states || 'Non renseigné'"></dd>
                             </div>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Région</dt>
+                                <dd class="text-sm text-gray-900" x-text="site.region || 'Non renseigné'"></dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Date d'inscription</dt>
+                                <dd class="text-sm text-gray-900" x-text="site.dateInscribed || 'Non renseigné'"></dd>
+                            </div>
+                            <div x-show="site.criteriaTxt">
+                                <dt class="text-sm font-medium text-gray-500">Critères</dt>
+                                <dd class="text-sm text-gray-900">
+                                    <button
+                                        @click="showCriteriaPopup = true"
+                                        class="text-blue-600 hover:text-blue-800 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 rounded"
+                                        x-text="site.criteriaTxt"
+                                    ></button>
+                                </dd>
+                            </div>
+                            <div x-show="site.latitude && site.longitude">
+                                <dt class="text-sm font-medium text-gray-500">Localisation</dt>
+                                <dd class="text-sm text-gray-900">
+                                    <a
+                                        :href="`map.html?site=${site.id}`"
+                                        class="inline-flex items-center text-blue-600 hover:text-blue-800 text-sm"
+                                        title="Voir sur la carte"
+                                    >
+                                    <span x-text="formattedCoordinates"></span>
+                                    </a>
+                                </dd>
+                            </div>
+                        </dl>
+                    </div>
 
-                            <div class="max-h-[500px] overflow-y-auto">
-                                <div class="space-y-4 text-sm text-gray-700">
-                                    <div class="border-b pb-3">
-                                        <h4 class="font-semibold text-gray-900 mb-2">(i)</h4>
-                                        <p>représenter un chef-d'œuvre du génie créateur humain ;</p>
-                                    </div>
+                    <!-- Actions utilisateur -->
+                    <div x-show="isAuthenticated">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-3">Mes actions</h3>
+                        <div class="space-y-3">
+                            <button
+                                @click="toggleVisit('visited')"
+                                :class="isVisited('visited') ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+                                class="w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors"
+                            >
+                                <span x-text="isVisited('visited') ? '✓ Site visité' : 'Marquer comme visité'"></span>
+                            </button>
 
-                                    <div class="border-b pb-3">
-                                        <h4 class="font-semibold text-gray-900 mb-2">(ii)</h4>
-                                        <p>témoigner d'un échange d'influences considérable pendant une période donnée ou dans une aire culturelle déterminée, sur le développement de l'architecture ou de la technologie, des arts monumentaux, de la planification des villes ou de la création de paysages ;</p>
-                                    </div>
+                            <button
+                                @click="toggleVisit('wishlist')"
+                                :class="isVisited('wishlist') ? 'bg-red-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+                                class="w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
+                            >
+                                <span x-text="isVisited('wishlist') ? '♥ Dans mes lieux à découvrir' : 'Ajouter à mes lieux à découvrir'"></span>
+                            </button>
+                        </div>
+                    </div>
 
-                                    <div class="border-b pb-3">
-                                        <h4 class="font-semibold text-gray-900 mb-2">(iii)</h4>
-                                        <p>apporter un témoignage unique ou du moins exceptionnel sur une tradition culturelle ou une civilisation vivante ou disparue ;</p>
-                                    </div>
+                    <!-- Message si non connecté -->
+                    <div x-show="!isAuthenticated" class="bg-blue-50 border border-blue-200 rounded-md p-4">
+                        <p class="text-sm text-blue-800">
+                            <a href="login.html" class="font-medium underline">Connectez-vous</a>
+                            pour marquer ce site comme visité ou l'ajouter à vos lieux à découvrir.
+                        </p>
+                    </div>
+                </div>
 
-                                    <div class="border-b pb-3">
-                                        <h4 class="font-semibold text-gray-900 mb-2">(iv)</h4>
-                                        <p>offrir un exemple éminent d'un type de construction ou d'ensemble architectural ou technologique ou de paysage illustrant une ou des périodes significative(s) de l'histoire humaine ;</p>
-                                    </div>
+                <!-- Description -->
+                <div x-show="site.shortDescription" class="mb-8">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-3">Description</h3>
+                    <div class="prose max-w-none text-gray-700" x-html="cleanDescription"></div>
+                </div>
 
-                                    <div class="border-b pb-3">
-                                        <h4 class="font-semibold text-gray-900 mb-2">(v)</h4>
-                                        <p>être un exemple éminent d'établissement humain traditionnel, de l'utilisation traditionnelle du territoire ou de la mer, qui soit représentatif d'une culture (ou de cultures), ou de l'interaction humaine avec l'environnement, spécialement quand celui-ci est devenu vulnérable sous l'impact d'une mutation irréversible ;</p>
-                                    </div>
 
-                                    <div class="border-b pb-3">
-                                        <h4 class="font-semibold text-gray-900 mb-2">(vi)</h4>
-                                        <p>être directement ou matériellement associé à des événements ou des traditions vivantes, des idées, des croyances ou des œuvres artistiques et littéraires ayant une signification universelle exceptionnelle (Le Comité considère que ce critère doit préférablement être utilisé en conjonction avec d'autres critères) ;</p>
-                                    </div>
+                <!-- Lien officiel -->
+                <div x-show="site.httpUrl" class="border-t border-gray-200 pt-6 text-right">
+                    <a
+                        :href="site.httpUrl"
+                        target="_blank"
+                        class="text-blue-600 hover:text-blue-800 font-medium"
+                    >
+                        Voir la page officielle UNESCO →
+                    </a>
+                </div>
+            </div>
+        </template>
+    </div>
+</main>
 
-                                    <div class="border-b pb-3">
-                                        <h4 class="font-semibold text-gray-900 mb-2">(vii)</h4>
-                                        <p>représenter des phénomènes naturels ou des aires d'une beauté naturelle et d'une importance esthétique exceptionnelles ;</p>
-                                    </div>
+<!-- Popup Critères UNESCO -->
+<div x-show="showCriteriaPopup"
+     class="fixed inset-0 z-50 overflow-y-auto"
+     style="display: none;"
+     x-transition:enter="ease-out duration-300"
+     x-transition:enter-start="opacity-0"
+     x-transition:enter-end="opacity-100"
+     x-transition:leave="ease-in duration-200"
+     x-transition:leave-start="opacity-100"
+     x-transition:leave-end="opacity-0">
+    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:p-0">
+        <!-- Overlay -->
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
+             @click="showCriteriaPopup = false"></div>
 
-                                    <div class="border-b pb-3">
-                                        <h4 class="font-semibold text-gray-900 mb-2">(viii)</h4>
-                                        <p>être des exemples éminemment représentatifs des grands stades de l'histoire de la terre, y compris le témoignage de la vie, de processus géologiques en cours dans le développement des formes terrestres ou d'éléments géomorphiques ou physiographiques ayant une grande signification ;</p>
-                                    </div>
+        <!-- Modal -->
+        <div class="relative inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
+            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <div class="sm:flex sm:items-start">
+                    <div class="w-full">
+                        <div class="mb-4">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900 text-center">
+                                Critères de sélection UNESCO
+                            </h3>
+                        </div>
 
-                                    <div class="border-b pb-3">
-                                        <h4 class="font-semibold text-gray-900 mb-2">(ix)</h4>
-                                        <p>être des exemples éminemment représentatifs de processus écologiques et biologiques en cours dans l'évolution et le développement des écosystèmes et communautés de plantes et d'animaux terrestres, aquatiques, côtiers et marins ;</p>
-                                    </div>
+                        <div class="max-h-[500px] overflow-y-auto">
+                            <div class="space-y-4 text-sm text-gray-700">
+                                <div class="border-b pb-3">
+                                    <h4 class="font-semibold text-gray-900 mb-2">(i)</h4>
+                                    <p>représenter un chef-d'œuvre du génie créateur humain ;</p>
+                                </div>
 
-                                    <div>
-                                        <h4 class="font-semibold text-gray-900 mb-2">(x)</h4>
-                                        <p>contenir les habitats naturels les plus représentatifs et les plus importants pour la conservation in situ de la diversité biologique, y compris ceux où survivent des espèces menacées ayant une valeur universelle exceptionnelle du point de vue de la science ou de la conservation.</p>
-                                    </div>
+                                <div class="border-b pb-3">
+                                    <h4 class="font-semibold text-gray-900 mb-2">(ii)</h4>
+                                    <p>témoigner d'un échange d'influences considérable pendant une période donnée ou dans une aire culturelle déterminée, sur le développement de l'architecture ou de la technologie, des arts monumentaux, de la planification des villes ou de la création de paysages ;</p>
+                                </div>
+
+                                <div class="border-b pb-3">
+                                    <h4 class="font-semibold text-gray-900 mb-2">(iii)</h4>
+                                    <p>apporter un témoignage unique ou du moins exceptionnel sur une tradition culturelle ou une civilisation vivante ou disparue ;</p>
+                                </div>
+
+                                <div class="border-b pb-3">
+                                    <h4 class="font-semibold text-gray-900 mb-2">(iv)</h4>
+                                    <p>offrir un exemple éminent d'un type de construction ou d'ensemble architectural ou technologique ou de paysage illustrant une ou des périodes significative(s) de l'histoire humaine ;</p>
+                                </div>
+
+                                <div class="border-b pb-3">
+                                    <h4 class="font-semibold text-gray-900 mb-2">(v)</h4>
+                                    <p>être un exemple éminent d'établissement humain traditionnel, de l'utilisation traditionnelle du territoire ou de la mer, qui soit représentatif d'une culture (ou de cultures), ou de l'interaction humaine avec l'environnement, spécialement quand celui-ci est devenu vulnérable sous l'impact d'une mutation irréversible ;</p>
+                                </div>
+
+                                <div class="border-b pb-3">
+                                    <h4 class="font-semibold text-gray-900 mb-2">(vi)</h4>
+                                    <p>être directement ou matériellement associé à des événements ou des traditions vivantes, des idées, des croyances ou des œuvres artistiques et littéraires ayant une signification universelle exceptionnelle (Le Comité considère que ce critère doit préférablement être utilisé en conjonction avec d'autres critères) ;</p>
+                                </div>
+
+                                <div class="border-b pb-3">
+                                    <h4 class="font-semibold text-gray-900 mb-2">(vii)</h4>
+                                    <p>représenter des phénomènes naturels ou des aires d'une beauté naturelle et d'une importance esthétique exceptionnelles ;</p>
+                                </div>
+
+                                <div class="border-b pb-3">
+                                    <h4 class="font-semibold text-gray-900 mb-2">(viii)</h4>
+                                    <p>être des exemples éminemment représentatifs des grands stades de l'histoire de la terre, y compris le témoignage de la vie, de processus géologiques en cours dans le développement des formes terrestres ou d'éléments géomorphiques ou physiographiques ayant une grande signification ;</p>
+                                </div>
+
+                                <div class="border-b pb-3">
+                                    <h4 class="font-semibold text-gray-900 mb-2">(ix)</h4>
+                                    <p>être des exemples éminemment représentatifs de processus écologiques et biologiques en cours dans l'évolution et le développement des écosystèmes et communautés de plantes et d'animaux terrestres, aquatiques, côtiers et marins ;</p>
+                                </div>
+
+                                <div>
+                                    <h4 class="font-semibold text-gray-900 mb-2">(x)</h4>
+                                    <p>contenir les habitats naturels les plus représentatifs et les plus importants pour la conservation in situ de la diversité biologique, y compris ceux où survivent des espèces menacées ayant une valeur universelle exceptionnelle du point de vue de la science ou de la conservation.</p>
                                 </div>
                             </div>
                         </div>
@@ -259,160 +243,157 @@
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Footer -->
-    <div x-init="loadComponent($el, 'footer')"></div>
+<script>
+    function siteDetailPage() {
+        return {
+            site: null,
+            visits: [],
+            loading: true,
+            error: '',
+            siteId: null,
+            isAuthenticated: false,
+            showCriteriaPopup: false,
 
-    <script>
-        function siteDetailPage() {
-            return {
-                site: null,
-                visits: [],
-                loading: true,
-                error: '',
-                siteId: null,
-                isAuthenticated: false,
-                showCriteriaPopup: false,
+            async init() {
+                // Récupérer l'ID depuis l'URL
+                const urlParams = new URLSearchParams(window.location.search);
+                this.siteId = urlParams.get('id');
 
-                async init() {
-                    // Récupérer l'ID depuis l'URL
-                    const urlParams = new URLSearchParams(window.location.search);
-                    this.siteId = urlParams.get('id');
+                if (!this.siteId) {
+                    this.error = 'ID du site manquant';
+                    this.loading = false;
+                    return;
+                }
 
-                    if (!this.siteId) {
-                        this.error = 'ID du site manquant';
-                        this.loading = false;
-                        return;
-                    }
+                // Les composants sont chargés automatiquement via x-init
 
-                    // Les composants sont chargés automatiquement via x-init
+                // Vérifier l'authentification
+                this.isAuthenticated = window.auth.isLoggedIn();
+                window.appState.isAuthenticated = this.isAuthenticated;
 
-                    // Vérifier l'authentification
-                    this.isAuthenticated = window.auth.isLoggedIn();
-                    window.appState.isAuthenticated = this.isAuthenticated;
+                // Charger les données
+                await this.loadSite();
+                if (this.isAuthenticated) {
+                    await this.loadVisits();
+                }
+            },
 
-                    // Charger les données
-                    await this.loadSite();
-                    if (this.isAuthenticated) {
+            async loadSite() {
+                try {
+                    this.loading = true;
+                    this.error = '';
+                    const response = await window.api.getSite(this.siteId);
+                    this.site = response.data || response;
+                } catch (error) {
+                    this.error = 'Erreur lors du chargement du site';
+                    console.error('Error loading site:', error);
+                } finally {
+                    this.loading = false;
+                }
+            },
+
+            async loadVisits() {
+                try {
+                    const response = await window.api.getVisits();
+                    this.visits = Array.isArray(response) ? response : (response.data || response);
+                } catch (error) {
+                    console.error('Error loading visits:', error);
+                }
+            },
+
+            isVisited(type) {
+                return this.visits.some(visit =>
+                    visit.site?.id == this.siteId && visit.type == type
+                );
+            },
+
+            get formattedCoordinates() {
+                if (!this.site?.latitude || !this.site?.longitude) return 'Non disponible';
+
+                const lat = parseFloat(this.site.latitude);
+                const lon = parseFloat(this.site.longitude);
+
+                const latDir = lat >= 0 ? 'N' : 'S';
+                const lonDir = lon >= 0 ? 'E' : 'O';
+
+                return `${Math.abs(lat).toFixed(2)} ${latDir}, ${Math.abs(lon).toFixed(2)} ${lonDir}`;
+            },
+
+            get cleanDescription() {
+                if (!this.site?.shortDescription) return '';
+                return window.utils.decodeHtmlEntities(this.site.shortDescription);
+            },
+
+            goBack() {
+                if (window.history.length > 1) {
+                    window.history.back();
+                } else {
+                    // Fallback si pas d'historique
+                    window.location.href = 'sites.html';
+                }
+            },
+
+            async toggleVisit(type) {
+                if (!window.auth.isLoggedIn()) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                // Sauvegarder l'état actuel pour pouvoir le restaurer en cas d'erreur
+                const originalVisits = [...this.visits];
+
+                try {
+                    if (this.isVisited(type)) {
+                        // Optimistic UI: supprimer immédiatement de l'affichage
+                        const visit = this.visits.find(visit =>
+                            visit.site?.id == this.siteId && visit.type === type
+                        );
+                        if (visit) {
+                            this.visits = this.visits.filter(v => v.id !== visit.id);
+                            // Appel API
+                            await window.api.removeVisit(visit.id);
+                        }
+                    } else {
+                        // Supprimer l'autre type de visite s'il existe (exclusivité mutuelle)
+                        const otherType = type === 'visited' ? 'wishlist' : 'visited';
+                        const existingVisit = this.visits.find(visit =>
+                            visit.site?.id == this.siteId && visit.type === otherType
+                        );
+
+                        // Optimistic UI: mettre à jour l'affichage immédiatement
+                        if (existingVisit) {
+                            this.visits = this.visits.filter(v => v.id !== existingVisit.id);
+                        }
+                        // Ajouter temporairement la nouvelle visite pour l'affichage
+                        this.visits.push({
+                            id: `temp-${Date.now()}`,
+                            site: { id: parseInt(this.siteId) },
+                            type: type,
+                            temp: true
+                        });
+
+                        // Faire les appels en parallèle
+                        const promises = [];
+                        if (existingVisit) {
+                            promises.push(window.api.removeVisit(existingVisit.id));
+                        }
+                        promises.push(window.api.addVisit(parseInt(this.siteId), type));
+
+                        await Promise.all(promises);
+
+                        // Recharger les visites pour avoir la structure complète et remplacer les données temporaires
                         await this.loadVisits();
                     }
-                },
-
-                async loadSite() {
-                    try {
-                        this.loading = true;
-                        this.error = '';
-                        const response = await window.api.getSite(this.siteId);
-                        this.site = response.data || response;
-                    } catch (error) {
-                        this.error = 'Erreur lors du chargement du site';
-                        console.error('Error loading site:', error);
-                    } finally {
-                        this.loading = false;
-                    }
-                },
-
-                async loadVisits() {
-                    try {
-                        const response = await window.api.getVisits();
-                        this.visits = Array.isArray(response) ? response : (response.data || response);
-                    } catch (error) {
-                        console.error('Error loading visits:', error);
-                    }
-                },
-
-                isVisited(type) {
-                    return this.visits.some(visit =>
-                        visit.site?.id == this.siteId && visit.type == type
-                    );
-                },
-
-                get formattedCoordinates() {
-                    if (!this.site?.latitude || !this.site?.longitude) return 'Non disponible';
-
-                    const lat = parseFloat(this.site.latitude);
-                    const lon = parseFloat(this.site.longitude);
-
-                    const latDir = lat >= 0 ? 'N' : 'S';
-                    const lonDir = lon >= 0 ? 'E' : 'O';
-
-                    return `${Math.abs(lat).toFixed(2)} ${latDir}, ${Math.abs(lon).toFixed(2)} ${lonDir}`;
-                },
-
-                get cleanDescription() {
-                    if (!this.site?.shortDescription) return '';
-                    return window.utils.decodeHtmlEntities(this.site.shortDescription);
-                },
-
-                goBack() {
-                    if (window.history.length > 1) {
-                        window.history.back();
-                    } else {
-                        // Fallback si pas d'historique
-                        window.location.href = 'sites.html';
-                    }
-                },
-
-                async toggleVisit(type) {
-                    if (!window.auth.isLoggedIn()) {
-                        window.location.href = 'login.html';
-                        return;
-                    }
-
-                    // Sauvegarder l'état actuel pour pouvoir le restaurer en cas d'erreur
-                    const originalVisits = [...this.visits];
-
-                    try {
-                        if (this.isVisited(type)) {
-                            // Optimistic UI: supprimer immédiatement de l'affichage
-                            const visit = this.visits.find(visit =>
-                                visit.site?.id == this.siteId && visit.type === type
-                            );
-                            if (visit) {
-                                this.visits = this.visits.filter(v => v.id !== visit.id);
-                                // Appel API
-                                await window.api.removeVisit(visit.id);
-                            }
-                        } else {
-                            // Supprimer l'autre type de visite s'il existe (exclusivité mutuelle)
-                            const otherType = type === 'visited' ? 'wishlist' : 'visited';
-                            const existingVisit = this.visits.find(visit =>
-                                visit.site?.id == this.siteId && visit.type === otherType
-                            );
-
-                            // Optimistic UI: mettre à jour l'affichage immédiatement
-                            if (existingVisit) {
-                                this.visits = this.visits.filter(v => v.id !== existingVisit.id);
-                            }
-                            // Ajouter temporairement la nouvelle visite pour l'affichage
-                            this.visits.push({
-                                id: `temp-${Date.now()}`,
-                                site: { id: parseInt(this.siteId) },
-                                type: type,
-                                temp: true
-                            });
-
-                            // Faire les appels en parallèle
-                            const promises = [];
-                            if (existingVisit) {
-                                promises.push(window.api.removeVisit(existingVisit.id));
-                            }
-                            promises.push(window.api.addVisit(parseInt(this.siteId), type));
-
-                            await Promise.all(promises);
-
-                            // Recharger les visites pour avoir la structure complète et remplacer les données temporaires
-                            await this.loadVisits();
-                        }
-                    } catch (error) {
-                        // Restaurer l'état original en cas d'erreur
-                        this.visits = originalVisits;
-                        console.error('Error toggling visit:', error);
-                        window.utils.showToast('Erreur lors de la mise à jour', 'error');
-                    }
+                } catch (error) {
+                    // Restaurer l'état original en cas d'erreur
+                    this.visits = originalVisits;
+                    console.error('Error toggling visit:', error);
+                    window.utils.showToast('Erreur lors de la mise à jour', 'error');
                 }
             }
         }
-    </script>
-</body>
-</html>
+    }
+</script>
+{% endblock %}

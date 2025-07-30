@@ -1,182 +1,164 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/x-icon" href="/assets/img/favicon.ico">
-    <link rel="icon" type="image/png" sizes="16x16" href="/assets/img/favicon-16x16.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32x32.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="/assets/img/apple-touch-icon.png">
-    <link rel="manifest" href="/site.webmanifest">
-    <title>Classement - Unescopilot</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <script src="../assets/js/app.js"></script>
-</head>
-<body class="min-h-screen bg-gray-50 flex flex-col" x-data="rankingPage()">
+{% layout 'base' %}
+{% assign title = "Classement - Unescopilot" %}
+{% block alpineData %}rankingPage(){% endblock %}
 
-    <!-- Header -->
-    <div x-init="loadComponent($el, 'header')"></div>
+{% block content %}
+<!-- Contenu principal -->
+<main class="flex-1 container mx-auto px-4 py-8">
+    <div class="max-w-6xl mx-auto">
 
-    <!-- Contenu principal -->
-    <main class="flex-1 container mx-auto px-4 py-8">
-        <div class="max-w-6xl mx-auto">
+        <!-- En-tête -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 mb-4">🏆 Classement des explorateurs</h1>
+            <p class="text-gray-600">Découvrez les explorateurs les plus actifs</p>
+        </div>
 
-            <!-- En-tête -->
-            <div class="bg-white rounded-lg shadow-md p-6 mb-8">
-                <h1 class="text-3xl font-bold text-gray-900 mb-4">🏆 Classement des explorateurs</h1>
-                <p class="text-gray-600">Découvrez les explorateurs les plus actifs</p>
-            </div>
-
-            <!-- Statistiques globales -->
-            <div x-show="!loading && !error" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <!-- Card du classement utilisateur courant -->
-                <div x-show="currentUser" class="bg-gradient-to-br from-blue-50 to-indigo-100 rounded-lg shadow-md p-6 border-2 border-blue-200">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Votre classement</h3>
-                    <div x-show="getCurrentUserRank()">
-                        <p class="text-3xl font-bold text-indigo-600" x-text="`#${getCurrentUserRank()}`"></p>
-                        <p class="text-sm text-indigo-700" x-text="getCurrentUserData() ? `${getCurrentUserData().total} sites visités` : ''"></p>
-                    </div>
-                    <div x-show="!getCurrentUserRank()" class="text-center">
-                        <p class="text-gray-500 text-sm">Pas encore classé</p>
-                        <p class="text-xs text-gray-400">Visitez des sites pour apparaître dans le classement !</p>
-                    </div>
+        <!-- Statistiques globales -->
+        <div x-show="!loading && !error" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <!-- Card du classement utilisateur courant -->
+            <div x-show="currentUser" class="bg-gradient-to-br from-blue-50 to-indigo-100 rounded-lg shadow-md p-6 border-2 border-blue-200">
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Votre classement</h3>
+                <div x-show="getCurrentUserRank()">
+                    <p class="text-3xl font-bold text-indigo-600" x-text="`#${getCurrentUserRank()}`"></p>
+                    <p class="text-sm text-indigo-700" x-text="getCurrentUserData() ? `${getCurrentUserData().total} sites visités` : ''"></p>
                 </div>
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Top explorateur</h3>
-                    <p class="text-lg font-medium text-green-600" x-text="getTopUser()?.username || 'N/A'"></p>
-                    <p class="text-sm text-gray-500" x-text="getTopUser() ? `${getTopUser().total} sites` : ''"></p>
-                </div>
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Moyenne par explorateur</h3>
-                    <p class="text-3xl font-bold text-purple-600" x-text="getAverageVisits()"></p>
-                </div>
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Explorateurs actifs</h3>
-                    <p class="text-3xl font-bold text-blue-600" x-text="Object.keys(rankings).length"></p>
+                <div x-show="!getCurrentUserRank()" class="text-center">
+                    <p class="text-gray-500 text-sm">Pas encore classé</p>
+                    <p class="text-xs text-gray-400">Visitez des sites pour apparaître dans le classement !</p>
                 </div>
             </div>
-
-            <!-- Tableau de classement -->
-            <div class="bg-white rounded-lg shadow-md">
-                <div class="px-6 py-4 border-b border-gray-200">
-                    <h3 class="text-lg font-semibold text-gray-900">Classement des explorateurs</h3>
-                    <p class="text-xs text-gray-500 mt-1" x-show="!loading">(Cliquez sur les en-têtes pour trier par région)</p>
-                </div>
-
-                <!-- État de chargement -->
-                <div x-show="loading" class="text-center py-12">
-                    <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-4"></div>
-                    <p class="text-gray-500">Chargement du classement...</p>
-                </div>
-
-                <!-- Message d'erreur -->
-                <div x-show="error && !loading" class="text-center py-12">
-                    <div class="text-red-500 text-4xl mb-4">⚠️</div>
-                    <p class="text-red-600 mb-4" x-text="error"></p>
-                    <button
-                        @click="loadRanking()"
-                        class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                        Réessayer
-                    </button>
-                </div>
-
-                <div x-show="!loading && !error" class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rang</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Explorateur</th>
-                                <th @click="sortByColumn('Europe et Amérique du Nord')" class="px-6 py-3 text-center text-xs font-medium uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none" :class="getSortColumnClass('Europe et Amérique du Nord')">
-                                    <div class="flex items-center justify-center space-x-1">
-                                        <span>Europe & Amérique du Nord</span>
-                                        <span x-show="currentSort === 'Europe et Amérique du Nord'" x-text="sortDirection === 'desc' ? '↓' : '↑'" class="text-blue-600"></span>
-                                    </div>
-                                </th>
-                                <th @click="sortByColumn('Asie et Pacifique')" class="px-6 py-3 text-center text-xs font-medium uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none" :class="getSortColumnClass('Asie et Pacifique')">
-                                    <div class="flex items-center justify-center space-x-1">
-                                        <span>Asie & Pacifique</span>
-                                        <span x-show="currentSort === 'Asie et Pacifique'" x-text="sortDirection === 'desc' ? '↓' : '↑'" class="text-blue-600"></span>
-                                    </div>
-                                </th>
-                                <th @click="sortByColumn('Afrique')" class="px-6 py-3 text-center text-xs font-medium uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none" :class="getSortColumnClass('Afrique')">
-                                    <div class="flex items-center justify-center space-x-1">
-                                        <span>Afrique</span>
-                                        <span x-show="currentSort === 'Afrique'" x-text="sortDirection === 'desc' ? '↓' : '↑'" class="text-blue-600"></span>
-                                    </div>
-                                </th>
-                                <th @click="sortByColumn('Amérique latine et Caraïbes')" class="px-6 py-3 text-center text-xs font-medium uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none" :class="getSortColumnClass('Amérique latine et Caraïbes')">
-                                    <div class="flex items-center justify-center space-x-1">
-                                        <span>Amérique latine & Caraïbes</span>
-                                        <span x-show="currentSort === 'Amérique latine et Caraïbes'" x-text="sortDirection === 'desc' ? '↓' : '↑'" class="text-blue-600"></span>
-                                    </div>
-                                </th>
-                                <th @click="sortByColumn('États arabes')" class="px-6 py-3 text-center text-xs font-medium uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none" :class="getSortColumnClass('États arabes')">
-                                    <div class="flex items-center justify-center space-x-1">
-                                        <span>États arabes</span>
-                                        <span x-show="currentSort === 'États arabes'" x-text="sortDirection === 'desc' ? '↓' : '↑'" class="text-blue-600"></span>
-                                    </div>
-                                </th>
-                                <th @click="sortByColumn('total')" class="px-6 py-3 text-center text-xs font-medium uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none" :class="getSortColumnClass('total')">
-                                    <div class="flex items-center justify-center space-x-1">
-                                        <span>Total</span>
-                                        <span x-show="currentSort === 'total'" x-text="sortDirection === 'desc' ? '↓' : '↑'" class="text-blue-600"></span>
-                                    </div>
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            <template x-for="(user, index) in sortedUsers" :key="user.username">
-                                <tr class="hover:bg-gray-50" :class="[
-                                    index < 3 ? 'bg-yellow-50' : '',
-                                    isCurrentUser(user.username) ? 'bg-blue-50 font-bold' : ''
-                                ]">
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="flex items-center">
-                                            <span
-                                                class="inline-flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium"
-                                                :class="getRankStyle(index)"
-                                                x-text="index + 1"
-                                            ></span>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="text-sm text-gray-900"
-                                              :class="{'bg-blue-200 rounded-full px-2 py-1': isCurrentUser(user.username)}"
-                                              x-text="user.username"></span>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-center">
-                                        <span class="text-sm text-gray-900" x-text="user.regions['Europe et Amérique du Nord'] || 0"></span>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-center">
-                                        <span class="text-sm text-gray-900" x-text="user.regions['Asie et Pacifique'] || 0"></span>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-center">
-                                        <span class="text-sm text-gray-900" x-text="user.regions['Afrique'] || 0"></span>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-center">
-                                        <span class="text-sm text-gray-900" x-text="user.regions['Amérique latine et Caraïbes'] || 0"></span>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-center">
-                                        <span class="text-sm text-gray-900" x-text="user.regions['États arabes'] || 0"></span>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-center">
-                                        <span class="text-lg font-semibold text-blue-600" x-text="user.total"></span>
-                                    </td>
-                                </tr>
-                            </template>
-                        </tbody>
-                    </table>
-                </div>
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Top explorateur</h3>
+                <p class="text-lg font-medium text-green-600" x-text="getTopUser()?.username || 'N/A'"></p>
+                <p class="text-sm text-gray-500" x-text="getTopUser() ? `${getTopUser().total} sites` : ''"></p>
+            </div>
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Moyenne par explorateur</h3>
+                <p class="text-3xl font-bold text-purple-600" x-text="getAverageVisits()"></p>
+            </div>
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Explorateurs actifs</h3>
+                <p class="text-3xl font-bold text-blue-600" x-text="Object.keys(rankings).length"></p>
             </div>
         </div>
-    </main>
 
-    <!-- Footer -->
-    <div x-init="loadComponent($el, 'footer')"></div>
+        <!-- Tableau de classement -->
+        <div class="bg-white rounded-lg shadow-md">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900">Classement des explorateurs</h3>
+                <p class="text-xs text-gray-500 mt-1" x-show="!loading">(Cliquez sur les en-têtes pour trier par région)</p>
+            </div>
 
-    <script>
+            <!-- État de chargement -->
+            <div x-show="loading" class="text-center py-12">
+                <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-4"></div>
+                <p class="text-gray-500">Chargement du classement...</p>
+            </div>
+
+            <!-- Message d'erreur -->
+            <div x-show="error && !loading" class="text-center py-12">
+                <div class="text-red-500 text-4xl mb-4">⚠️</div>
+                <p class="text-red-600 mb-4" x-text="error"></p>
+                <button
+                    @click="loadRanking()"
+                    class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                    Réessayer
+                </button>
+            </div>
+
+            <div x-show="!loading && !error" class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rang</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Explorateur</th>
+                            <th @click="sortByColumn('Europe et Amérique du Nord')" class="px-6 py-3 text-center text-xs font-medium uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none" :class="getSortColumnClass('Europe et Amérique du Nord')">
+                                <div class="flex items-center justify-center space-x-1">
+                                    <span>Europe & Amérique du Nord</span>
+                                    <span x-show="currentSort === 'Europe et Amérique du Nord'" x-text="sortDirection === 'desc' ? '↓' : '↑'" class="text-blue-600"></span>
+                                </div>
+                            </th>
+                            <th @click="sortByColumn('Asie et Pacifique')" class="px-6 py-3 text-center text-xs font-medium uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none" :class="getSortColumnClass('Asie et Pacifique')">
+                                <div class="flex items-center justify-center space-x-1">
+                                    <span>Asie & Pacifique</span>
+                                    <span x-show="currentSort === 'Asie et Pacifique'" x-text="sortDirection === 'desc' ? '↓' : '↑'" class="text-blue-600"></span>
+                                </div>
+                            </th>
+                            <th @click="sortByColumn('Afrique')" class="px-6 py-3 text-center text-xs font-medium uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none" :class="getSortColumnClass('Afrique')">
+                                <div class="flex items-center justify-center space-x-1">
+                                    <span>Afrique</span>
+                                    <span x-show="currentSort === 'Afrique'" x-text="sortDirection === 'desc' ? '↓' : '↑'" class="text-blue-600"></span>
+                                </div>
+                            </th>
+                            <th @click="sortByColumn('Amérique latine et Caraïbes')" class="px-6 py-3 text-center text-xs font-medium uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none" :class="getSortColumnClass('Amérique latine et Caraïbes')">
+                                <div class="flex items-center justify-center space-x-1">
+                                    <span>Amérique latine & Caraïbes</span>
+                                    <span x-show="currentSort === 'Amérique latine et Caraïbes'" x-text="sortDirection === 'desc' ? '↓' : '↑'" class="text-blue-600"></span>
+                                </div>
+                            </th>
+                            <th @click="sortByColumn('États arabes')" class="px-6 py-3 text-center text-xs font-medium uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none" :class="getSortColumnClass('États arabes')">
+                                <div class="flex items-center justify-center space-x-1">
+                                    <span>États arabes</span>
+                                    <span x-show="currentSort === 'États arabes'" x-text="sortDirection === 'desc' ? '↓' : '↑'" class="text-blue-600"></span>
+                                </div>
+                            </th>
+                            <th @click="sortByColumn('total')" class="px-6 py-3 text-center text-xs font-medium uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none" :class="getSortColumnClass('total')">
+                                <div class="flex items-center justify-center space-x-1">
+                                    <span>Total</span>
+                                    <span x-show="currentSort === 'total'" x-text="sortDirection === 'desc' ? '↓' : '↑'" class="text-blue-600"></span>
+                                </div>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <template x-for="(user, index) in sortedUsers" :key="user.username">
+                            <tr class="hover:bg-gray-50" :class="[
+                                index < 3 ? 'bg-yellow-50' : '',
+                                isCurrentUser(user.username) ? 'bg-blue-50 font-bold' : ''
+                            ]">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <span
+                                            class="inline-flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium"
+                                            :class="getRankStyle(index)"
+                                            x-text="index + 1"
+                                        ></span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="text-sm text-gray-900"
+                                          :class="{'bg-blue-200 rounded-full px-2 py-1': isCurrentUser(user.username)}"
+                                          x-text="user.username"></span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-center">
+                                    <span class="text-sm text-gray-900" x-text="user.regions['Europe et Amérique du Nord'] || 0"></span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-center">
+                                    <span class="text-sm text-gray-900" x-text="user.regions['Asie et Pacifique'] || 0"></span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-center">
+                                    <span class="text-sm text-gray-900" x-text="user.regions['Afrique'] || 0"></span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-center">
+                                    <span class="text-sm text-gray-900" x-text="user.regions['Amérique latine et Caraïbes'] || 0"></span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-center">
+                                    <span class="text-sm text-gray-900" x-text="user.regions['États arabes'] || 0"></span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-center">
+                                    <span class="text-lg font-semibold text-blue-600" x-text="user.total"></span>
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
         function rankingPage() {
             return {
                 rankings: {},
@@ -358,5 +340,4 @@
             }
         }
     </script>
-</body>
-</html>
+{% endblock %}

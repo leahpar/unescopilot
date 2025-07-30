@@ -14,20 +14,6 @@ Unescopilot est une application web légère et conviviale pour recenser, explor
 - **Frontend :** JavaScript vanilla avec [Alpine.js](https://alpinejs.dev/) pour l'interactivité.
 - **Styling :** [Tailwind CSS](https://tailwindcss.com/).
 
-## API Backend
-
-L'application communique avec un backend Symfony via une API REST :
-
-- `POST /api/login` - Connexion
-- `POST /api/register` - Inscription
-- `GET /api/me` - Profil utilisateur
-- `PUT /api/me` - Mise à jour du profil
-- `GET /api/sites` - Liste des sites (avec filtres)
-- `GET /api/sites/{id}` - Détail d'un site
-- `GET /api/me/visit` - Visites de l'utilisateur
-- `POST /api/me/visit` - Ajouter une visite
-- `DELETE /api/me/visit/{site_id}` - Supprimer une visite
-
 ## Documentation
 
 Le dossier `doc/` contient les documents suivants :
@@ -64,7 +50,19 @@ Le dossier `doc/` contient les documents suivants :
     php bin/console app:import-sites
     ```
 
-5.  **Lancez le serveur local :**
+5.  **Installez les dépendances JavaScript :**
+    ```bash
+    npm install
+    ```
+    
+6.  **Compilez les assets :**
+    ```bash
+    # TODO: gérer un mode watch pour le développement
+    npm run build
+    npm run tailwind
+    ```
+
+7.  **Lancez le serveur local :**
     ```bash
     symfony server:start
     ```

@@ -257,6 +257,9 @@
             showCriteriaPopup: false,
 
             async init() {
+                this.isAuthenticated = window.auth.isLoggedIn();
+                window.appState.isAuthenticated = this.isAuthenticated;
+
                 // Récupérer l'ID depuis l'URL
                 const urlParams = new URLSearchParams(window.location.search);
                 this.siteId = urlParams.get('id');
@@ -266,8 +269,6 @@
                     this.loading = false;
                     return;
                 }
-
-                // Les composants sont chargés automatiquement via x-init
 
                 // Vérifier l'authentification
                 this.isAuthenticated = window.auth.isLoggedIn();

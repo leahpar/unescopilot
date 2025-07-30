@@ -203,11 +203,12 @@
             pageSize: 18,
 
             async init() {
-                // Les composants sont chargés automatiquement via x-init
+                this.isAuthenticated = window.auth.isLoggedIn();
+                window.appState.isAuthenticated = this.isAuthenticated;
 
                 // Charger les données
                 await this.loadSites();
-                if (window.auth.isLoggedIn()) {
+                if (this.isAuthenticated) {
                     await this.loadVisits();
                 }
             },

@@ -178,8 +178,11 @@
                 currentUser: null,
 
                 async init() {
+                    this.isAuthenticated = window.auth.isLoggedIn();
+                    window.appState.isAuthenticated = this.isAuthenticated;
+
                     // Charger les infos de l'utilisateur connecté
-                    if (window.auth?.isLoggedIn()) {
+                    if (this.isAuthenticated) {
                         try {
                             const userResponse = await window.api.getProfile();
                             this.currentUser = userResponse.user || userResponse;

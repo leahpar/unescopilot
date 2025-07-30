@@ -298,6 +298,9 @@
             loadingMessage: 'Chargement de la carte...',
 
             async init() {
+                this.isAuthenticated = window.auth.isLoggedIn();
+                window.appState.isAuthenticated = this.isAuthenticated;
+
                 this.loadingMessage = 'Chargement des sites UNESCO...';
                 await this.loadAllSites();
                 await this.delay(100);

@@ -296,13 +296,14 @@
                 updateSuccess: false,
 
                 async init() {
+                    this.isAuthenticated = window.auth.isLoggedIn();
+                    window.appState.isAuthenticated = this.isAuthenticated;
+
                     // Vérifier si l'utilisateur est connecté
-                    if (!window.auth.isLoggedIn()) {
+                    if (!this.isAuthenticated) {
                         window.location.href = 'login.html';
                         return;
                     }
-
-                    // Les composants sont chargés automatiquement via x-init
 
                     // Charger les données
                     await this.loadProfile();

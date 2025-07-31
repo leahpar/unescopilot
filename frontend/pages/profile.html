@@ -294,41 +294,55 @@
                 updateLoading: false,
                 updateError: '',
                 updateSuccess: false,
+                isCurrentUser: false,
 
                 async init() {
                     this.isAuthenticated = window.auth.isLoggedIn();
                     window.appState.isAuthenticated = this.isAuthenticated;
 
-                    // Vérifier si l'utilisateur est connecté
-                    if (!this.isAuthenticated) {
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const userId = urlParams.get('id');
+
+                    if (userId) {
+                        await this.loadUserProfile(userId);
+                    } else if (this.isAuthenticated) {
+                        await this.loadCurrentUserProfile();
+                        this.isCurrentUser = true;
+                    } else {
                         window.location.href = 'login.html';
                         return;
                     }
 
-                    // Charger les données
-                    await this.loadProfile();
-                    await this.loadVisits();
+                    if (this.user) {
+                        await this.loadVisits(this.user.id);
+                    }
                 },
 
-                async loadProfile() {
+                async loadCurrentUserProfile() {
                     try {
                         const response = await window.api.getProfile();
-                        // Selon la doc API, la réponse contient { "user": {...} }
                         this.user = response.user || response.data || response;
                         window.appState.user = this.user;
-
-                        // Préremplir le formulaire d'édition
                         this.editForm.pseudo = this.user?.pseudo || '';
                         this.editForm.email = this.user?.email || '';
                     } catch (error) {
-                        console.error('Error loading profile:', error);
+                        console.error('Error loading current user profile:', error);
                         window.auth.logout();
                     }
                 },
 
-                async loadVisits() {
+                async loadUserProfile(userId) {
                     try {
-                        const response = await window.api.getVisits();
+                        const response = await window.api.getUser(userId);
+                        this.user = response.user || response.data || response;
+                    } catch (error) {
+                        console.error(`Error loading user profile for id ${userId}:`, error);
+                    }
+                },
+
+                async loadVisits(userId) {
+                    try {
+                        const response = await window.api.getVisits(null, userId);
                         // L'API retourne directement un tableau de visites avec les sites inclus
                         this.visits = Array.isArray(response) ? response : (response.data || response);
                         if (this.visits.length > 0) {

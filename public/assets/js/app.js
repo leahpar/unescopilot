@@ -121,6 +121,14 @@ window.api = {
     return this.request('/me');
   },
 
+  async getUser(id) {
+    return this.request(`/users/${id}`);
+  },
+
+  async getUsers() {
+    return this.request('/users');
+  },
+
   async updateProfile(userData) {
     return this.request('/me/profile', {
       method: 'PUT',
@@ -138,8 +146,10 @@ window.api = {
     return this.request(`/sites/${id}`);
   },
 
-  async getVisits(type = null) {
-    const params = type ? { type } : {};
+  async getVisits(type = null, userId = null) {
+    const params = {};
+    if (type) params.type = type;
+    if (userId) params.userId = userId;
     const queryString = new URLSearchParams(params).toString();
     const endpoint = queryString ? `/visits?${queryString}` : '/visits';
     return this.request(endpoint);

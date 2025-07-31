@@ -127,9 +127,10 @@
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="text-sm text-gray-900"
-                                          :class="{'bg-blue-200 rounded-full px-2 py-1': isCurrentUser(user.username)}"
-                                          x-text="user.username"></span>
+                                    <a :href="`profile.html?id=${getUserId(user.username)}`" 
+                                       class="text-sm text-gray-900 hover:text-blue-600"
+                                       :class="{'bg-blue-200 rounded-full px-2 py-1': isCurrentUser(user.username)}"
+                                       x-text="user.username"></a>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-center">
                                     <span class="text-sm text-gray-900" x-text="user.regions['Europe et Amérique du Nord'] || 0"></span>
@@ -162,6 +163,7 @@
         function rankingPage() {
             return {
                 rankings: {},
+                users: [],
                 regions: [
                     'Europe et Amérique du Nord',
                     'Asie et Pacifique',
@@ -191,7 +193,21 @@
                         }
                     }
 
+                    await this.loadUsers();
                     await this.loadRanking();
+                },
+
+                async loadUsers() {
+                    try {
+                        this.users = await window.api.getUsers();
+                    } catch (error) {
+                        console.error('Error loading users:', error);
+                    }
+                },
+
+                getUserId(username) {
+                    const user = this.users.find(u => u.pseudo === username);
+                    return user ? user.id : null;
                 },
 
                 async loadRanking() {

@@ -100,6 +100,32 @@ Récupère les informations de l'utilisateur connecté.
 }
 ```
 
+### PUT `/api/me/profile` 🔒
+Met à jour le profil de l'utilisateur connecté.
+
+**Body :**
+```json
+{
+  "pseudo": "nouveau_pseudo"
+}
+```
+
+**Réponse succès (200) :**
+```json
+{
+  "message": "Profile updated successfully",
+  "user": {
+    "id": 1,
+    "email": "user@example.com",
+    "pseudo": "nouveau_pseudo"
+  }
+}
+```
+
+**Erreurs :**
+- `400` : Erreurs de validation
+- `401` : Non authentifié
+
 ---
 
 ## Endpoints des sites UNESCO

@@ -126,6 +126,37 @@ Met à jour le profil de l'utilisateur connecté.
 - `400` : Erreurs de validation
 - `401` : Non authentifié
 
+### GET `/api/users`
+Liste des utilisateurs.
+
+**Réponse (200) :**
+```json
+[
+  {
+    "id": 1,
+    "pseudo": "username"
+  },
+  {
+    "id": 2,
+    "pseudo": "username2"
+  }
+]
+```
+
+### GET `/api/users/{id}`
+Récupère le profil d'un utilisateur.
+
+**Réponse (200) :**
+```json
+{
+  "id": 1,
+  "pseudo": "username"
+}
+```
+
+**Erreurs :**
+- `404` : Utilisateur non trouvé
+
 ---
 
 ## Endpoints des sites UNESCO

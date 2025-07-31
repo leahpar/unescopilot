@@ -122,7 +122,7 @@ window.api = {
   },
 
   async updateProfile(userData) {
-    return this.request('/me', {
+    return this.request('/me/profile', {
       method: 'PUT',
       body: JSON.stringify(userData)
     });

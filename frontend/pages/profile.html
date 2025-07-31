@@ -361,7 +361,7 @@
                             pseudo: this.editForm.pseudo
                         };
                         const response = await window.api.updateProfile(updateData);
-                        this.user = response.data || response;
+                        this.user = response.user || response.data || response;
                         window.appState.user = this.user;
                         this.updateSuccess = true;
                         this.editMode = false;

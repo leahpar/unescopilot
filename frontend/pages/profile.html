@@ -139,7 +139,7 @@
         <!-- Listes des sites -->
         <div class="space-y-8">
 
-            <!-- Lieux à découvrir -->
+            <!-- sites à découvrir -->
             <div class="bg-white rounded-lg shadow-md">
                 <div class="px-6 py-4 border-b border-gray-200">
                     <h3 class="text-lg font-semibold text-gray-900">Sites à découvrir</h3>
@@ -148,12 +148,12 @@
                     <!-- Loading -->
                     <div x-show="visits.length === 0 && !visitsLoaded" class="text-center py-8 text-gray-500">
                         <div class="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mb-2"></div>
-                        <p>Chargement des lieux à découvrir...</p>
+                        <p>Chargement des sites à découvrir...</p>
                     </div>
 
                     <!-- Empty state -->
                     <div x-show="getVisitedSites('wishlist').length === 0 && visitsLoaded" class="text-center py-8 text-gray-500">
-                        La liste de lieux à découvrir est vide.
+                        Aucun site à découvrir.
                     </div>
                     <div x-show="getVisitedSites('wishlist').length > 0" class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200">
@@ -223,7 +223,7 @@
 
                     <!-- Empty state -->
                     <div x-show="getVisitedSites('visited').length === 0 && visitsLoaded" class="text-center py-8 text-gray-500">
-                        Cet utilisateur n'a encore visité aucun site.
+                        Aucun site visité.
                     </div>
                     <div x-show="getVisitedSites('visited').length > 0" class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200">

@@ -199,7 +199,8 @@
 
                 async loadUsers() {
                     try {
-                        this.users = await window.api.getUsers();
+                        const response = await window.api.getUsers();
+                        this.users = response || [];
                     } catch (error) {
                         console.error('Error loading users:', error);
                     }

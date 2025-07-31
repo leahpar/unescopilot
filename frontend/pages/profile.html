@@ -407,7 +407,8 @@
 
                 getVisitPercentage(type) {
                     const count = this.getVisitCount(type);
-                    return Math.round((count / 1154) * 100 * 100) / 100; // Arrondi à 2 décimales
+                    const totalSites = localStorage.getItem('unescopilot_total_sites') || 1154;
+                    return Math.round((count / totalSites) * 100 * 100) / 100; // Arrondi à 2 décimales
                 },
 
                 getVisitedSites(type) {

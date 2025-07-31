@@ -223,10 +223,24 @@ window.utils = {
   }
 };
 
+async function loadTotalSites() {
+    try {
+        const response = await window.api.getSites({ limit: 1 });
+        if (response && response.total) {
+            localStorage.setItem('unescopilot_total_sites', response.total);
+        }
+    } catch (error) {
+        console.error('Error loading total sites:', error);
+    }
+}
+
 // Initialisation globale
 document.addEventListener('DOMContentLoaded', function() {
   // Vérifier l'authentification au chargement
   window.auth.isLoggedIn();
+
+  // Charger le nombre total de sites
+  loadTotalSites();
 
   // Enregistrer le service worker pour la PWA
   if ('serviceWorker' in navigator) {

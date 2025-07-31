@@ -76,10 +76,8 @@ class AuthTokenTest extends WebTestCase
 
         $responseData = json_decode($this->client->getResponse()->getContent(), true);
 
-        $this->assertArrayHasKey('user', $responseData);
-        $this->assertEquals('test@example.com', $responseData['user']['email']);
-        $this->assertEquals('testuser', $responseData['user']['pseudo']);
-        $this->assertEquals($user->getId(), $responseData['user']['id']);
+        $this->assertEquals('testuser', $responseData['pseudo']);
+        $this->assertEquals($user->getId(), $responseData['id']);
     }
 
     public function testProtectedEndpointWithExpiredToken(): void

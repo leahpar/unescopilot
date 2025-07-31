@@ -73,6 +73,7 @@
                         <tr>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rang</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Explorateur</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">% Total Visité</th>
                             <th @click="sortByColumn('Europe et Amérique du Nord')" class="px-6 py-3 text-center text-xs font-medium uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none" :class="getSortColumnClass('Europe et Amérique du Nord')">
                                 <div class="flex items-center justify-center space-x-1">
                                     <span>Europe & Amérique du Nord</span>
@@ -131,6 +132,9 @@
                                        class="text-sm text-gray-900 hover:text-blue-600"
                                        :class="{'bg-blue-200 rounded-full px-2 py-1': isCurrentUser(user.username)}"
                                        x-text="user.username"></a>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-center">
+                                    <span class="text-sm text-gray-900" x-text="`${getVisitedPercentage(user.total)}%`"></span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-center">
                                     <span class="text-sm text-gray-900" x-text="user.regions['Europe et Amérique du Nord'] || 0"></span>
@@ -307,6 +311,10 @@
 
                 getTotalVisits(regions) {
                     return Object.values(regions).reduce((sum, count) => sum + count, 0);
+                },
+
+                getVisitedPercentage(count) {
+                    return Math.round((count / 1154) * 100 * 100) / 100; // Arrondi à 2 décimales
                 },
 
                 getTopUser() {

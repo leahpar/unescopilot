@@ -296,6 +296,7 @@
                 updateError: '',
                 updateSuccess: false,
                 isCurrentUser: false,
+                totalSites: 0,
 
                 async init() {
                     this.isAuthenticated = window.auth.isLoggedIn();
@@ -317,6 +318,8 @@
                     if (this.user) {
                         await this.loadVisits(this.user.id);
                     }
+                    const sites = await window.api.getSites();
+                    this.totalSites = sites.total;
                 },
 
                 async loadCurrentUserProfile() {
@@ -407,8 +410,8 @@
 
                 getVisitPercentage(type) {
                     const count = this.getVisitCount(type);
-                    const totalSites = localStorage.getItem('unescopilot_total_sites') || 1154;
-                    return Math.round((count / totalSites) * 100 * 100) / 100; // Arrondi à 2 décimales
+                    if (this.totalSites === 0) return 0;
+                    return Math.round((count / this.totalSites) * 100 * 100) / 100; // Arrondi à 2 décimales
                 },
 
                 getVisitedSites(type) {

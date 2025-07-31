@@ -128,7 +128,7 @@
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <a :href="`profile.html?id=${getUserId(user.username)}`" 
+                                    <a :href="`profile.html?id=${getUserId(user.username)}`"
                                        class="text-sm text-gray-900 hover:text-blue-600"
                                        :class="{'bg-blue-200 rounded-full px-2 py-1': isCurrentUser(user.username)}"
                                        x-text="user.username"></a>
@@ -168,6 +168,7 @@
             return {
                 rankings: {},
                 users: [],
+                totalSites: 0,
                 regions: [
                     'Europe et Amérique du Nord',
                     'Asie et Pacifique',
@@ -199,6 +200,8 @@
 
                     await this.loadUsers();
                     await this.loadRanking();
+                    const sites = await window.api.getSites();
+                    this.totalSites = sites.total;
                 },
 
                 async loadUsers() {
@@ -314,8 +317,8 @@
                 },
 
                 getVisitedPercentage(count) {
-                    const totalSites = localStorage.getItem('unescopilot_total_sites') || 1154;
-                    return Math.round((count / totalSites) * 100 * 100) / 100; // Arrondi à 2 décimales
+                    if (this.totalSites === 0) return 0;
+                    return Math.round((count / this.totalSites) * 100 * 10) / 10; // Arrondi à 2 décimales
                 },
 
                 getTopUser() {

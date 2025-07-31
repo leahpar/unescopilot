@@ -6,7 +6,8 @@ window.appState = {
   isAuthenticated: false,
   user: null,
   token: null,
-  mobileMenuOpen: false
+  mobileMenuOpen: false,
+  sites: null
 };
 
 // Utilitaires pour l'authentification
@@ -137,9 +138,16 @@ window.api = {
   },
 
   async getSites(params = {}) {
+    if (window.appState.sites && Object.keys(params).length === 0) {
+        return window.appState.sites;
+    }
     const queryString = new URLSearchParams(params).toString();
     const endpoint = queryString ? `/sites?${queryString}` : '/sites';
-    return this.request(endpoint);
+    const sites = await this.request(endpoint);
+    if (Object.keys(params).length === 0) {
+        window.appState.sites = sites;
+    }
+    return sites;
   },
 
   async getSite(id) {
@@ -223,24 +231,9 @@ window.utils = {
   }
 };
 
-async function loadTotalSites() {
-    try {
-        const response = await window.api.getSites({ limit: 1 });
-        if (response && response.total) {
-            localStorage.setItem('unescopilot_total_sites', response.total);
-        }
-    } catch (error) {
-        console.error('Error loading total sites:', error);
-    }
-}
-
-// Initialisation globale
 document.addEventListener('DOMContentLoaded', function() {
   // Vérifier l'authentification au chargement
   window.auth.isLoggedIn();
-
-  // Charger le nombre total de sites
-  loadTotalSites();
 
   // Enregistrer le service worker pour la PWA
   if ('serviceWorker' in navigator) {
